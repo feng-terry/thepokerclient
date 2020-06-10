@@ -1,0 +1,13 @@
+header{
+  color:#E79E0D;
+  text-align:center;
+}
+
+body{
+  background-color:#12789F;
+}
+
+.app-form{
+  width:20%;
+  box-sizing: border-box;
+}
