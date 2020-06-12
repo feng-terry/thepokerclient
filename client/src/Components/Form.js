@@ -1,5 +1,4 @@
 import React, {useState} from 'react'
-import {Route, Switch} from 'react-router-dom'
 
 function Form (){
     const [name,setName] = useState("")
