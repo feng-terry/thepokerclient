@@ -35,7 +35,7 @@ state = {
         <Form className = 'app-form'/>
         <SettingsForm/>
         <DecisionBar/>
-        <p className="App-intro">{this.state.data}</p>
+        <h1 className="App-intro">{this.state.data}</h1>
     </div>
     );
   }
