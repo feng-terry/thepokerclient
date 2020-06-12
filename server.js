@@ -15,4 +15,16 @@ app.get('/express_backend', (req, res) => {
 app.use(express.static('/client/public'))
 
 const io = socket(server)
-io.on('connection',(socket) => console.log('made socket connection'))
+io.on('connection',(socket) =>{
+  console.log('made socket connection')
+    
+  socket.on('newName',function(data){
+    io.emit('newName',data)
+  })
+  }
+)
+
+io.on('disconnect', function() {
+  // handle disconnect
+  io.disconnect();
+  io.close();});
