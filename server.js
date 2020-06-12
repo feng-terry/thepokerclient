@@ -3,6 +3,7 @@ const http = require("http")
 const socket = require('socket.io')
 const app = express();
 const port = process.env.PORT || 5000;
+let players = {}
 
 // console.log that your server is up and running
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
@@ -15,16 +16,24 @@ app.get('/express_backend', (req, res) => {
 app.use(express.static('/client/public'))
 
 const io = socket(server)
+
 io.on('connection',(socket) =>{
-  console.log('made socket connection')
+  console.log('made socket connection', socket.id)
+  io.emit('newName',players)
     
   socket.on('newName',function(data){
-    io.emit('newName',data)
+    players[socket.id]=data.playerName
+    io.emit('newName',players)
   })
-  }
+
+  socket.on('disconnect', (socket) =>{
+    console.log('disconnected')
+    const playerId = socket.id
+    delete players[playerId]
+    io.emit('newName',players)
+    // handle disconnect  
+  })
+}
 )
 
-io.on('disconnect', function() {
-  // handle disconnect
-  io.disconnect();
-  io.close();});
+

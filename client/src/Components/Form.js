@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import socketIOClient from 'socket.io-client'
-const socket = socketIOClient("http://localhost:5000")
+console.log(1)
+const socket = socketIOClient("http://localhost:3000")
 
 function Form (){
     const [name,setName] = useState("")
@@ -12,7 +13,7 @@ function Form (){
     function handleSubmit(event){
         event.preventDefault()
         socket.emit('newName', {
-            name:name
+            playerName:name
         })
     }
 
