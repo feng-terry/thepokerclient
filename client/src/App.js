@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import socketIOClient from "socket.io-client"
 import './App.css';
 import Header from './Components/Header'
 import Form from './Components/Form'
 import SettingsForm from './Components/Settings/SettingsForm'
 import DecisionBar from './Components/DecisionBar';
+import PlayersList from './Components/Settings/PlayersList';
 
 
 class App extends Component {
@@ -33,9 +35,8 @@ state = {
       <div>
         <Header className='app-header'/>
         <Form className = 'app-form'/>
-        <SettingsForm/>
-        <DecisionBar/>
-        <h1 className="App-intro">{this.state.data}</h1>
+        <PlayersList/>
+        <p className="App-intro">{this.state.data}</p>
     </div>
     );
   }
