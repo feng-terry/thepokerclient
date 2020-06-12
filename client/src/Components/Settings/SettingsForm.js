@@ -5,7 +5,7 @@ function SettingsForm(){
     const [startingStack, setStartingStack] = useState(0)
     const [blinds,setBlinds] = useState(0)
     const [seats,setSeats] = useState(6)
-    const [lobbyName,setLobbyName] = useState(0)
+    const [lobbyName,setLobbyName] = useState("")
     const [antes,setAntes] = useState(0)
 
 
@@ -35,6 +35,7 @@ function SettingsForm(){
                     id="blinds" 
                     type="number" 
                     onChange={(event) => setBlinds(event.target.value)}
+                    value = {blinds}
                     />
                     <p><em>Note: Small blind is always half of big blind.</em></p>
 
