@@ -11,6 +11,7 @@ function SettingsForm(props){
     function handleSubmit(e){
         e.preventDefault()
         props.socket.emit('changePageState','gamePage')
+        props.socket.emit('gameSettings',{startingStack:startingStack,blinds:blinds,seats:seats,lobbyName:lobbyName,antes:antes})
     }
 
 
