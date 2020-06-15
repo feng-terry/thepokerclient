@@ -1,5 +1,5 @@
 //Card Class
-export function Card(rank,suit){
+function Card(rank,suit){
     this.rank = rank;
     this.suit = suit;
 }
@@ -32,15 +32,18 @@ function Deck(){
 }
  
 //Player Class
-export function Player(name,stack,position){
+Player = function(name){
     //Initializating
-    this.name = name;
-    this.stack = stack;
-    this.position = position;
+    this.name=name;
+    this.stack=0;
+    this.position;
     this.cards = [];
     this.bets = 0;
 
     //Getter Methods
+    this.getName = function(){
+        return this.name;
+    }
     this.getStack = function(){
         return this.stack;
     }
@@ -56,7 +59,7 @@ export function Player(name,stack,position){
 
     //Setter Methods
     this.addStack = function(amount){
-        this.stack += amount;
+        this.stack = Number(this.stack + amount);
     }
     this.subStack = function(amount){
         this.stack -= amount;
@@ -78,7 +81,7 @@ export function Player(name,stack,position){
 }
 
 //Settings Class
-function Settings(){
+Settings=function(){
     this.startingStack;
     this.blinds;
     this.blindsIncrease; //boolean of whether or not blinds will increase
@@ -103,7 +106,7 @@ function Settings(){
 }
 
 //Table Class
-export function Table(){
+Table=function(){
     this.pot = 0;
     this.cards = [];
     this.players = [];
@@ -200,4 +203,11 @@ function Gamestate(){
     this.getPrePostFlop = function(){
         return this.prePostFlop;
     }
+}
+
+module.exports={
+    Player: Player,
+    Table:Table,
+    Settings:Settings
+
 }

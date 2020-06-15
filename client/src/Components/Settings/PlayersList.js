@@ -9,8 +9,8 @@ function PlayersList(props){
             setPlayers(data);
         });
       }, []);
-
-    const playerElements = Object.values(players).map(player => <Player playerName = {player}/>)
+    console.log(Object.values(players))
+    const playerElements = Object.values(players).map(player => <Player playerName = {player.name}/>)
 
     return(
         <div id="playersListBox">

@@ -23,6 +23,7 @@ let l = [p1,p2];
 
 console.log(p1.getCards());
 console.log(p2.getCards());
+
 //####################################
 //###############Specific####
 /*let t = new main.Table();

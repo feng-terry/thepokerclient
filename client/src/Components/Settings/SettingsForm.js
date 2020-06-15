@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import "./style.css"
 
 function SettingsForm(props){
-    const [startingStack, setStartingStack] = useState(0)
+    const [startingStack, setStartingStack] = useState(0.0)
     const [blinds,setBlinds] = useState(0)
     const [seats,setSeats] = useState(6)
     const [lobbyName,setLobbyName] = useState("")
@@ -11,7 +11,14 @@ function SettingsForm(props){
     function handleSubmit(e){
         e.preventDefault()
         props.socket.emit('changePageState','gamePage')
-        props.socket.emit('gameSettings',{startingStack:startingStack,blinds:blinds,seats:seats,lobbyName:lobbyName,antes:antes})
+        props.socket.emit('newGame',{
+            startingStack:startingStack,
+            blinds:blinds,
+            seats:seats,
+            lobbyName:lobbyName,
+            antes:antes
+            }
+        )
     }
 
 
@@ -31,7 +38,7 @@ function SettingsForm(props){
                     <label for="startingStack">Starting stack:</label>
                     <input 
                     id="startingStack" 
-                    type="text" 
+                    type="number" 
                     onChange={(event) => setStartingStack(event.target.value)}
                     value={startingStack}/>
                     <br/>
@@ -71,21 +78,21 @@ function SettingsForm(props){
                         id="two-seats"
                         name="seats"
                         />
-                        <label for="two-seats">2</label>
+                        <label for="two-seats" onClick={()=>setSeats(2)}>2</label>
 
                         <input 
                         type="radio"
                         id="six-seats"
                         name="seats"
                         />
-                        <label for="six-seats">6</label>
+                        <label for="six-seats" onClick={()=>setSeats(6)}>6</label>
                         
                         <input 
                         type="radio"
                         id="nine-seats"
                         name="seats"
                         />
-                        <label for="nine-seats">9</label>
+                        <label for="nine-seats" onClick={()=>setSeats(9)}>9</label>
                     </div>
                     <br/>
                     <button>Start</button>

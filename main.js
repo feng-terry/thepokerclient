@@ -85,3 +85,4 @@ function playTurn(player,table){
             player.addBet(table.getCurrentBet()); //getCurrentBet() not written yet
     }      
 }
+}
