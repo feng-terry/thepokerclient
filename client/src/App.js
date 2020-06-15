@@ -6,13 +6,16 @@ import Form from './Components/Form'
 import SettingsForm from './Components/Settings/SettingsForm'
 import DecisionBar from './Components/DecisionBar';
 import PlayersList from './Components/Settings/PlayersList';
+import CreateGame from './Components/CreateGame';
+import Game from './Game';
 
 const socket = socketIOClient("http://localhost:3000")
 
 
 class App extends Component {
 state = {
-    data: null
+    data: null,
+    page:'homePage',
   };
 
   componentDidMount() {
@@ -20,6 +23,10 @@ state = {
     this.callBackendAPI()
       .then(res => this.setState({ data: res.express }))
       .catch(err => console.log(err));
+
+    socket.on('pageState', data => {
+      this.setState({page:data})
+    })
   }
     // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
   callBackendAPI = async () => {
@@ -33,14 +40,25 @@ state = {
   };
 
   render() {
-    return (
-      <div>
-        <Header className='app-header'/>
-        <Form className = 'app-form' socket = {socket}/>
-        <PlayersList socket = {socket}/>
-        <p className="App-intro">{this.state.data}</p>
-    </div>
-    );
+    if (this.state.page === 'homePage'){
+      return(<div>
+                <Header className='app-header'/>
+                <CreateGame socket = {socket}/>
+                <p className="App-intro">{this.state.data}</p>
+            </div>)
+    } else if (this.state.page === 'settingsPage'){
+      return(<div>
+                <Header className='app-header'/>
+                <Form className = 'app-form' socket = {socket}/>
+                <PlayersList socket = {socket}/>
+                <SettingsForm socket= {socket}/>
+                <p className="App-intro">{this.state.data}</p>
+            </div>)
+    } else if (this.state.page === 'gamePage'){
+      return(<div>
+              <Game/>
+            </div>)
+    }
   }
 }
 

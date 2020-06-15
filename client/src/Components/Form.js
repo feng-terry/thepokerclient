@@ -21,7 +21,7 @@ function Form (props){
                 placeholder='Enter Your Name'
                 onChange={handleNameChange}
                 value={name}/>
-                <button>Create Game</button>
+                <button>Enter</button>
         </form>
     )
 }

@@ -1,7 +1,9 @@
 import React, {useState,useEffect} from 'react'
 
 function Game(){
-    return()
+    return(
+        <p>hi</p>
+    )
 }
 
 export default Game

@@ -1,18 +1,23 @@
 import React, {useState} from 'react'
 import "./style.css"
 
-function SettingsForm(){
+function SettingsForm(props){
     const [startingStack, setStartingStack] = useState(0)
     const [blinds,setBlinds] = useState(0)
     const [seats,setSeats] = useState(6)
     const [lobbyName,setLobbyName] = useState("")
     const [antes,setAntes] = useState(0)
 
+    function handleSubmit(e){
+        e.preventDefault()
+        props.socket.emit('changePageState','gamePage')
+    }
+
 
         return(
             <div id="settings">
                 <h1>Settings</h1>
-                <form>
+                <form onSubmit={handleSubmit}>
                     
                     <label for="lobbyname">Lobby name: </label>
                     <input 

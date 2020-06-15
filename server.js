@@ -4,6 +4,7 @@ const socket = require('socket.io')
 const app = express();
 const port = process.env.PORT || 5000;
 let players = {}
+let pageState = 'homePage'
 
 // console.log that your server is up and running
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
@@ -19,7 +20,10 @@ const io = socket(server)
 
 io.on('connection',(socket) =>{
   console.log('made socket connection', socket.id)
-  io.emit('newName',players)
+  io.emit('pageState',pageState)
+  setTimeout((function() {io.emit('newName',players)}), 375);
+  
+  
     
   socket.on('newName',function(data){
     players[socket.id]=data.playerName
@@ -33,6 +37,12 @@ io.on('connection',(socket) =>{
     console.log(players)
     io.emit('newName',players)
     // handle disconnect  
+  })
+
+  socket.on('changePageState',(data)=>{
+    pageState = data
+    io.emit('pageState',pageState)
+    io.emit('newName',players)
   })
 }
 )
