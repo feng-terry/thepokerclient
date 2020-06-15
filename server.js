@@ -5,6 +5,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 let players = {}
 let pageState = 'homePage'
+let gameSettings;
 
 // console.log that your server is up and running
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
@@ -23,8 +24,6 @@ io.on('connection',(socket) =>{
   io.emit('pageState',pageState)
   setTimeout((function() {io.emit('newName',players)}), 375);
   
-  
-    
   socket.on('newName',function(data){
     players[socket.id]=data.playerName
     io.emit('newName',players)
@@ -43,6 +42,10 @@ io.on('connection',(socket) =>{
     pageState = data
     io.emit('pageState',pageState)
     io.emit('newName',players)
+  })
+
+  socket.on('gameSettings', (data)=>{
+    gameSettings = data
   })
 }
 )
