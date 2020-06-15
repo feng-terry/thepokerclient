@@ -26,10 +26,11 @@ io.on('connection',(socket) =>{
     io.emit('newName',players)
   })
 
-  socket.on('disconnect', (socket) =>{
-    console.log('disconnected')
+  socket.on('disconnect', () =>{
+    console.log('disconnected', socket.id)
     const playerId = socket.id
     delete players[playerId]
+    console.log(players)
     io.emit('newName',players)
     // handle disconnect  
   })

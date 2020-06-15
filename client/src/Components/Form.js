@@ -1,18 +1,15 @@
 import React, {useState} from 'react'
-import socketIOClient from 'socket.io-client'
-console.log(1)
-const socket = socketIOClient("http://localhost:3000")
 
-function Form (){
+function Form (props){
     const [name,setName] = useState("")
 
     function handleNameChange(event){
         setName(event.target.value)
     }
-
+    
     function handleSubmit(event){
         event.preventDefault()
-        socket.emit('newName', {
+        props.socket.emit('newName', {
             playerName:name
         })
     }

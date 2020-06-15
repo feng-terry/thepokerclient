@@ -1,14 +1,11 @@
 import React, {useEffect,useState} from 'react'
-import socketIOClient from 'socket.io-client'
 import Player from './Player'
 
-function PlayersList(){
+function PlayersList(props){
     const [players,setPlayers] = useState([])
 
     useEffect(() => {
-        console.log(2)
-        const socket = socketIOClient('http://localhost:3000');
-        socket.on("newName", data => {
+        props.socket.on("newName", data => {
             setPlayers(data);
         });
       }, []);

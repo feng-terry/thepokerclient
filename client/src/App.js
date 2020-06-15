@@ -7,6 +7,8 @@ import SettingsForm from './Components/Settings/SettingsForm'
 import DecisionBar from './Components/DecisionBar';
 import PlayersList from './Components/Settings/PlayersList';
 
+const socket = socketIOClient("http://localhost:3000")
+
 
 class App extends Component {
 state = {
@@ -34,8 +36,8 @@ state = {
     return (
       <div>
         <Header className='app-header'/>
-        <Form className = 'app-form'/>
-        <PlayersList/>
+        <Form className = 'app-form' socket = {socket}/>
+        <PlayersList socket = {socket}/>
         <p className="App-intro">{this.state.data}</p>
     </div>
     );
