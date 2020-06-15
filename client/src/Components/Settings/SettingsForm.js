@@ -69,7 +69,6 @@ function SettingsForm(props){
                         type="radio"
                         id="two-seats"
                         name="seats"
-                        value="male"
                         />
                         <label for="two-seats">2</label>
 
@@ -77,7 +76,6 @@ function SettingsForm(props){
                         type="radio"
                         id="six-seats"
                         name="seats"
-                        value="female"
                         />
                         <label for="six-seats">6</label>
                         
@@ -85,7 +83,6 @@ function SettingsForm(props){
                         type="radio"
                         id="nine-seats"
                         name="seats"
-                        value="other"
                         />
                         <label for="nine-seats">9</label>
                     </div>
