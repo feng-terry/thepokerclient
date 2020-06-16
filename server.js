@@ -35,8 +35,9 @@ io.on('connection',(socket) =>{
         table.addPlayer(player)
       }
       table.dealHands()
-      for (const player of Object.values(players)){
-        console.log(player.getCards())
+      io.emit("nameAndStack",players)
+      for (const socketId of Object.keys(players)){
+        io.to(socketId).emit('dealCards',players[socketId].getCards())
       }
     } 
   )

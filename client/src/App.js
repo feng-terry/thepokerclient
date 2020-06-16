@@ -56,7 +56,7 @@ state = {
             </div>)
     } else if (this.state.page === 'gamePage'){
       return(<div>
-              <Game/>
+              <Game socket={socket}/>
             </div>)
     }
   }
