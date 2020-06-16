@@ -11,3 +11,17 @@ body{
   width:20%;
   box-sizing: border-box;
 }
+
+.player-card{
+  display:block;
+  border: 3px solid #FFFFFF;
+  width:8%;
+}
+
+.card{
+  border:2px solid #177DD8; 
+}
+
+.cardBack{
+  border:2px solid #177DD8; 
+}
