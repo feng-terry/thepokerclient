@@ -1,4 +1,5 @@
 const objects = require('./objects')
+const game = require('./main.js')
 const express = require('express')
 const http = require("http")
 const socket = require('socket.io')
@@ -30,13 +31,16 @@ io.on('connection',(socket) =>{
   
   socket.on('newGame',(data)=>{
       gameSettings = data
+      io.emit('nameAndStack', players)
       for (const player of Object.values(players)){
         player.addStack(gameSettings.startingStack)
         table.addPlayer(player)
       }
-      table.dealHands()
-      for (const player of Object.values(players)){
-        console.log(player.getCards())
+      while(gamestate.playgame){
+        game.playHand(table,socket,io,players)
+        for (const player of Object.values(players)){
+          console.log(player.getCards())
+        }
       }
     } 
   )

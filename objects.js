@@ -83,7 +83,7 @@ Player = function(name){
 //Settings Class
 Settings=function(){
     this.startingStack;
-    this.blinds;
+    this.bigBlind;
     this.blindsIncrease; //boolean of whether or not blinds will increase
 
     this.blindsCounterSetting = 5; //setting for number of hands until blinds increase, 5 is default
@@ -93,7 +93,7 @@ Settings=function(){
     this.seats;
 
     this.increaseBlinds = function(){
-        blinds*=blindsIncrement
+        bigBlind*=blindsIncrement
     }
 
     this.decreaseCounter = function(){
@@ -188,7 +188,7 @@ Table=function(){
 }
 
 //Gamestate Class 
-function Gamestate(){
+Gamestate = function(){
     this.playGame = false;
     this.liveHand = false;
 

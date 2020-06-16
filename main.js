@@ -1,11 +1,33 @@
-//This is for the big loop playing the game
-
 //Helper Functions
-function postBlinds(table,settings){
-    smallBlind = table.getPlayers()[0];
-    bigBlind = table.getPlayers()[1];
-    smallBlind.addBet(settings.smallBlind);
-    bigBlind.addBet(settings.bigBlind)
+playHand=function(table,socket,io,playersList){
+    table.dealHands();
+    for (const socketId of playerList){
+        io.to(socketId).emit('dealCards',playerList[socketId].getCards())
+    }
+
+    postBlinds(table); //code as bet + raise
+
+    playStage('preflop',table)
+    playStage('flop',table)
+    playStage('turn',table)
+    playStage('river',table)
+
+    showdown(table)
+}
+
+function emitBet(io,betAmount,player){
+    io.emit('bet',[betAmount,player])
+}
+
+function postBlinds(table,settings,player){
+
+    bigBlindPlayer = table.getPlayers()[1];
+    smallBlindPlayer = table.getPlayers()[0];
+    bigBlindAmount = table.bigBlind
+    smallBlindAmount = bigBlindAmount/2
+
+    emitBet(io,bigBlindAmount,bigBlind)
+    emitBet(io,smallBlindAmount,smallBlind)
 }
 
 function potIsOpen(table){
@@ -27,20 +49,11 @@ function equalBets(table){
    return true;
 }
 
-function playhand(table){
-	table.dealHands();
-    postBlinds(table); //code as bet + raise
-    playTurn('preflop')
-    playTurn('flop')
-    playTurn('turn')
-    playTurn('river')
-    showdown(table)
-}
-function playStage(stage){
+function playStage(stage,table){
     if (stage==='preflop'){
         let hold=0; //loop through the below loop twice
         while(potIsOpen(table))
-		    for (let i=0; i<length;i++){
+		    for (let i=0; i<table.activePlayers.length;i++){
                 if(hold>=2){
                     playTurn(player,table)
 				    if (player.position === 1 ){
@@ -51,13 +64,15 @@ function playStage(stage){
                 }
             }
     } else if (stage==='flop' || stage==='turn' || stage==='river' ) {
-        while(potIsOpen(table))
-        for (let i=0; i<length;i++){
+        while(potIsOpen(table)){
+            for (let i=0; i<table.activePlayers.length;i++){
                 playTurn(player,table)
                 if (player.position === 1 ){
                     table.setBigBlindActed(true)
                 }
+            }
     }
+}
 }
 
 function showdown(table){
@@ -74,7 +89,7 @@ function showdown(table){
 function playTurn(player,table){
     const option = getOptionFromPlayer(player);
     switch (option){
-        case "bet"://Unfinised
+        case "bet"://Unfinished
             player.addBet(amount);
         case "fold":
             table.fold(player);
@@ -85,4 +100,6 @@ function playTurn(player,table){
             player.addBet(table.getCurrentBet()); //getCurrentBet() not written yet
     }      
 }
+module.exports={
+    playHand:playHand
 }
