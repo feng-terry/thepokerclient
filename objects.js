@@ -113,7 +113,9 @@ Table=function(){
     this.activePlayers = []
     this.deck = new Deck();
     this.deck.shuffle();
-    
+    this.stage;
+    this.finalPlayer;
+    this.currentPlayer;
 
     this.addPot = function(amount){
         this.pot += amount;
@@ -133,7 +135,6 @@ Table=function(){
         this.deck = new Deck()
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
-        this.prePostFlop = "preflop";
     }
 
     this.fold = function(playerObject){
@@ -153,16 +154,21 @@ Table=function(){
         }
         this.addPot(totalAmount);
     }
-    this.switchPrePostFlop = function(){
-        if (this.prePostFlop === "preflop"){
-            this.prePostFlop = "postflop";
-        }
-        else{
-            this.prePostFlop = "preflop";
-        }
+
+    this.preflop = function(){
+        this.stage = 'preflop'
+        this.finalPlayer = this.activePlayers[1]
+        this.currentPlayer = this.nextPlayer[this.finalPlayer] //Still have to code next player
+
+        this.playTurn()
     }
-    this.setBigBlindActed = function(value){
-        this.bigBlindActed = value;
+
+    this.playTurn = function(){
+
+        switch(this.stage){
+            case 'preflop':
+                io.to().emit('')
+        }
     }
 
     //Getter Methods
