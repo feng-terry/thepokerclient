@@ -52,7 +52,7 @@ io.on('connection',(socket) =>{
 
   socket.on('newName',function(data){
     
-    players[socket.id]=new objects.Player(data.playerName)
+    players[socket.id]=new objects.Player(data.playerName,socket.id)
     io.emit('newName',players)
     
     console.log(players)

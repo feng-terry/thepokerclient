@@ -32,13 +32,14 @@ function Deck(){
 }
  
 //Player Class
-Player = function(name){
+Player = function(name,socketId){
     //Initializating
     this.name=name;
     this.stack=0;
     this.position;
     this.cards = [];
     this.bets = 0;
+    this.socketId = socketId;
 
     //Getter Methods
     this.getName = function(){
@@ -55,6 +56,9 @@ Player = function(name){
     }
     this.getBets = function(){
         return this.bets;
+    }
+    this.getSocketId = function(){
+        return this.socketId;
     }
 
     //Setter Methods
@@ -171,7 +175,7 @@ Table=function(io,settings){
 
         switch(this.stage){
             case 'preflop':
-                io.to().emit('')
+                io.to(this.currentPlayer.getSocketId()).emit('')
         }
     }
 
