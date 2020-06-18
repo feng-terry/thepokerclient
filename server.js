@@ -30,25 +30,23 @@ io.on('connection',(socket) =>{
 
   
   socket.on('newGame',(data)=>{
+      //Change these to match eachother
       gameSettings = data
+      let settings = new objects.Settings()
+
+
       io.emit('nameAndStack', players)
       for (const player of Object.values(players)){
         player.addStack(gameSettings.startingStack)
         table.addPlayer(player)
       }
-<<<<<<< HEAD
-      while(gamestate.playgame){
+
+      //while(game.isLive(table)){
         game.playHand(table,socket,io,players)
         for (const player of Object.values(players)){
           console.log(player.getCards())
         }
-=======
-      table.dealHands()
-      io.emit("nameAndStack",players)
-      for (const socketId of Object.keys(players)){
-        io.to(socketId).emit('dealCards',players[socketId].getCards())
->>>>>>> 8dbea7fd148c2b00090e5ae5259e9fc39e5a146d
-      }
+      //}
     } 
   )
 

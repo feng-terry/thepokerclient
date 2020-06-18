@@ -145,6 +145,9 @@ Table=function(){
         for (let player of this.players){
             player.addCards(this.deck);
         }
+        for (const socketId of this.activePlayers){
+            io.to(socketId).emit('dealCards', activePlayers[socketId].getCards())
+        }
     }
     this.takeBets = function(){
         let totalAmount = 0;
@@ -184,6 +187,11 @@ Table=function(){
     }
     this.getBigBlindActed = function(){
         return this.bigBlindActed;
+    }
+    this.playHand() = function(){
+        dealHands();
+        postBlinds();
+    
     }
 }
 

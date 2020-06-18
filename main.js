@@ -1,11 +1,12 @@
 //Helper Functions
-playHand=function(table,socket,io,playersList){
+
+playHand=function(table,settings,socket,io,playersList){
     table.dealHands();
     for (const socketId of playerList){
         io.to(socketId).emit('dealCards',playerList[socketId].getCards())
     }
 
-    postBlinds(table); //code as bet + raise
+    postBlinds(table,settings); //code as bet + raise
 
     playStage('preflop',table)
     playStage('flop',table)
@@ -13,18 +14,38 @@ playHand=function(table,socket,io,playersList){
     playStage('river',table)
 
     showdown(table)
+    io.emit('endOfHand',playersList)
+    shiftPositions(table)
 }
 
+isLive=function(table){
+    if (table.players>1){
+        return true
+    }
+    return false
+}
+
+function shiftPositions(table){
+    players = table.getPlayers()
+    button = players[players.length-1]
+    players.pop(0,0,button)
+    players.splice()
+}
 function emitBet(io,betAmount,player){
     io.emit('bet',[betAmount,player])
 }
 
-function postBlinds(table,settings,player){
+function postBlinds(table,settings){
 
+    bigBlindAmount = settings.bigBlind
     bigBlindPlayer = table.getPlayers()[1];
+    bigBlindPlayer.addBet(bigBlindAmount)
+
+
     smallBlindPlayer = table.getPlayers()[0];
-    bigBlindAmount = table.bigBlind
     smallBlindAmount = bigBlindAmount/2
+    smallBlindPlayer.addBet(smallBlindAmount)
+    
 
     emitBet(io,bigBlindAmount,bigBlind)
     emitBet(io,smallBlindAmount,smallBlind)
@@ -48,8 +69,15 @@ function equalBets(table){
    }
    return true;
 }
-
+[0,1,2,3]
 function playStage(stage,table){
+    if (stage==='preflop'){
+        
+    } else if (stage==='flop' || stage==='turn' || stage==='river' ) {
+        
+    }
+}
+/*function playStage(stage,table){
     if (stage==='preflop'){
         let hold=0; //loop through the below loop twice
         while(potIsOpen(table))
@@ -59,6 +87,9 @@ function playStage(stage,table){
 				    if (player.position === 1 ){
                         table.setBigBlindActed(true)
                     }
+                    if (!potIsOpen(table)){
+                        break
+                    }
                 } else {
                     hold++
                 }
@@ -66,6 +97,7 @@ function playStage(stage,table){
     } else if (stage==='flop' || stage==='turn' || stage==='river' ) {
         while(potIsOpen(table)){
             for (let i=0; i<table.activePlayers.length;i++){
+
                 playTurn(player,table)
                 if (player.position === 1 ){
                     table.setBigBlindActed(true)
@@ -73,7 +105,7 @@ function playStage(stage,table){
             }
     }
 }
-}
+}*/
 
 function showdown(table){
     let winners = (handComparison(table.getactivePlayers()))
@@ -101,5 +133,6 @@ function playTurn(player,table){
     }      
 }
 module.exports={
-    playHand:playHand
+    playHand:playHand,
+    isLive:isLive
 }
