@@ -1,9 +1,12 @@
 import React, {useState,useEffect} from 'react'
 import PlayerCard from './Components/PlayerCard'
+import DecisionBar from './Components/DecisionBar'
+import Card from './Components/Card'
 
 function Game(props){
     const [players,setPlayers] = useState([])
     const [cards,setCards]=useState([])
+    const [communityCards,setCommunityCards]=useState([])
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -12,6 +15,10 @@ function Game(props){
 
         props.socket.on('dealCards', data => {
             setCards(data)
+        })
+
+        props.socket.on('communityCards', data => {
+            setCommunityCards(data)
         })
 
     },[])
@@ -27,9 +34,15 @@ function Game(props){
                                     )
                                 }
                             })
+
+    const communityElements = communityCards.map(card => <Card rank={card.rank} suit={card.suit}/>)
        
     return(
-        <p>{playerElements}</p>
+        <div>
+            <p>{playerElements}</p>
+            <DecisionBar/>
+            <p>{communityElements}</p>
+        </div>
     )
 }
 

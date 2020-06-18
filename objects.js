@@ -113,8 +113,7 @@ Table=function(){
     this.activePlayers = []
     this.deck = new Deck();
     this.deck.shuffle();
-    this.prePostFlop = "preflop";
-    this.bigBlindActed = false;
+    
 
     this.addPot = function(amount){
         this.pot += amount;
