@@ -18,7 +18,15 @@ function DecisionBar(){
                 onClick={()=>(handleFold())}
             >
                 Fold
-            </button>   
+            </button>
+            <button
+                className = 'decision-button'>
+                Check/Call
+            </button> 
+            <form>
+                <input type="range" min="0" max="50"/>
+                <button>Bet/Raise</button>
+            </form>  
             
 
 

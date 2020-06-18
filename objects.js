@@ -106,7 +106,7 @@ Settings=function(){
 }
 
 //Table Class
-Table=function(){
+Table=function(io,settings){
     this.pot = 0;
     this.cards = [];
     this.players = [];
@@ -149,6 +149,7 @@ Table=function(){
             io.to(socketId).emit('dealCards', activePlayers[socketId].getCards())
         }
     }
+
     this.takeBets = function(){
         let totalAmount = 0;
         for (let player of this.players){
@@ -157,11 +158,11 @@ Table=function(){
         }
         this.addPot(totalAmount);
     }
+
     this.switchPrePostFlop = function(){
-        if (this.prePostFlop === "preflop"){
+        if(this.prePostFlop === "preflop"){
             this.prePostFlop = "postflop";
-        }
-        else{
+        }else{
             this.prePostFlop = "preflop";
         }
     }
@@ -189,10 +190,25 @@ Table=function(){
         return this.bigBlindActed;
     }
     this.playHand() = function(){
-        dealHands();
-        postBlinds();
-    
+        this.dealHands();
+        this.postBlinds();
+        
     }
+    this.postBlinds() = function (){
+        bigBlindAmount = settings.bigBlind
+        bigBlindPlayer = table.getPlayers()[1];
+        bigBlindPlayer.addBet(bigBlindAmount)
+        smallBlindPlayer = table.getPlayers()[0];
+        smallBlindAmount = bigBlindAmount/2
+        smallBlindPlayer.addBet(smallBlindAmount)
+        emitBet(io,bigBlindAmount,bigBlind)
+        emitBet(io,smallBlindAmount,smallBlind)
+    }
+
+    this.emitBet = function(io,betAmount,player){
+        io.emit('bet',[betAmount,player])
+    }
+
 }
 
 //Gamestate Class 
