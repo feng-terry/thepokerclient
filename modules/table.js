@@ -33,6 +33,7 @@ Table=function(io,settings){
         index = this.activePlayers.indexOf(playerObject);
         this.activePlayers.splice(index,1);
     }
+
     this.dealHands = function(){
         for (let player of this.players){
             player.addCards(this.deck);
@@ -57,7 +58,6 @@ Table=function(io,settings){
         this.stage = 'preflop'
         this.finalPlayer = this.activePlayers[1]
         this.currentPlayer = this.nextPlayer[this.finalPlayer] //Still have to code next player
-
         this.playTurn()
     }
 
@@ -66,6 +66,14 @@ Table=function(io,settings){
             case 'preflop':
                 io.to(this.currentPlayer.getSocketId()).emit('')
         }
+    }
+
+    this.nextPlayer = function(){
+        let index = this.activePlayers.indexOf(this.finalPlayer)
+        if (index+1>activePlayers.length){
+            index = 0
+        }
+        return activePlayers[player]
     }
 
     //Getter Methods

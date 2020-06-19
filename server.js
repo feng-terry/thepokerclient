@@ -34,7 +34,6 @@ io.on('connection',(socket) =>{
       //Change these to match eachother
       gameSettings = data
       let Settings = new settings.Settings()
-
       let Table = new table.Table(io,gameSettings)
 
       for (const player of Object.values(players)){
