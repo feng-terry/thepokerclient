@@ -85,12 +85,11 @@ Table=function(io,settings){
     this.getBigBlindActed = function(){
         return this.bigBlindActed;
     }
-    this.playHand() = function(){
+    this.playHand = function(){
         this.dealHands();
         this.postBlinds();
-        
     }
-    this.postBlinds() = function (){
+    this.postBlinds = function(){
         bigBlindAmount = settings.bigBlind
         bigBlindPlayer = table.getPlayers()[1];
         bigBlindPlayer.addBet(bigBlindAmount)
