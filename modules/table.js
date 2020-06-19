@@ -78,6 +78,14 @@ Table=function(io,settings){
         }
     }
 
+    this.nextPlayer = function(){
+        let index = this.activePlayers.indexOf(this.finalPlayer)
+        if (index+1>activePlayers.length){
+            index = 0
+        }
+        return activePlayers[player]
+    }
+
     //Getter Methods
     this.getPot = function(){
         return this.pot;
