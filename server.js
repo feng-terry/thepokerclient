@@ -7,7 +7,6 @@ const http = require("http")
 const socket = require('socket.io')
 const app = express()
 const port = process.env.PORT || 5000
-let Table = new table.Table()
 let players = {}
 let pageState = 'homePage'
 let gameSettings
@@ -36,19 +35,16 @@ io.on('connection',(socket) =>{
       gameSettings = data
       let Settings = new settings.Settings()
 
+      let Table = new table.Table(io,gameSettings)
 
-      io.emit('nameAndStack', players)
       for (const player of Object.values(players)){
         player.addStack(gameSettings.startingStack)
         Table.addPlayer(player)
-      }
 
-      //while(game.isLive(table)){
-        game.playHand(Table,socket,io,players)
-        for (const player of Object.values(players)){
-          console.log(player.getCards())
-        }
-      //}
+      io.emit('nameAndStack', players)
+      
+      }
+      Table.dealHands();
     } 
   )
 
@@ -56,8 +52,6 @@ io.on('connection',(socket) =>{
     
     players[socket.id]=new player.Player(data.playerName,socket.id)
     io.emit('newName',players)
-    
-    console.log(players)
   })
 
   socket.on('disconnect', () =>{

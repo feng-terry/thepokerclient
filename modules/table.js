@@ -37,8 +37,10 @@ Table=function(io,settings){
         for (let player of this.players){
             player.addCards(this.deck);
         }
-        for (const socketId of this.activePlayers){
-            io.to(socketId).emit('dealCards', activePlayers[socketId].getCards())
+        for (const player of this.activePlayers){
+            console.log('id:', player.socketId)
+            console.log(player.getCards())
+            io.to(player.socketId).emit('dealCards', player.getCards())
         }
     }
 
