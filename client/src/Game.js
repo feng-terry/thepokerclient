@@ -7,6 +7,7 @@ function Game(props){
     const [players,setPlayers] = useState([])
     const [cards,setCards]=useState([])
     const [communityCards,setCommunityCards]=useState([])
+    const [isTurn,setIsTurn]=useState(false)
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -19,6 +20,10 @@ function Game(props){
 
         props.socket.on('communityCards', data => {
             setCommunityCards(data)
+        })
+
+        props.socket.on('turn', data => {
+            setIsTurn(data)
         })
 
     },[])
@@ -40,7 +45,7 @@ function Game(props){
     return(
         <div>
             <p>{playerElements}</p>
-            <DecisionBar/>
+            {isTurn? <DecisionBar socket={props.socket}/>:null}
             <p>{communityElements}</p>
         </div>
     )

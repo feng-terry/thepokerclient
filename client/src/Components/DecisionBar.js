@@ -1,14 +1,9 @@
 import React, {useState} from 'react'
 
-function DecisionBar(){
-    const [check,setCheck] = useState(false)
-    const [fold,setFold] = useState(false)
-    const [call,setCall] = useState(false)
-    const [bet,setBet] = useState(0)
+function DecisionBar(props){
 
     function handleFold(){
-        setFold(!fold)
-        console.log(fold)
+        props.socket.emit('fold')
     }
 
     return(

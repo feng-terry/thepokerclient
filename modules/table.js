@@ -29,17 +29,11 @@ Table=function(io,settings){
         this.activePlayers = Array.from(this.players);
     }
 
-    this.fold = function(playerObject){
-        index = this.activePlayers.indexOf(playerObject);
-        this.activePlayers.splice(index,1);
-    }
     this.dealHands = function(){
         for (let player of this.players){
             player.addCards(this.deck);
         }
         for (const player of this.activePlayers){
-            console.log('id:', player.socketId)
-            console.log(player.getCards())
             io.to(player.socketId).emit('dealCards', player.getCards())
         }
     }
@@ -56,7 +50,7 @@ Table=function(io,settings){
     this.preflop = function(){
         this.stage = 'preflop'
         this.finalPlayer = this.activePlayers[1]
-        this.currentPlayer = this.nextPlayer[this.finalPlayer] //Still have to code next player
+        this.currentPlayer = this.nextPlayer(this.finalPlayer) //Still have to code next player
 
         this.playTurn()
     }
@@ -64,7 +58,23 @@ Table=function(io,settings){
     this.playTurn = function(){
         switch(this.stage){
             case 'preflop':
-                io.to(this.currentPlayer.getSocketId()).emit('')
+                io.to(this.currentPlayer.getSocketId()).emit('turn', true)
+        }
+    }
+
+    this.fold = function(){
+        index = this.activePlayers.indexOf(this.currentPlayer);
+        this.activePlayers.splice(index,1);
+        io.to(this.currentPlayer.getSocketId()).emit('turn', false)
+
+        if (this.activePlayers.length < 2){
+            this.endRound()//Still have to write
+        } else if (this.currentPlayer === this.finalPlayer){
+            this.nextStage() //Still have to write
+        }
+        else{
+            this.currentPlayer = this.nextPlayer(this.currentPlayer)
+            this.playTurn()
         }
     }
 

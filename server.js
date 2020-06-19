@@ -5,6 +5,7 @@ const game = require('./main.js')
 const express = require('express')
 const http = require("http")
 const socket = require('socket.io')
+const { Table } = require('./modules/table')
 const app = express()
 const port = process.env.PORT || 5000
 let players = {}
@@ -40,11 +41,11 @@ io.on('connection',(socket) =>{
       for (const player of Object.values(players)){
         player.addStack(gameSettings.startingStack)
         Table.addPlayer(player)
-
-      io.emit('nameAndStack', players)
-      
       }
+      io.emit('nameAndStack', players)
+      Table.newHand();
       Table.dealHands();
+      Table.preflop();
     } 
   )
 
@@ -67,6 +68,10 @@ io.on('connection',(socket) =>{
     pageState = data
     io.emit('pageState',pageState)
     io.emit('newName',players)
+  })
+
+  socket.on('fold', ()=>{
+    Table.fold()
   })
 }
 )
