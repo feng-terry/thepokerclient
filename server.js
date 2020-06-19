@@ -5,7 +5,6 @@ const game = require('./main.js')
 const express = require('express')
 const http = require("http")
 const socket = require('socket.io')
-const { Table } = require('./modules/table')
 const app = express()
 const port = process.env.PORT || 5000
 let players = {}
@@ -24,6 +23,8 @@ app.use(express.static('/client/public'))
 
 const io = socket(server)
 
+let Table = new table.Table(io)
+
 io.on('connection',(socket) =>{
   const playerId = socket.id
   console.log('made socket connection', socket.id)
@@ -35,7 +36,7 @@ io.on('connection',(socket) =>{
       //Change these to match eachother
       gameSettings = data
       let Settings = new settings.Settings()
-      let Table = new table.Table(io,gameSettings)
+      
 
       for (const player of Object.values(players)){
         player.addStack(gameSettings.startingStack)
@@ -70,7 +71,13 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('fold', ()=>{
+    console.log('heard fold event')
     Table.fold()
+  })
+
+  socket.on('check', ()=>{
+    console.log('heard check event')
+    Table.check()
   })
 }
 )

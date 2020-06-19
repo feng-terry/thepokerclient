@@ -1,4 +1,4 @@
-Table=function(io,settings){
+Table=function(io){
     this.pot = 0;
     this.cards = [];
     this.players = [];
@@ -8,6 +8,8 @@ Table=function(io,settings){
     this.stage;
     this.finalPlayer;
     this.currentPlayer;
+    this.currentBet;
+    this.possibleActions;
 
     this.addPot = function(amount){
         this.pot += amount;
@@ -19,6 +21,16 @@ Table=function(io,settings){
 
     this.addPlayer = function(playerObject){
         this.players.push(playerObject);
+    }
+
+    this.initializeActions = function(){
+        this.possibleActions = {
+            fold:false,
+            check:false,
+            call:false,
+            bet:false,
+            raise:false
+        }
     }
 
     this.newHand = function(){
@@ -56,16 +68,33 @@ Table=function(io,settings){
     }
 
     this.playTurn = function(){
+        this.initializeActions()
+
+        if (this.currentBet === this.currentPlayer.getBets()){
+            this.possibleActions.check = true
+        } else{
+            this.possibleActions.fold = true
+            this.possibleActions.call=true
+        }
+
+        if(this.currentBet === 0){
+            this.possibleActions.bet = true
+        } else{
+            this.possibleActions.raise = true
+        }
+
         switch(this.stage){
             case 'preflop':
-                io.to(this.currentPlayer.getSocketId()).emit('turn', true)
+                console.log(this.possibleActions)
+                io.to(this.currentPlayer.getSocketId()).emit('turn', [true,this.possibleActions])
         }
     }
 
     this.fold = function(){
+        console.log('fold event called')
         index = this.activePlayers.indexOf(this.currentPlayer);
         this.activePlayers.splice(index,1);
-        io.to(this.currentPlayer.getSocketId()).emit('turn', false)
+        io.to(this.currentPlayer.getSocketId()).emit('turn', [false])
 
         if (this.activePlayers.length < 2){
             this.endRound()//Still have to write
@@ -78,12 +107,20 @@ Table=function(io,settings){
         }
     }
 
-    this.nextPlayer = function(){
-        let index = this.activePlayers.indexOf(this.finalPlayer)
-        if (index+1>activePlayers.length){
+    this.check = function(){
+        io.to(this.currentPlayer.getSocketId()).emit('turn', [false])
+        this.currentPlayer = this.nextPlayer(this.currentPlayer)
+        this.playTurn()
+    }
+
+    this.nextPlayer = function(player){
+        let index = this.activePlayers.indexOf(player)
+        if (index+1> this.activePlayers.length -1){
             index = 0
+        }else{
+            index++
         }
-        return activePlayers[player]
+        return this.activePlayers[index]
     }
 
     //Getter Methods

@@ -9,7 +9,6 @@ function PlayersList(props){
             setPlayers(data);
         });
       }, []);
-    console.log(Object.values(players))
     const playerElements = Object.values(players).map(player => <Player playerName = {player.name}/>)
 
     return(
