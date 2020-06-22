@@ -1,13 +1,13 @@
-Settings=function(){
-    this.startingStack;
-    this.bigBlind;
+Settings=function(data){
+    this.startingStack = data.startingStack;
+    this.bigBlind = data.blinds;
     this.blindsIncrease; //boolean of whether or not blinds will increase
 
     this.blindsCounterSetting = 5; //setting for number of hands until blinds increase, 5 is default
     this.blindsCounter = this.blindsCounterSetting // live counter until blinds increase
 
     this.blindsIncrement; // multiplier of how much the blinds will increase by -> 10% = 1.10
-    this.seats;
+    this.seats = data.seats;
 
     this.increaseBlinds = function(){
         bigBlind*=blindsIncrement

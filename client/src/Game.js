@@ -8,7 +8,14 @@ function Game(props){
     const [cards,setCards]=useState([])
     const [communityCards,setCommunityCards]=useState([])
     const [isTurn,setIsTurn]=useState()
-    const [actions,setActions]=useState({})
+    const [actions,setActions]=useState({   fold:false,
+                                            check:false,
+                                            call:false,
+                                            bet:false,
+                                            raise:false})
+    const [stack,setStack]=useState(0)
+    const [bigBlind,setBigBlind]=useState(0)
+    const [currentBet,setCurrentBet]=useState(0)
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -24,8 +31,11 @@ function Game(props){
         })
 
         props.socket.on('turn', data => {
-            setIsTurn(data[0])    
-            setActions(data[1])       
+            setIsTurn(data.isTurn)    
+            setActions(data.actions)   
+            setStack(data.stack)  
+            setBigBlind(data.bigBlind)  
+            setCurrentBet(data.currentBet)
         })
 
     },[])
@@ -48,7 +58,17 @@ function Game(props){
         <div>
             <p>{playerElements}</p>
             {console.log(isTurn)}
-            {isTurn? <DecisionBar socket={props.socket} fold={actions.fold} check={actions.check} call={actions.call} bet={actions.bet} raise={actions.raise}/>:null}
+            {console.log(actions)}
+            {isTurn? <DecisionBar 
+                        socket={props.socket} 
+                        fold={actions.fold} 
+                        check={actions.check} 
+                        call={actions.call} 
+                        bet={actions.bet} 
+                        raise={actions.raise} 
+                        stack={stack} 
+                        bigBlind={bigBlind}
+                        currentBet={currentBet}/>:null}
             <p>{communityElements}</p>
         </div>
     )

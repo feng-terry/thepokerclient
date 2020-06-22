@@ -1,14 +1,33 @@
 import React, {useState} from 'react'
 
 function DecisionBar(props){
+    const [betValue,setBetValue]=useState(Math.min(props.bigBlind,props.stack))
+    const [raiseValue,setRaiseValue]=useState(Math.min(2*props.currentBet,props.stack))
 
     function handleFold(){
-        console.log('frontend fold')
         props.socket.emit('fold')
     }
 
     function handleCheck(){
         props.socket.emit('check')
+    }
+
+    function handleBet(e){
+        e.preventDefault()
+        props.socket.emit('bet',betValue)
+    }
+
+    function handleRaise(e){
+        e.preventDefault()
+        props.socket.emit('raise',raiseValue)
+    }
+
+    function handleBetChange(e){
+        setBetValue(e.target.value)
+    }
+
+    function handleRaiseChange(e){
+        setRaiseValue(e.target.value)
     }
 
     return(
@@ -27,11 +46,19 @@ function DecisionBar(props){
                 className = "decision-button"
                 >Call</button>:null}
 
-            <form>
-                <input type="range" min="0" max="50"/>
-                <button>Bet/Raise</button>
-            </form>  
-            
+            {props.bet? 
+                <form onSubmit={handleBet}>
+                    <input type='number' value={betValue} onChange={handleBetChange} min={Math.min(props.bigBlind,props.stack)} max={props.stack}/>
+                    <input type='range' value={betValue} onChange={handleBetChange}  min={Math.min(props.bigBlind,props.stack)} max={props.stack}/>
+                    <button>Bet</button>
+                </form>:null}    
+
+            {props.raise? 
+                <form onSubmit={handleRaise}>
+                    <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet,props.stack)} max={props.stack}/>
+                    <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet,props.stack)} max={props.stack}/>
+                    <button>Raise</button>
+                </form>:null} 
 
 
 

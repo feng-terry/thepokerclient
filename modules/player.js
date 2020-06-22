@@ -46,7 +46,7 @@ Player = function(name,socketId){
     }
     this.addBet = function(amount){
         this.subStack(amount);
-        this.bets += amount;
+        this.bets = Number(this.bets + amount);
     }
 }
 

@@ -10,6 +10,34 @@ Table=function(io){
     this.currentPlayer;
     this.currentBet;
     this.possibleActions;
+    //Settings
+    this.startingStack;
+    this.bigBlind;
+    this.blindsIncrease; //boolean of whether or not blinds will increase
+
+    this.blindsCounterSetting = 5; //setting for number of hands until blinds increase, 5 is default
+    this.blindsCounter = this.blindsCounterSetting // live counter until blinds increase
+
+    this.blindsIncrement; // multiplier of how much the blinds will increase by -> 10% = 1.10
+    this.seats;
+
+    this.setSettings = function(data){
+        this.startingStack = data.startingStack
+        this.bigBlind = data.blinds
+        this.seats = data.seats
+    }
+
+    this.increaseBlinds = function(){
+        this.bigBlind*=this.blindsIncrement
+    }
+
+    this.decreaseCounter = function(){
+        this.blindsCounter -=1
+        if(this.blindsCounter === 0){
+            this.increaseBlinds()
+            this.blindsCounter = this.blindsTimerSetting
+        }
+    }
 
     this.addPot = function(amount){
         this.pot += amount;
@@ -86,7 +114,12 @@ Table=function(io){
         switch(this.stage){
             case 'preflop':
                 console.log(this.possibleActions)
-                io.to(this.currentPlayer.getSocketId()).emit('turn', [true,this.possibleActions])
+                io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                    {isTurn:true,
+                    actions:this.possibleActions,
+                    stack:this.currentPlayer.getStack(),
+                    bigBlind:this.bigBlind,
+                    currentBet:this.currentBet})
         }
     }
 
@@ -94,7 +127,11 @@ Table=function(io){
         console.log('fold event called')
         index = this.activePlayers.indexOf(this.currentPlayer);
         this.activePlayers.splice(index,1);
-        io.to(this.currentPlayer.getSocketId()).emit('turn', [false])
+        io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
+                                                                                    check:false,
+                                                                                    call:false,
+                                                                                    bet:false,
+                                                                                    raise:false}})
 
         if (this.activePlayers.length < 2){
             this.endRound()//Still have to write
@@ -108,7 +145,39 @@ Table=function(io){
     }
 
     this.check = function(){
-        io.to(this.currentPlayer.getSocketId()).emit('turn', [false])
+        io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
+                                                                                    check:false,
+                                                                                    call:false,
+                                                                                    bet:false,
+                                                                                    raise:false}})
+        this.currentPlayer = this.nextPlayer(this.currentPlayer)
+        this.playTurn()
+    }
+
+    this.bet = function(value){
+        io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
+                                                                                    check:false,
+                                                                                    call:false,
+                                                                                    bet:false,
+                                                                                    raise:false}})
+        this.currentPlayer.addBet(value)
+        this.currentBet = value
+
+        this.finalPlayer = this.previousPlayer(this.currentPlayer)
+        this.currentPlayer = this.nextPlayer(this.currentPlayer)
+        this.playTurn()
+    }
+
+    this.raise = function(value){
+        io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
+                                                                                    check:false,
+                                                                                    call:false,
+                                                                                    bet:false,
+                                                                                    raise:false}})
+        this.currentPlayer.addBet(value)
+        this.currentBet = value
+
+        this.finalPlayer = this.previousPlayer(this.currentPlayer)
         this.currentPlayer = this.nextPlayer(this.currentPlayer)
         this.playTurn()
     }
@@ -119,6 +188,19 @@ Table=function(io){
             index = 0
         }else{
             index++
+        }
+        console.log('acvtive', this.activePlayers)
+        console.log('currentPlayer', player)
+        console.log('nextPlayer', this.activePlayers[index])
+        return this.activePlayers[index]
+    }
+
+    this.previousPlayer = function(player){
+        let index = this.activePlayers.indexOf(player)
+        if (index-1<0){
+            index = this.activePlayers.length - 1
+        }else{
+            index--
         }
         return this.activePlayers[index]
     }
