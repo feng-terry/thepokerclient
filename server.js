@@ -65,21 +65,39 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('fold', ()=>{
-    console.log('heard fold event')
-    Table.fold()
+    if (socket.id === Table.currentPlayer.getSocketId()){
+      Table.fold()
+    }
+    io.emit('nameAndStack', players)
   })
 
   socket.on('check', ()=>{
-    console.log('heard check event')
-    Table.check()
+    if (socket.id === Table.currentPlayer.getSocketId()){
+      Table.check()
+    }
+    io.emit('nameAndStack', players)
+  })
+
+  socket.on('call', ()=>{
+    if (socket.id === Table.currentPlayer.getSocketId()){
+      Table.call()
+    }
+    
+    io.emit('nameAndStack', players)
   })
 
   socket.on('bet',(betValue)=>{
-    Table.bet(betValue)
+    if (socket.id === Table.currentPlayer.getSocketId()){
+      Table.bet(betValue)
+    }
+    io.emit('nameAndStack', players)
   })
 
   socket.on('raise',(raiseValue)=>{
-    Table.raise(raiseValue)
+    if (socket.id === Table.currentPlayer.getSocketId()){
+      Table.raise(raiseValue)
+    }
+    io.emit('nameAndStack', players)
   })
 }
 )

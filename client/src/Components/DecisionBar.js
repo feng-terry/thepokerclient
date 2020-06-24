@@ -12,6 +12,10 @@ function DecisionBar(props){
         props.socket.emit('check')
     }
 
+    function handleCall(){
+        props.socket.emit('call')
+    }
+
     function handleBet(e){
         e.preventDefault()
         props.socket.emit('bet',betValue)
@@ -44,7 +48,7 @@ function DecisionBar(props){
 
             {props.call? <button 
                 className = "decision-button"
-                >Call</button>:null}
+                onClick={()=>handleCall()}>Call</button>:null}
 
             {props.bet? 
                 <form onSubmit={handleBet}>
@@ -55,8 +59,8 @@ function DecisionBar(props){
 
             {props.raise? 
                 <form onSubmit={handleRaise}>
-                    <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet,props.stack)} max={props.stack}/>
-                    <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet,props.stack)} max={props.stack}/>
+                    <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet,props.stack) - props.playerCurrentBet} max={props.stack}/>
+                    <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet,props.stack) - props.playerCurrentBet} max={props.stack}/>
                     <button>Raise</button>
                 </form>:null} 
 

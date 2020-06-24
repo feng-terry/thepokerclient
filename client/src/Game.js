@@ -16,6 +16,7 @@ function Game(props){
     const [stack,setStack]=useState(0)
     const [bigBlind,setBigBlind]=useState(0)
     const [currentBet,setCurrentBet]=useState(0)
+    const [playerCurrentBet,setPlayerCurrentBet]=useState(0)
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -36,6 +37,7 @@ function Game(props){
             setStack(data.stack)  
             setBigBlind(data.bigBlind)  
             setCurrentBet(data.currentBet)
+            setPlayerCurrentBet(data.playerCurrentBet)
         })
 
     },[])
@@ -43,11 +45,11 @@ function Game(props){
     const playerElements =  Object.values(players).map(player => {
                                 if (players[props.socket.id] === player){
                                     return(
-                                        <PlayerCard name={player.name} stack = {player.stack} cards={cards} />
+                                        <PlayerCard name={player.name} stack = {player.stack} cards={cards} bets={player.bets}/>
                                     )
                                 } else{
                                     return(
-                                        <PlayerCard name={player.name} stack = {player.stack} cards={[{rank:0,suit:0},{rank:0,suit:0}]} />
+                                        <PlayerCard name={player.name} stack = {player.stack} cards={[{rank:0,suit:0},{rank:0,suit:0}]} bets={player.bets}/>
                                     )
                                 }
                             })
@@ -57,8 +59,6 @@ function Game(props){
     return(
         <div>
             <p>{playerElements}</p>
-            {console.log(isTurn)}
-            {console.log(actions)}
             {isTurn? <DecisionBar 
                         socket={props.socket} 
                         fold={actions.fold} 
@@ -68,7 +68,8 @@ function Game(props){
                         raise={actions.raise} 
                         stack={stack} 
                         bigBlind={bigBlind}
-                        currentBet={currentBet}/>:null}
+                        currentBet={currentBet}
+                        playerCurrentBet={playerCurrentBet}/>:null}
             <p>{communityElements}</p>
         </div>
     )

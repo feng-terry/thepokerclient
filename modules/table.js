@@ -78,19 +78,78 @@ Table=function(io){
         }
     }
 
+    this.checkNextStage = function(){
+        if (this.currentPlayer === this.finalPlayer){
+            this.nextStage()
+        } else{
+            this.currentPlayer = this.nextPlayer(this.currentPlayer)
+            this.playTurn()
+        }
+    }
+
+    this.nextStage = function(){
+        if (this.stage === 'preflop'){
+            this.flop()
+        } else if (this.stage === 'flop'){
+            this.turnRiver('turn')
+        } else if (this.stage === 'turn'){
+            this.turnRiver('river')
+        }
+    }
+
     this.takeBets = function(){
         let totalAmount = 0;
         for (let player of this.players){
             totalAmount += player.getBets();
             player.bets = 0;
         }
+        this.currentBet = 0
         this.addPot(totalAmount);
     }
 
     this.preflop = function(){
         this.stage = 'preflop'
         this.finalPlayer = this.activePlayers[1]
-        this.currentPlayer = this.nextPlayer(this.finalPlayer) //Still have to code next player
+        this.currentPlayer = this.nextPlayer(this.finalPlayer) 
+
+        this.playTurn()
+    }
+
+    this.flop = function(){
+        this.stage = 'flop'
+        if (this.activePlayers.length === 2){
+            this.finalPlayer = this.activePlayers[0]
+        }else{
+            this.finalPlayer = this.activePlayers[this.activePlayers.length - 1]
+        }
+        
+        this.takeBets()
+        this.currentPlayer = this.nextPlayer(this.finalPlayer)
+        //Deal 3 cards
+        this.addCard()
+        this.addCard()
+        this.addCard()
+
+        io.emit('communityCards',this.cards)
+
+        this.playTurn()
+    }
+
+    this.turnRiver = function(stage){
+        this.stage = stage
+
+        if (this.activePlayers.length === 2){
+            this.finalPlayer = this.activePlayers[0]
+        }else{
+            this.finalPlayer = this.activePlayers[this.activePlayers.length - 1]
+        }
+        
+        this.takeBets()
+        this.currentPlayer = this.nextPlayer(this.finalPlayer)
+        //Deal 1 cards
+        this.addCard()
+
+        io.emit('communityCards',this.cards)
 
         this.playTurn()
     }
@@ -113,17 +172,43 @@ Table=function(io){
 
         switch(this.stage){
             case 'preflop':
-                console.log(this.possibleActions)
                 io.to(this.currentPlayer.getSocketId()).emit('turn', 
                     {isTurn:true,
                     actions:this.possibleActions,
                     stack:this.currentPlayer.getStack(),
                     bigBlind:this.bigBlind,
-                    currentBet:this.currentBet})
+                    currentBet:this.currentBet,
+                    playerCurrentBet:this.currentPlayer.getBets()})
+            case 'flop':
+                io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                    {isTurn:true,
+                    actions:this.possibleActions,
+                    stack:this.currentPlayer.getStack(),
+                    bigBlind:this.bigBlind,
+                    currentBet:this.currentBet,
+                    playerCurrentBet:this.currentPlayer.getBets()})
+            case 'turn':
+                io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                    {isTurn:true,
+                    actions:this.possibleActions,
+                    stack:this.currentPlayer.getStack(),
+                    bigBlind:this.bigBlind,
+                    currentBet:this.currentBet,
+                    playerCurrentBet:this.currentPlayer.getBets()})
+            case 'river':
+                io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                    {isTurn:true,
+                    actions:this.possibleActions,
+                    stack:this.currentPlayer.getStack(),
+                    bigBlind:this.bigBlind,
+                    currentBet:this.currentBet,
+                    playerCurrentBet:this.currentPlayer.getBets()})
         }
     }
 
     this.fold = function(){
+        const tempPlayer = this.nextPlayer(this.currentPlayer)
+
         console.log('fold event called')
         index = this.activePlayers.indexOf(this.currentPlayer);
         this.activePlayers.splice(index,1);
@@ -139,7 +224,7 @@ Table=function(io){
             this.nextStage() //Still have to write
         }
         else{
-            this.currentPlayer = this.nextPlayer(this.currentPlayer)
+            this.currentPlayer = tempPlayer
             this.playTurn()
         }
     }
@@ -150,8 +235,19 @@ Table=function(io){
                                                                                     call:false,
                                                                                     bet:false,
                                                                                     raise:false}})
-        this.currentPlayer = this.nextPlayer(this.currentPlayer)
-        this.playTurn()
+        this.checkNextStage()
+    }
+    
+    this.call = function(){
+        io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
+                                                                                    check:false,
+                                                                                    call:false,
+                                                                                    bet:false,
+                                                                                    raise:false}})
+
+        this.currentPlayer.addBet(this.currentBet - this.currentPlayer.getBets())
+
+        this.checkNextStage()
     }
 
     this.bet = function(value){
@@ -160,6 +256,12 @@ Table=function(io){
                                                                                     call:false,
                                                                                     bet:false,
                                                                                     raise:false}})
+        if (value < Math.min(this.bigBlind,this.currentPlayer.getStack())){
+            value = Math.min(this.bigBlind,this.currentPlayer.getStack())
+        } else if (value > this.currentPlayer.getStack()){
+            value = this.currentPlayer.getStack()
+        }
+
         this.currentPlayer.addBet(value)
         this.currentBet = value
 
@@ -174,8 +276,15 @@ Table=function(io){
                                                                                     call:false,
                                                                                     bet:false,
                                                                                     raise:false}})
+
+        if (value < Math.min(2*this.currentBet  - this.currentPlayer.getBets() ,this.currentPlayer.getStack())){
+            value =  Math.min(2*this.currentBet - this.currentPlayer.getBets(),this.currentPlayer.getStack()) 
+        } else if (value > this.currentPlayer.getStack()){
+            value = this.currentPlayer.getStack() 
+        }
+
         this.currentPlayer.addBet(value)
-        this.currentBet = value
+        this.currentBet = this.currentPlayer.getBets()
 
         this.finalPlayer = this.previousPlayer(this.currentPlayer)
         this.currentPlayer = this.nextPlayer(this.currentPlayer)

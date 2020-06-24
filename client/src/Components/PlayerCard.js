@@ -9,7 +9,8 @@ export default function PlayerCard(props){
         <div className = 'player-card'>
             <p>{cardList}</p>
             <h6>{props.name}</h6>
-            <p>{props.stack}</p>
+            <p>Stack:{props.stack}</p>
+            <p>Bets:{props.bets}</p>
         </div>
     )
 }
