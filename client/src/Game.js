@@ -17,10 +17,12 @@ function Game(props){
     const [bigBlind,setBigBlind]=useState(0)
     const [currentBet,setCurrentBet]=useState(0)
     const [playerCurrentBet,setPlayerCurrentBet]=useState(0)
+    const [pot,setPot]=useState(0)
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
-            setPlayers(data)
+            setPlayers(data[0])
+            setPot(data[1])
         })
 
         props.socket.on('dealCards', data => {
@@ -71,6 +73,7 @@ function Game(props){
                         currentBet={currentBet}
                         playerCurrentBet={playerCurrentBet}/>:null}
             <p>{communityElements}</p>
+            <p>Pot:{pot}</p>
         </div>
     )
 }

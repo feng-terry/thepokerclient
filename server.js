@@ -37,10 +37,12 @@ io.on('connection',(socket) =>{
         player.addStack(Table.startingStack)
         Table.addPlayer(player)
       }
-      io.emit('nameAndStack', players)
+      
+      io.emit('nameAndStack', [players,Table.getPot()])
+      
       Table.newHand();
-      Table.dealHands();
-      Table.preflop();
+      
+
     } 
   )
 
@@ -51,9 +53,9 @@ io.on('connection',(socket) =>{
 
   socket.on('disconnect', () =>{
     console.log('disconnected', socket.id)
-    
+    Table.removePlayer(players[playerId])
     delete players[playerId]
-    console.log(players)
+    
     io.emit('newName',players)
     // handle disconnect  
   })
@@ -68,14 +70,14 @@ io.on('connection',(socket) =>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.fold()
     }
-    io.emit('nameAndStack', players)
+    io.emit('nameAndStack', [players,Table.getPot()])
   })
 
   socket.on('check', ()=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.check()
     }
-    io.emit('nameAndStack', players)
+    io.emit('nameAndStack', [players,Table.getPot()])
   })
 
   socket.on('call', ()=>{
@@ -83,21 +85,21 @@ io.on('connection',(socket) =>{
       Table.call()
     }
     
-    io.emit('nameAndStack', players)
+    io.emit('nameAndStack', [players,Table.getPot()])
   })
 
   socket.on('bet',(betValue)=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.bet(betValue)
     }
-    io.emit('nameAndStack', players)
+    io.emit('nameAndStack', [players,Table.getPot()])
   })
 
   socket.on('raise',(raiseValue)=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.raise(raiseValue)
     }
-    io.emit('nameAndStack', players)
+    io.emit('nameAndStack', [players,Table.getPot()])
   })
 }
 )

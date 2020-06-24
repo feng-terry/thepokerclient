@@ -1,12 +1,11 @@
 //This is for comparing which hand wins
-export {handComparison,tiebreaker};
 
-function handComparison(playerList, table){
+handComparison =function(playerList, tableCards){
     let newPlayerList = Array.from(playerList);
     let handList = [];
     let valueList = [];
     for (const player of playerList){
-        const cardList = table.getCards().concat(player.getCards()); //table class needs to be written
+        const cardList = tableCards.concat(player.getCards()); 
         const [typeOfHand,valueOfHand] = hand(cardList);
         handList.push(typeOfHand);
         valueList.push(valueOfHand); 
@@ -29,7 +28,7 @@ function handComparison(playerList, table){
             newPlayerList.splice(index,1);
             valueList.splice(index,1);
         }
-        return tiebreaker(tieList,tieValueList,table,minValue);
+        return tiebreaker(tieList,tieValueList,tableCards,minValue);
     }
 }
 function lowToHigh(cardList){
@@ -169,7 +168,7 @@ function hand(cardList){
     }
     return [8,index+2]
 }
-function tiebreaker(playerList,valueList,table,winningHand){
+function tiebreaker(playerList,valueList,tableCards,winningHand){
     let winnerList = []
     let index = 0
     for (let i=0; i<playerList.length;i++){
@@ -196,11 +195,11 @@ function tiebreaker(playerList,valueList,table,winningHand){
         case 0://straight flush
             return straight(winnerList)
         case 1://quads
-            return bestKicker(table,winnerList,1)
+            return bestKicker(tableCards,winnerList,1)
         case 2://full house
             chopList = [];
             for(const player of winnerList){
-                let cardList = table.getCards().concat(player.getCards());
+                let cardList = tableCards.concat(player.getCards());
                 let histogram = generateHistogram(cardList)
                 for(let i = 0; i<histogram.length; i++){
                     const rank = i + 2
@@ -224,7 +223,7 @@ function tiebreaker(playerList,valueList,table,winningHand){
             chopList=[]
             winner = winnerList[0];
             for(let i = 1;i<playerList.length;i++){
-                winner = compareFlush(table,winner,playerList[i])
+                winner = compareFlush(tableCards,winner,playerList[i])
                 if(winner==='tie'){
                     chopList.push(playerList[i])
 		    winner = playerList[i]
@@ -239,13 +238,13 @@ function tiebreaker(playerList,valueList,table,winningHand){
         case 4://straight
             return straight(winnerList)
         case 5://trips
-            return bestKicker(table,winnerList,2)
+            return bestKicker(tableCards,winnerList,2)
         case 6://two pair
-	        return bestKicker(table,winnerList,1)
+	        return bestKicker(tableCards,winnerList,1)
         case 7://pair
-            return bestKicker(table,winnerList,3)
+            return bestKicker(tableCards,winnerList,3)
         case 8://high card
-            return bestKicker(table,winnerList,5)
+            return bestKicker(tableCards,winnerList,5)
             
     }
 }
@@ -275,8 +274,8 @@ function straight(winnerList){
         return winnerList[0];
     }
 }
-function highestKickers(table,player,numOfKickers){
-    let cards = table.getCards().concat(player.getCards())
+function highestKickers(tableCards,player,numOfKickers){
+    let cards = tableCards.concat(player.getCards())
     let histogram = generateHistogram(cards)
     let kickers = []
     for(let i = histogram.length-1; i>=0;i--){
@@ -286,9 +285,9 @@ function highestKickers(table,player,numOfKickers){
     }
     return kickers
 }
-function compareKickers(table,player1,player2,numOfKickers){
-    let kickers1=highestKickers(table,player1,numOfKickers)
-    let kickers2= highestKickers(table,player2,numOfKickers)
+function compareKickers(tableCards,player1,player2,numOfKickers){
+    let kickers1=highestKickers(tableCards,player1,numOfKickers)
+    let kickers2= highestKickers(tableCards,player2,numOfKickers)
     for(let i=0; i<kickers1.length;i++){
         if(kickers1[i]>kickers2[i]){
             return player1
@@ -299,11 +298,11 @@ function compareKickers(table,player1,player2,numOfKickers){
     }
     return 'tie'
 }
-function bestKicker(table,playerList,numOfKickers){
+function bestKicker(tableCards,playerList,numOfKickers){
     let winner = playerList[0];
     let chopList = [winner];
     for(let i = 1;i<playerList.length;i++){
-        winner = compareKickers(table,winner,playerList[i],numOfKickers)
+        winner = compareKickers(tableCards,winner,playerList[i],numOfKickers)
         if (winner === 'tie'){
             chopList.push(playerList[i]);
             winner = playerList[i];
@@ -317,9 +316,9 @@ function bestKicker(table,playerList,numOfKickers){
     }
     return winner
 }
-function compareFlush(table,player1,player2){
-    let flush1 = isFlush(player1.getCards().concat(table.getCards()))
-    let flush2 = isFlush(player2.getCards().concat(table.getCards()))
+function compareFlush(tableCards,player1,player2){
+    let flush1 = isFlush(player1.getCards().concat(tableCards))
+    let flush2 = isFlush(player2.getCards().concat(tableCards))
     for(let i=0; i<flush1.length;i++){
         if(flush1[i]>flush2[i]){
             return player1
@@ -329,4 +328,8 @@ function compareFlush(table,player1,player2){
         }
     }
     return 'tie'
+}
+
+module.exports={
+    handComparison:handComparison
 }

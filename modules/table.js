@@ -1,3 +1,6 @@
+const hand = require('../handComparison');
+const player = require('./player');
+
 Table=function(io){
     this.pot = 0;
     this.cards = [];
@@ -51,6 +54,15 @@ Table=function(io){
         this.players.push(playerObject);
     }
 
+    this.removePlayer = function(playerObject){
+        const index = this.players.indexOf(playerObject)
+
+        if (index > -1) {
+            this.players.splice(index, 1);
+        }
+          
+    }
+
     this.initializeActions = function(){
         this.possibleActions = {
             fold:false,
@@ -62,15 +74,28 @@ Table=function(io){
     }
 
     this.newHand = function(){
-        this.pot = 0;
         this.cards = [];
+        for (const player of this.players){
+            player.cards = []
+        }
+        io.emit('communityCards',this.cards)
         this.deck = new Deck()
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
+        this.dealHands()
+        this.preflop()
+    }
+
+    this.endRound = function(){
+        this.takeBets()
+        this.activePlayers[0].addStack(this.pot)
+        this.pot =0
+    
+        this.newHand()
     }
 
     this.dealHands = function(){
-        for (let player of this.players){
+        for (let player of this.activePlayers){
             player.addCards(this.deck);
         }
         for (const player of this.activePlayers){
@@ -80,6 +105,7 @@ Table=function(io){
 
     this.checkNextStage = function(){
         if (this.currentPlayer === this.finalPlayer){
+            console.log('check next stage')
             this.nextStage()
         } else{
             this.currentPlayer = this.nextPlayer(this.currentPlayer)
@@ -94,6 +120,9 @@ Table=function(io){
             this.turnRiver('turn')
         } else if (this.stage === 'turn'){
             this.turnRiver('river')
+        } else if (this.stage === 'river'){
+            console.log('else if river')
+            this.showdown()
         }
     }
 
@@ -150,8 +179,27 @@ Table=function(io){
         this.addCard()
 
         io.emit('communityCards',this.cards)
-
+        console.log(stage)
         this.playTurn()
+    }
+
+    this.showdown = function(){
+        this.stage = 'showdown'
+        this.takeBets()
+        const winners = hand.handComparison(this.activePlayers,this.cards)
+
+        if (typeof winners === Array){
+            const amount = Math.floor(this.pot/winners.length)
+            for (const player of winners){
+                player.addStack(amount)
+                this.pot -= amount
+            }
+        } else {
+            winners.addStack(this.pot)
+            this.pot =0
+        }
+
+        this.newHand()
     }
 
     this.playTurn = function(){
@@ -205,6 +253,7 @@ Table=function(io){
                     playerCurrentBet:this.currentPlayer.getBets()})
         }
     }
+    ///Server Client rift
 
     this.fold = function(){
         const tempPlayer = this.nextPlayer(this.currentPlayer)
@@ -290,6 +339,7 @@ Table=function(io){
         this.currentPlayer = this.nextPlayer(this.currentPlayer)
         this.playTurn()
     }
+///Server Client rift
 
     this.nextPlayer = function(player){
         let index = this.activePlayers.indexOf(player)
@@ -298,9 +348,6 @@ Table=function(io){
         }else{
             index++
         }
-        console.log('acvtive', this.activePlayers)
-        console.log('currentPlayer', player)
-        console.log('nextPlayer', this.activePlayers[index])
         return this.activePlayers[index]
     }
 
