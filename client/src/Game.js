@@ -42,6 +42,10 @@ function Game(props){
             setPlayerCurrentBet(data.playerCurrentBet)
         })
 
+        props.socket.on('update',() => {
+            props.socket.emit('update')
+        })
+
     },[])
 
     const playerElements =  Object.values(players).map(player => {

@@ -101,6 +101,10 @@ io.on('connection',(socket) =>{
     }
     io.emit('nameAndStack', [players,Table.getPot()])
   })
+
+  socket.on('update', ()=>{
+    io.emit('nameAndStack', [players,Table.getPot()])
+  })
 }
 )
 

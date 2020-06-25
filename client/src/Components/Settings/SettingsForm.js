@@ -12,11 +12,11 @@ function SettingsForm(props){
         e.preventDefault()
         props.socket.emit('changePageState','gamePage')
         props.socket.emit('newGame',{
-            startingStack:startingStack,
-            blinds:blinds,
-            seats:seats,
+            startingStack:Number(startingStack),
+            blinds:Number(blinds),
+            seats:Number(seats),
             lobbyName:lobbyName,
-            antes:antes
+            antes:Number(antes)
             }
         )
     }

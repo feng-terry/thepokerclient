@@ -11,13 +11,13 @@ Table=function(io){
     this.stage;
     this.finalPlayer;
     this.currentPlayer;
-    this.currentBet;
+    this.currentBet = 0 ;
     this.possibleActions;
     //Settings
     this.startingStack;
     this.bigBlind;
     this.blindsIncrease; //boolean of whether or not blinds will increase
-
+    this.antes;
     this.blindsCounterSetting = 5; //setting for number of hands until blinds increase, 5 is default
     this.blindsCounter = this.blindsCounterSetting // live counter until blinds increase
 
@@ -28,6 +28,7 @@ Table=function(io){
         this.startingStack = data.startingStack
         this.bigBlind = data.blinds
         this.seats = data.seats
+        this.antes = data.antes
     }
 
     this.increaseBlinds = function(){
@@ -73,6 +74,23 @@ Table=function(io){
         }
     }
 
+    this.postBlinds = function(){
+        bigBlindAmount = this.bigBlind
+        bigBlindPlayer = this.activePlayers[1];
+        bigBlindPlayer.addBet(bigBlindAmount)
+        smallBlindPlayer = this.activePlayers[0];
+        smallBlindAmount = Math.floor(bigBlindAmount/2)
+        smallBlindPlayer.addBet(smallBlindAmount)
+
+        for (let i = 2; i < this.activePlayers.length; i++){
+            this.activePlayers[i].addBet(this.antes)
+        }
+
+        this.currentBet = this.bigBlind
+
+        io.emit('update')
+    }
+
     this.newHand = function(){
         this.cards = [];
         for (const player of this.players){
@@ -82,6 +100,7 @@ Table=function(io){
         this.deck = new Deck()
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
+        this.postBlinds()
         this.dealHands()
         this.preflop()
     }
@@ -90,6 +109,7 @@ Table=function(io){
         this.takeBets()
         this.activePlayers[0].addStack(this.pot)
         this.pot =0
+        this.players.unshift(this.players.pop())
     
         this.newHand()
     }
@@ -204,6 +224,8 @@ Table=function(io){
 
     this.playTurn = function(){
         this.initializeActions()
+
+        console.log(this.currentBet,this.currentPlayer.getBets())
 
         if (this.currentBet === this.currentPlayer.getBets()){
             this.possibleActions.check = true
@@ -383,20 +405,6 @@ Table=function(io){
     this.playHand = function(){
         this.dealHands();
         this.postBlinds();
-    }
-    this.postBlinds = function(){
-        bigBlindAmount = settings.bigBlind
-        bigBlindPlayer = table.getPlayers()[1];
-        bigBlindPlayer.addBet(bigBlindAmount)
-        smallBlindPlayer = table.getPlayers()[0];
-        smallBlindAmount = bigBlindAmount/2
-        smallBlindPlayer.addBet(smallBlindAmount)
-        emitBet(io,bigBlindAmount,bigBlind)
-        emitBet(io,smallBlindAmount,smallBlind)
-    }
-
-    this.emitBet = function(io,betAmount,player){
-        io.emit('bet',[betAmount,player])
     }
 
 }
