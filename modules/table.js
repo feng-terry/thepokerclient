@@ -13,6 +13,8 @@ Table=function(io){
     this.currentPlayer;
     this.currentBet = 0 ;
     this.possibleActions;
+    this.leftOverChips = 0;
+    this.isLeftOverChips = true;
     //Settings
     this.startingStack;
     this.bigBlind;
@@ -95,7 +97,9 @@ Table=function(io){
         this.cards = [];
         for (const player of this.players){
             player.cards = []
+            player.totalBets = 0
         }
+        this.isLeftOverChips = true
         io.emit('communityCards',this.cards)
         this.deck = new Deck()
         this.deck.shuffle();

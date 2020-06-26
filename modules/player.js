@@ -5,6 +5,7 @@ Player = function(name,socketId){
     this.position;
     this.cards = [];
     this.bets = 0;
+    this.totalBets = 0;
     this.socketId = socketId;
 
     //Getter Methods
@@ -47,6 +48,7 @@ Player = function(name,socketId){
     this.addBet = function(amount){
         this.subStack(amount);
         this.bets = Number(this.bets) + Number(amount);
+        this.totalBets += this.bets
     }
 }
 
