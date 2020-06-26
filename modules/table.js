@@ -94,9 +94,11 @@ Table=function(io){
     }
 
     this.newHand = function(){
+        this.players.unshift(this.players.pop())
         this.cards = [];
         for (const player of this.players){
             player.cards = []
+            player.bets = 0
             player.totalBets = 0
         }
         this.isLeftOverChips = true
@@ -113,7 +115,6 @@ Table=function(io){
         this.takeBets()
         this.activePlayers[0].addStack(this.pot)
         this.pot =0
-        this.players.unshift(this.players.pop())
     
         this.newHand()
     }
@@ -129,7 +130,6 @@ Table=function(io){
 
     this.checkNextStage = function(){
         if (this.currentPlayer === this.finalPlayer){
-            console.log('check next stage')
             this.nextStage()
         } else{
             this.currentPlayer = this.nextPlayer(this.currentPlayer)
@@ -138,16 +138,40 @@ Table=function(io){
     }
 
     this.nextStage = function(){
-        if (this.stage === 'preflop'){
+        if (this.allPlayersAllIn() || this.stage === 'river'){
+            for (let i = this.cards.length; i < 5;i++){
+                this.addCard()
+                if (i >= 3){
+                    console.log(this.cards)
+                    io.emit('communityCards',this.cards)
+                }
+            }
+            this.showdown()
+        }else if (this.stage === 'preflop'){
             this.flop()
         } else if (this.stage === 'flop'){
             this.turnRiver('turn')
         } else if (this.stage === 'turn'){
             this.turnRiver('river')
-        } else if (this.stage === 'river'){
-            console.log('else if river')
-            this.showdown()
+        } 
+    }
+
+    this.allPlayersAllIn = function(){
+        for (const player of this.activePlayers){
+            if (player.getStack() != 0){
+                return false
+            }
         }
+        return true
+    }
+
+    this.onlyStack = function(stackPlayer){
+        for (const player of this.activePlayers){
+            if (player.getStack() != 0 && player != stackPlayer){
+                return false
+            }
+        }
+        return true
     }
 
     this.takeBets = function(){
@@ -203,33 +227,61 @@ Table=function(io){
         this.addCard()
 
         io.emit('communityCards',this.cards)
-        console.log(stage)
         this.playTurn()
     }
 
     this.showdown = function(){
         this.stage = 'showdown'
         this.takeBets()
-        const winners = hand.handComparison(this.activePlayers,this.cards)
-
-        if (typeof winners === Array){
-            const amount = Math.floor(this.pot/winners.length)
-            for (const player of winners){
-                player.addStack(amount)
-                this.pot -= amount
+        //////////////////////////////////////////////////////////
+        if (this.pot != 0){
+            //Finding the minimun bet and the player assosciated with it
+            let minBet = this.pot
+            let minPlayer
+            for (const player of this.activePlayers){
+                if (player.getTotalBets() < minBet){
+                    minBet = player.getTotalBets()
+                    minPlayer = player
+                }
             }
-        } else {
-            winners.addStack(this.pot)
-            this.pot =0
-        }
+            //Calculating the size of the sidepot
+            let partialPot = minBet*this.activePlayers.length
 
-        this.newHand()
+            if (this.isLeftOverChips){
+                partialPot += this.leftOverChips
+                this.leftOverChips = 0
+                this.isLeftOverChips = false
+            }
+            //Determining the winner
+            const winner = hand.handComparison(this.activePlayers,this.cards)
+            if (typeof winner === Array){
+                const amount = Math.floor(partialPot/winner.length)
+                for (const player of winner){
+                    player.addStack(amount)
+                    this.pot -= amount
+                    partialPot -= amount
+                }
+                this.leftOverChips = partialPot
+                this.pot -= this.leftOverChips
+            } else {
+                winner.addStack(partialPot)
+                this.pot -= partialPot
+            }
+            //Removing the minPlayer and recursively calling
+            this.activePlayers.splice(this.activePlayers.indexOf(minPlayer),1)
+            for (const player in this.activePlayers){
+                player.totalBets -= minBet
+            }
+
+            this.showdown()
+            ///////////////////////////////////
+        }else{
+            this.newHand()
+        }
     }
 
     this.playTurn = function(){
         this.initializeActions()
-
-        console.log(this.currentBet,this.currentPlayer.getBets())
 
         if (this.currentBet === this.currentPlayer.getBets()){
             this.possibleActions.check = true
@@ -283,8 +335,6 @@ Table=function(io){
 
     this.fold = function(){
         const tempPlayer = this.nextPlayer(this.currentPlayer)
-
-        console.log('fold event called')
         index = this.activePlayers.indexOf(this.currentPlayer);
         this.activePlayers.splice(index,1);
         io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
@@ -360,10 +410,13 @@ Table=function(io){
 
         this.currentPlayer.addBet(value)
         this.currentBet = this.currentPlayer.getBets()
-
-        this.finalPlayer = this.previousPlayer(this.currentPlayer)
-        this.currentPlayer = this.nextPlayer(this.currentPlayer)
-        this.playTurn()
+        if (this.onlyStack(this.currentPlayer)){
+            this.nextStage()
+        } else{
+            this.finalPlayer = this.previousPlayer(this.currentPlayer)
+            this.currentPlayer = this.nextPlayer(this.currentPlayer)
+            this.playTurn()
+        }
     }
 ///Server Client rift
 
@@ -374,7 +427,12 @@ Table=function(io){
         }else{
             index++
         }
-        return this.activePlayers[index]
+
+        if (this.activePlayers[index].getStack() != 0){
+            return this.activePlayers[index]
+        }
+
+        return this.nextPlayer(this.activePlayers[index])
     }
 
     this.previousPlayer = function(player){
@@ -384,7 +442,12 @@ Table=function(io){
         }else{
             index--
         }
-        return this.activePlayers[index]
+
+        if (this.activePlayers[index].getStack() != 0){
+            return this.activePlayers[index]
+        }
+
+        return this.previousPlayer(this.activePlayers[index])
     }
 
     //Getter Methods

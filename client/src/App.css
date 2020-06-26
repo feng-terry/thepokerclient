@@ -16,10 +16,13 @@ body{
   display:block;
   border: 3px solid #FFFFFF;
   width:8%;
+  float:right;
+  position: relative;
 }
 
 .card{
   border:2px solid #177DD8; 
+  width: 5%;
 }
 
 .cardBack{
