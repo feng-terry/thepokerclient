@@ -15,15 +15,14 @@ Table=function(io){
     this.possibleActions;
     this.leftOverChips = 0;
     this.isLeftOverChips = true;
+    this.totalTurns=0
     //Settings
     this.startingStack;
-    this.bigBlind;
-    this.blindsIncrease; //boolean of whether or not blinds will increase
+    this.bigBlind; //boolean of whether or not blinds will increase
     this.antes;
-    this.blindsCounterSetting = 5; //setting for number of hands until blinds increase, 5 is default
-    this.blindsCounter = this.blindsCounterSetting // live counter until blinds increase
-
-    this.blindsIncrement; // multiplier of how much the blinds will increase by -> 10% = 1.10
+    this.blindsIncrease;
+    this.blindsIncreaseTimer = 5; //setting for number of hands until blinds increase, 5 is default
+    this.blindsPercentage=0; // multiplier of how much the blinds will increase by -> 10% = 1.10
     this.seats;
 
     this.setSettings = function(data){
@@ -31,18 +30,13 @@ Table=function(io){
         this.bigBlind = data.blinds
         this.seats = data.seats
         this.antes = data.antes
+        this.blindsIncrease=data.blindsIncrease;
+        this.blindsIncreaseTimer = data.blindsIncreaseTimer; //setting for number of hands until blinds increase, 5 is default
+        this.blindsPercentage=data.blindsPercentage+1;
     }
 
     this.increaseBlinds = function(){
-        this.bigBlind*=this.blindsIncrement
-    }
-
-    this.decreaseCounter = function(){
-        this.blindsCounter -=1
-        if(this.blindsCounter === 0){
-            this.increaseBlinds()
-            this.blindsCounter = this.blindsTimerSetting
-        }
+        this.bigBlind=Math.ceil(this.blindsPercentage*this.bigBlind)
     }
 
     this.addPot = function(amount){
@@ -94,6 +88,10 @@ Table=function(io){
     }
 
     this.newHand = function(){
+        this.totalTurns+=1
+        if (this.totalTurns%this.blindsIncreaseTimer===0){
+            this.increaseBlinds()
+        }
         this.players.unshift(this.players.pop())
         this.cards = [];
         for (const player of this.players){

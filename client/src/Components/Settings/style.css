@@ -1,6 +1,5 @@
 #antes-text{
     position: relative;
-
 }
 #settings{
     margin:0 auto;
@@ -73,6 +72,12 @@ border-radius: 34px;
 
 .slider.round:before {
 border-radius: 50%;
+}
+
+.raise-blinds{
+    display:flex;
+    flex-flow: row wrap;
+    align-items:center;
 }
 
 

@@ -7,6 +7,8 @@ function SettingsForm(props){
     const [seats,setSeats] = useState(6)
     const [lobbyName,setLobbyName] = useState("")
     const [antes,setAntes] = useState(0)
+    const [blindsPercentage,setBlindsPercentage]=useState(0)
+    const [blindsIncreaseTimer,setBlindsIncreaseTimer]=useState(0)
 
     function handleSubmit(e){
         e.preventDefault()
@@ -16,7 +18,9 @@ function SettingsForm(props){
             blinds:Number(blinds),
             seats:Number(seats),
             lobbyName:lobbyName,
-            antes:Number(antes)
+            antes:Number(antes),
+            blindsPercentage:Number(blindsPercentage)/100,
+            blindsIncreaseTimer:Number(blindsIncreaseTimer)
             }
         )
     }
@@ -55,7 +59,9 @@ function SettingsForm(props){
                     <div id="ante-block">
                         <label for="ante-switch">Antes:</label>
                         <label className="switch">
-                            <input type="checkbox" id="ante-switch"/>
+                            <input type="checkbox"
+                            id="ante-switch"
+                            />
                             <span className="slider round"></span>
                         </label>
                     
@@ -95,6 +101,29 @@ function SettingsForm(props){
                         <label for="nine-seats" onClick={()=>setSeats(9)}>9</label>
                     </div>
                     <br/>
+
+                    <label for="raise-blinds-switch">Raise Blinds:</label>
+                        <label className="switch">
+                            <input type="checkbox" id="raise-blinds-switch"/>
+                            <span className="slider round"></span>
+                    </label>
+
+                    <div className="raise-blinds">
+                        <p>Raise blind by </p> 
+                        <input
+                        type="number"
+                        size="3"
+                        onChange={(event)=>setBlindsPercentage(event.target.value)}
+                        />
+                        <p>% every</p>
+                        <input
+                        type="number"
+                        size="3"
+                        onChange={(event)=>setBlindsIncreaseTimer(event.target.value)}
+                        />
+                        <p>hands.</p>
+                    </div>
+
                     <button>Start</button>
                 </form>
             </div>
