@@ -57,6 +57,7 @@ io.on('connection',(socket) =>{
     delete players[playerId]
     
     io.emit('newName',players)
+    io.emit('nameAndStack', [players,Table.getPot()])
     // handle disconnect  
   })
 

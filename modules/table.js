@@ -142,7 +142,7 @@ Table=function(io){
             for (let i = this.cards.length; i < 5;i++){
                 this.addCard()
                 if (i >= 3){
-                    console.log(this.cards)
+                    setTimeout(function(){}, 1500)
                     io.emit('communityCards',this.cards)
                 }
             }
@@ -235,8 +235,9 @@ Table=function(io){
         this.takeBets()
         //////////////////////////////////////////////////////////
         if (this.pot != 0){
+            console.log('pot:', this.pot)
             //Finding the minimun bet and the player assosciated with it
-            let minBet = this.pot
+            let minBet = this.pot + 1
             let minPlayer
             for (const player of this.activePlayers){
                 if (player.getTotalBets() < minBet){
@@ -244,6 +245,8 @@ Table=function(io){
                     minPlayer = player
                 }
             }
+            console.log('minBet:', minBet)
+            console.log('minPlayer:', minPlayer.name)
             //Calculating the size of the sidepot
             let partialPot = minBet*this.activePlayers.length
 
@@ -252,9 +255,11 @@ Table=function(io){
                 this.leftOverChips = 0
                 this.isLeftOverChips = false
             }
+            console.log('partialPot:', partialPot)
             //Determining the winner
             const winner = hand.handComparison(this.activePlayers,this.cards)
-            if (typeof winner === Array){
+            console.log('winner:', winner.name)
+            if (Array.isArray(winner)){
                 const amount = Math.floor(partialPot/winner.length)
                 for (const player of winner){
                     player.addStack(amount)
@@ -269,14 +274,24 @@ Table=function(io){
             }
             //Removing the minPlayer and recursively calling
             this.activePlayers.splice(this.activePlayers.indexOf(minPlayer),1)
-            for (const player in this.activePlayers){
+            for (const player of this.activePlayers){
+                console.log('totalBets Before:', player.totalBets)
                 player.totalBets -= minBet
+                console.log('totalBets After:', player.totalBets)
             }
 
             this.showdown()
             ///////////////////////////////////
         }else{
-            this.newHand()
+            for (const player of Array.from(this.players)){
+                if (player.getStack() === 0){
+                    this.removePlayer(player)
+                }
+            }
+            setTimeout(function(){}, 2000)
+            if (this.players.length > 1){
+                this.newHand()
+            }            
         }
     }
 
