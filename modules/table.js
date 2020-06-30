@@ -5,6 +5,7 @@ Table=function(io){
     this.pot = 0;
     this.cards = [];
     this.players = [];
+    this.holdPlayers = []
     this.activePlayers = []
     this.deck = new Deck();
     this.deck.shuffle();
@@ -51,6 +52,11 @@ Table=function(io){
         this.players.push(playerObject);
     }
 
+    this.addHoldPlayer = function(player){
+        this.holdPlayers.push(player)
+        player.addStack(this.startingStack)
+    }
+
     this.removePlayer = function(playerObject){
         const index = this.players.indexOf(playerObject)
 
@@ -82,6 +88,11 @@ Table=function(io){
             this.activePlayers[i].addBet(this.antes)
         }
 
+        for (const player of this.holdPlayers){
+            player.addBet(bigBlindAmount)
+        }
+        this.holdPlayers = []
+
         this.currentBet = this.bigBlind
 
         io.emit('update')
@@ -93,6 +104,9 @@ Table=function(io){
             this.increaseBlinds()
         }
         this.players.unshift(this.players.pop())
+        console.log('hold',this.holdPlayers)
+        this.players = this.players.concat(this.holdPlayers)
+        console.log('players', this.players)
         this.cards = [];
         for (const player of this.players){
             player.cards = []
@@ -118,6 +132,7 @@ Table=function(io){
     }
 
     this.dealHands = function(){
+        console.log(this.activePlayers)
         for (let player of this.activePlayers){
             player.addCards(this.deck);
         }
