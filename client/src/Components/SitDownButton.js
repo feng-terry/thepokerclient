@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 
-function SitInButton (props){
+function SitDownButton (props){
     const [name,setName] = useState("")
 
     function handleNameChange(event){
@@ -9,8 +9,8 @@ function SitInButton (props){
     
     function handleSubmit(event){
         event.preventDefault()
-        props.setIsSitIn(false)
-        props.socket.emit('sitIn', {
+        props.setIsSitDownn(false)
+        props.socket.emit('sitDownn', {
             playerName:name
         })
     }
@@ -22,9 +22,9 @@ function SitInButton (props){
                 placeholder='Enter Your Name'
                 onChange={handleNameChange}
                 value={name}/>
-                <button>Sit In</button>
+                <button>Sit Down</button>
         </form>
     )
 }
 
-export default SitInButton
+export default SitDownButton
