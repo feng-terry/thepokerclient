@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 
-function SitDownButton(props){
+function SitOutButton(props){
     function handleSubmit(event){
         event.preventDefault()
         props.setIsSitOut(false)

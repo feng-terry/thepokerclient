@@ -103,9 +103,6 @@ Table=function(io){
 
     this.newHand = function(){
         //Emitting SitIn/SitOut buttons
-        for (const player of this.players){
-            io.to(player.getSocketId()).emit('sitOutButton')
-        }
 
 
         //Blind Increase
@@ -503,15 +500,8 @@ Table=function(io){
     this.getActivePlayers = function(){
         return this.activePlayers;
     }
-    this.getPrePostFlop = function(){
-        return this.prePostFlop;
-    }
-    this.getBigBlindActed = function(){
-        return this.bigBlindActed;
-    }
-    this.playHand = function(){
-        this.dealHands();
-        this.postBlinds();
+    this.getCurrentBet = function(){
+        return this.currentBet
     }
 
 }

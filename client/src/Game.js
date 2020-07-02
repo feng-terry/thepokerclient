@@ -5,9 +5,11 @@ import Card from './Components/Card'
 import SitDownButton from './Components/SitDownButton'
 import SitOutButton from './Components/SitOutButton'
 import SitInButton from './Components/SitInButton'
+import CheckboxBar from './Components/CheckboxBar'
 
 function Game(props){
-    const [players,setPlayers] = useState([])
+    const [players,setPlayers] = useState({})
+    const [tablePlayers,setTablePlayers] = useState([])
     const [cards,setCards]=useState([])
     const [communityCards,setCommunityCards]=useState([])
     const [isTurn,setIsTurn]=useState()
@@ -22,12 +24,14 @@ function Game(props){
     const [playerCurrentBet,setPlayerCurrentBet]=useState(0)
     const [pot,setPot]=useState(0)
     const [isSitDown,setIsSitDown]=useState(false)
-    const [isSitOut,setIsSitOut]=useState(false)
+    const [isSitOut,setIsSitOut]=useState(true)
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
-            setPlayers(data[0])
-            setPot(data[1])
+            setPlayers(data.players)
+            setPot(data.pot)
+            setCurrentBet(data.currentBet)
+            setTablePlayers(data.tablePlayers)
         })
 
         props.socket.on('dealCards', data => {
@@ -54,7 +58,6 @@ function Game(props){
         props.socket.on('sitDownButton', ()=>{
             setIsSitDown(true)
         })
-
     },[])
 
     const playerElements =  Object.values(players).map(player => {
@@ -74,7 +77,8 @@ function Game(props){
     return(
         <div>
             <p>{playerElements}</p>
-            {isTurn? <DecisionBar 
+            {(isTurn && tablePlayers.length>0)? 
+                    <DecisionBar 
                         socket={props.socket} 
                         fold={actions.fold} 
                         check={actions.check} 
@@ -84,11 +88,20 @@ function Game(props){
                         stack={stack} 
                         bigBlind={bigBlind}
                         currentBet={currentBet}
-                        playerCurrentBet={playerCurrentBet}/>:null}
+                        playerCurrentBet={playerCurrentBet}/>:
+                        
+                    tablePlayers.map(player => player.socketId).includes(props.socket.id)?  
+                        <CheckboxBar 
+                                socket={props.socket}
+                                currentBet={currentBet}
+                                players={players}/>:
+                        null
+            }
             <p>{communityElements}</p>
             <p>Pot:{pot}</p>
-            {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown}/>:null}
-            {isSitOut?<SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>?<SitInButton socket={props.socket} setIsSitOut={setIsSitOut}/>}
+            {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown}/>:
+             isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>:<SitInButton socket={props.socket} setIsSitOut={setIsSitOut}/>}
+            
         </div>
     )
 }

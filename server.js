@@ -35,7 +35,7 @@ io.on('connection',(socket) =>{
     for (const id of spectators){
       setTimeout(function(){io.to(id).emit('sitDownButton')},500)
     }
-    setTimeout(function(){io.emit('nameAndStack', [players,Table.getPot()])},500)
+    setTimeout(function(){io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})},500)
   }
 
   socket.on('newGame',(data)=>{
@@ -46,7 +46,7 @@ io.on('connection',(socket) =>{
         Table.addPlayer(player)
       }
       
-      io.emit('nameAndStack', [players,Table.getPot()])
+      io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
       Table.newHand();
       
 
@@ -75,7 +75,7 @@ io.on('connection',(socket) =>{
     delete players[playerId]
     
     io.emit('newName',players)
-    io.emit('nameAndStack', [players,Table.getPot()])
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
     // handle disconnect  
   })
 
@@ -89,14 +89,14 @@ io.on('connection',(socket) =>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.fold()
     }
-    io.emit('nameAndStack', [players,Table.getPot()])
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
   })
 
   socket.on('check', ()=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.check()
     }
-    io.emit('nameAndStack', [players,Table.getPot()])
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
   })
 
   socket.on('call', ()=>{
@@ -104,25 +104,25 @@ io.on('connection',(socket) =>{
       Table.call()
     }
     
-    io.emit('nameAndStack', [players,Table.getPot()])
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
   })
 
   socket.on('bet',(betValue)=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.bet(betValue)
     }
-    io.emit('nameAndStack', [players,Table.getPot()])
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
   })
 
   socket.on('raise',(raiseValue)=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.raise(raiseValue)
     }
-    io.emit('nameAndStack', [players,Table.getPot()])
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
   })
 
   socket.on('update', ()=>{
-    io.emit('nameAndStack', [players,Table.getPot()])
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
   })
 }
 )
