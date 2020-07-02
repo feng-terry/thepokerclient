@@ -3,6 +3,8 @@ import PlayerCard from './Components/PlayerCard'
 import DecisionBar from './Components/DecisionBar'
 import Card from './Components/Card'
 import SitDownButton from './Components/SitDownButton'
+import SitOutButton from './Components/SitOutButton'
+import SitInButton from './Components/SitInButton'
 
 function Game(props){
     const [players,setPlayers] = useState([])
@@ -53,11 +55,6 @@ function Game(props){
             setIsSitDown(true)
         })
 
-        props.socket.on('sitOutButton', ()=>{
-            setIsSitOut(true)
-        })
-
-
     },[])
 
     const playerElements =  Object.values(players).map(player => {
@@ -91,7 +88,7 @@ function Game(props){
             <p>{communityElements}</p>
             <p>Pot:{pot}</p>
             {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown}/>:null}
-            {isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>:null}
+            {isSitOut?<SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>?<SitInButton socket={props.socket} setIsSitOut={setIsSitOut}/>}
         </div>
     )
 }
