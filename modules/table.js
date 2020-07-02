@@ -7,6 +7,7 @@ Table=function(io){
     this.players = [];
     this.holdPlayers = []
     this.activePlayers = []
+    this.sitOut = []
     this.deck = new Deck();
     this.deck.shuffle();
     this.stage;
@@ -50,11 +51,13 @@ Table=function(io){
 
     this.addPlayer = function(playerObject){
         this.players.push(playerObject);
+        playerObject.setSeat(this.players.length)
     }
 
     this.addHoldPlayer = function(player){
-        this.holdPlayers.push(player)
+        player.setSeat(this.players.length + this.holdPlayers.length + 1)
         player.addStack(this.startingStack)
+        this.holdPlayers.push(player)
     }
 
     this.removePlayer = function(playerObject){
@@ -99,14 +102,22 @@ Table=function(io){
     }
 
     this.newHand = function(){
+        //Emitting SitIn/SitOut buttons
+        for (const player of this.players){
+            io.to(player.getSocketId()).emit('sitOutButton')
+        }
+
+
+        //Blind Increase
         this.totalTurns+=1
         if (this.totalTurns%this.blindsIncreaseTimer===0){
             this.increaseBlinds()
         }
+        //Switching position
         this.players.unshift(this.players.pop())
-        console.log('hold',this.holdPlayers)
+        //Adding players that sat in
         this.players = this.players.concat(this.holdPlayers)
-        console.log('players', this.players)
+        //Resetting the Table
         this.cards = [];
         for (const player of this.players){
             player.cards = []
@@ -118,6 +129,7 @@ Table=function(io){
         this.deck = new Deck()
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
+        //Initalize Functions
         this.postBlinds()
         this.dealHands()
         this.preflop()

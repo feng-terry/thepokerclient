@@ -32,11 +32,10 @@ io.on('connection',(socket) =>{
   setTimeout((function() {io.emit('newName',players)}), 375)
 
   if (pageState === 'gamePage'){
-    setTimeout(function(){io.emit('nameAndStack', [players,Table.getPot()])},375)
     for (const id of spectators){
-      console.log('id:',id)
-      setTimeout(function(){io.to(id).emit('sitInButton')},500)
+      setTimeout(function(){io.to(id).emit('sitDownButton')},500)
     }
+    setTimeout(function(){io.emit('nameAndStack', [players,Table.getPot()])},500)
   }
 
   socket.on('newGame',(data)=>{
@@ -60,10 +59,14 @@ io.on('connection',(socket) =>{
     io.emit('newName',players)
   })
 
-  socket.on('sitIn',(data)=>{
+  socket.on('sitDown',(data)=>{
     players[socket.id] = new player.Player(data.playerName,socket.id)
     spectators.splice(spectators.indexOf(socket.id),1)
     Table.addHoldPlayer(players[socket.id])
+  })
+
+  socket.on('sitOut', ()=>{
+    //toDo
   })
 
   socket.on('disconnect', () =>{

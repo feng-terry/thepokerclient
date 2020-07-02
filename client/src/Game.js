@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react'
 import PlayerCard from './Components/PlayerCard'
 import DecisionBar from './Components/DecisionBar'
 import Card from './Components/Card'
-import SitInButton from './Components/SitInButton'
+import SitDownButton from './Components/SitDownButton'
 
 function Game(props){
     const [players,setPlayers] = useState([])
@@ -19,7 +19,8 @@ function Game(props){
     const [currentBet,setCurrentBet]=useState(0)
     const [playerCurrentBet,setPlayerCurrentBet]=useState(0)
     const [pot,setPot]=useState(0)
-    const [isSitIn,setIsSitIn]=useState(false)
+    const [isSitDown,setIsSitDown]=useState(false)
+    const [isSitOut,setIsSitOut]=useState(false)
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -48,9 +49,14 @@ function Game(props){
             props.socket.emit('update')
         })
 
-        props.socket.on('sitInButton', ()=>{
-            setIsSitIn(true)
+        props.socket.on('sitDownButton', ()=>{
+            setIsSitDown(true)
         })
+
+        props.socket.on('sitOutButton', ()=>{
+            setIsSitOut(true)
+        })
+
 
     },[])
 
@@ -84,8 +90,8 @@ function Game(props){
                         playerCurrentBet={playerCurrentBet}/>:null}
             <p>{communityElements}</p>
             <p>Pot:{pot}</p>
-            {isSitIn? <SitInButton socket={props.socket} setIsSitIn={setIsSitIn}/>:null}
-            
+            {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown}/>:null}
+            {isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>:null}
         </div>
     )
 }

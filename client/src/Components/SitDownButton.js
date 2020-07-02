@@ -9,8 +9,8 @@ function SitDownButton (props){
     
     function handleSubmit(event){
         event.preventDefault()
-        props.setIsSitDownn(false)
-        props.socket.emit('sitDownn', {
+        props.setIsSitDown(false)
+        props.socket.emit('sitDown', {
             playerName:name
         })
     }

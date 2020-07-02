@@ -7,6 +7,7 @@ Player = function(name,socketId){
     this.bets = 0;
     this.totalBets = 0;
     this.socketId = socketId;
+    this.seat;
 
     //Getter Methods
     this.getName = function(){
@@ -30,6 +31,9 @@ Player = function(name,socketId){
     this.getTotalBets = function(){
         return this.totalBets
     }
+    this.getSeat = function(){
+        return this.seat
+    }
     //Setter Methods
     this.addStack = function(amount){
         this.stack = Number(this.stack) + Number(amount);
@@ -51,6 +55,9 @@ Player = function(name,socketId){
         this.subStack(amount);
         this.bets = Number(this.bets) + Number(amount);
         this.totalBets = Number(this.totalBets) + Number(amount)
+    }
+    this.setSeat = function(seat){
+        this.seat = seat
     }
 }
 
