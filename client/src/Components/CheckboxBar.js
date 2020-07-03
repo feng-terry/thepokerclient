@@ -3,7 +3,6 @@ import React, {useState,useEffect} from 'react'
 export default function CheckboxBar(props){
     const [isCheckFold,setIsCheckFold] = useState(false)
     const [isCallAny,setIsCallAny] = useState(false)
-    const [fake,setFake]=useState(props.fake)
     let playerBet = 0
 
     if (Object.values(props.players).length > 0){
@@ -13,7 +12,6 @@ export default function CheckboxBar(props){
     function handleCheckFold(){
         setIsCheckFold(!isCheckFold)
         props.socket.emit('checkFold',!isCheckFold)
-
     }
 
     function handleCallAny(){
@@ -37,7 +35,7 @@ export default function CheckboxBar(props){
                     checked={isCheckFold}/></div>
             }
 
-            <label for='call=any'>Call Any</label>
+            <label for='call-any'>Call Any</label>
             <input 
             id='call-any' 
             type='checkbox'
