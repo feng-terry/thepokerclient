@@ -8,6 +8,8 @@ Player = function(name,socketId){
     this.totalBets = 0;
     this.socketId = socketId;
     this.seat;
+    this.checkFold;
+    this.callAny;
 
     //Getter Methods
     this.getName = function(){
@@ -34,6 +36,12 @@ Player = function(name,socketId){
     this.getSeat = function(){
         return this.seat
     }
+    this.getCheckFold = function(){
+        return this.checkFold
+    }
+    this.getCallAny = function(){
+        return this.callAny
+    }
     //Setter Methods
     this.addStack = function(amount){
         this.stack = Number(this.stack) + Number(amount);
@@ -59,8 +67,13 @@ Player = function(name,socketId){
     this.setSeat = function(seat){
         this.seat = seat
     }
+    this.setCheckFold = function(value){
+        this.checkFold = value
+    }
+    this.setCallAny = function(value){
+        this.callAny = value
+    }
 }
-
 module.exports={
     Player: Player
 }
