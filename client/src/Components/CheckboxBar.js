@@ -1,10 +1,10 @@
-import React, {useState} from 'react'
+import React, {useState,useEffect} from 'react'
 
 export default function CheckboxBar(props){
     const [isCheckFold,setIsCheckFold] = useState(false)
     const [isCallAny,setIsCallAny] = useState(false)
+    const [fake,setFake]=useState(props.fake)
     let playerBet = 0
-
 
     if (Object.values(props.players).length > 0){
         playerBet = props.players[props.socket.id].bets
@@ -12,16 +12,13 @@ export default function CheckboxBar(props){
 
     function handleCheckFold(){
         setIsCheckFold(!isCheckFold)
-        console.log('checkbox')
-        console.log('checkFold:' + isCheckFold)
-        props.socket.emit('checkFold',isCheckFold)
+        props.socket.emit('checkFold',!isCheckFold)
+
     }
 
     function handleCallAny(){
         setIsCallAny(!isCallAny)
-        props.socket.emit('callAny',isCallAny)
-        console.log('checkbox')
-        console.log('callAny:' + isCallAny)
+        props.socket.emit('callAny',!isCallAny)
     }
 
     return(
@@ -30,22 +27,22 @@ export default function CheckboxBar(props){
                     <div><label for='fold'>Fold</label><input 
                     id='fold' 
                     type='checkbox'
-                    onChange={handleCheckFold()}
-                    value={isCheckFold}/></div>:
+                    onClick={handleCheckFold}
+                    checked={isCheckFold}/></div>:
 
                     <div><label for='check-fold'>Check/Fold</label><input 
                     id='check-fold' 
                     type='checkbox' 
-                    onChange={handleCheckFold()}
-                    value={isCheckFold}/></div>
+                    onClick={()=>(handleCheckFold())}
+                    checked={isCheckFold}/></div>
             }
 
             <label for='call=any'>Call Any</label>
             <input 
             id='call-any' 
             type='checkbox'
-            onChange={()=>handleCallAny()}
-            value={isCallAny}/>
+            onClick={()=>(handleCallAny())}
+            checked={isCallAny}/>
         </div>
     )
 

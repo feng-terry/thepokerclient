@@ -309,33 +309,29 @@ Table=function(io){
         }
     }
 
+    this.clearPremoves = function(){
+        this.currentPlayer.setCheckFold(false)
+        this.currentPlayer.setCallAny(false)
+    }
+
     this.premoves = function(){
-        console.log('premoves:')
-        console.log(this.currentPlayer.getCheckFold() + ',' + this.currentPlayer.getCallAny())
         if (this.currentPlayer.getCheckFold()){
+            this.clearPremoves()
             if(this.currentBet > this.currentPlayer.getBets()){
                 this.fold()
             } else {
                 this.check()
             }
         } else if(this.currentPlayer.getCallAny()){
+            this.clearPremoves()
             this.call()
         }
     }
 
     this.playTurn = function(){
-
-        console.log('playTurn:')
-        console.log(this.currentPlayer)
-        console.log(this.currentPlayer.getCheckFold() + ',' + this.currentPlayer.getCallAny())
-
         this.initializeActions()
         if (this.currentPlayer.getCheckFold() || this.currentPlayer.getCallAny()){
-
-            console.log('playTurn if:')
-            console.log(this.currentPlayer.getCheckFold() + ',' + this.currentPlayer.getCallAny())
            this.premoves()
-           io.emit('update')
         } else{
                 if (this.currentBet === this.currentPlayer.getBets()){
                     this.possibleActions.check = true
@@ -426,7 +422,6 @@ Table=function(io){
                                                                                     raise:false}})
 
         this.currentPlayer.addBet(this.currentBet - this.currentPlayer.getBets())
-
         this.checkNextStage()
     }
 

@@ -25,6 +25,7 @@ function Game(props){
     const [pot,setPot]=useState(0)
     const [isSitDown,setIsSitDown]=useState(false)
     const [isSitOut,setIsSitOut]=useState(true)
+    const [fake,setFake] = useState(Math.random())
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -32,6 +33,7 @@ function Game(props){
             setPot(data.pot)
             setCurrentBet(data.currentBet)
             setTablePlayers(data.tablePlayers)
+            setFake(Math.random())
         })
 
         props.socket.on('dealCards', data => {
@@ -94,7 +96,8 @@ function Game(props){
                         <CheckboxBar 
                                 socket={props.socket}
                                 currentBet={currentBet}
-                                players={players}/>:
+                                players={players}
+                                fake={fake}/>:
                         null
             }
             <p>{communityElements}</p>
