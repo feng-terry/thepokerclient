@@ -124,6 +124,20 @@ io.on('connection',(socket) =>{
   socket.on('update', ()=>{
     io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getPlayers()})
   })
+
+  socket.on('checkFold', (data) =>{
+    console.log('server')
+    console.log(players[socket.id].name)
+    console.log(data)
+    players[socket.id].setCheckFold(data)
+  })
+
+  socket.on('callAny', (data) =>{
+    console.log('server')
+    console.log(players[socket.id].name)
+    console.log(data)
+    players[socket.id].setCallAny(data)
+  })
 }
 )
 

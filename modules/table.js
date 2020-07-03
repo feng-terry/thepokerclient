@@ -141,7 +141,6 @@ Table=function(io){
     }
 
     this.dealHands = function(){
-        console.log(this.activePlayers)
         for (let player of this.activePlayers){
             player.addCards(this.deck);
         }
@@ -257,7 +256,6 @@ Table=function(io){
         this.takeBets()
         //////////////////////////////////////////////////////////
         if (this.pot != 0){
-            console.log('pot:', this.pot)
             //Finding the minimun bet and the player assosciated with it
             let minBet = this.pot + 1
             let minPlayer
@@ -267,8 +265,6 @@ Table=function(io){
                     minPlayer = player
                 }
             }
-            console.log('minBet:', minBet)
-            console.log('minPlayer:', minPlayer.name)
             //Calculating the size of the sidepot
             let partialPot = minBet*this.activePlayers.length
 
@@ -277,10 +273,8 @@ Table=function(io){
                 this.leftOverChips = 0
                 this.isLeftOverChips = false
             }
-            console.log('partialPot:', partialPot)
             //Determining the winner
             const winner = hand.handComparison(this.activePlayers,this.cards)
-            console.log('winner:', winner.name)
             if (Array.isArray(winner)){
                 const amount = Math.floor(partialPot/winner.length)
                 for (const player of winner){
@@ -297,9 +291,7 @@ Table=function(io){
             //Removing the minPlayer and recursively calling
             this.activePlayers.splice(this.activePlayers.indexOf(minPlayer),1)
             for (const player of this.activePlayers){
-                console.log('totalBets Before:', player.totalBets)
                 player.totalBets -= minBet
-                console.log('totalBets After:', player.totalBets)
             }
 
             this.showdown()
@@ -317,55 +309,81 @@ Table=function(io){
         }
     }
 
+    this.premoves = function(){
+        console.log('premoves:')
+        console.log(this.currentPlayer.getCheckFold() + ',' + this.currentPlayer.getCallAny())
+        if (this.currentPlayer.getCheckFold()){
+            if(this.currentBet > this.currentPlayer.getBets()){
+                this.fold()
+            } else {
+                this.check()
+            }
+        } else if(this.currentPlayer.getCallAny()){
+            this.call()
+        }
+    }
+
     this.playTurn = function(){
+
+        console.log('playTurn:')
+        console.log(this.currentPlayer)
+        console.log(this.currentPlayer.getCheckFold() + ',' + this.currentPlayer.getCallAny())
+
         this.initializeActions()
+        if (this.currentPlayer.getCheckFold() || this.currentPlayer.getCallAny()){
 
-        if (this.currentBet === this.currentPlayer.getBets()){
-            this.possibleActions.check = true
+            console.log('playTurn if:')
+            console.log(this.currentPlayer.getCheckFold() + ',' + this.currentPlayer.getCallAny())
+           this.premoves()
+           io.emit('update')
         } else{
-            this.possibleActions.fold = true
-            this.possibleActions.call=true
-        }
+                if (this.currentBet === this.currentPlayer.getBets()){
+                    this.possibleActions.check = true
+                } else{
+                    this.possibleActions.fold = true
+                    this.possibleActions.call=true
+                }
 
-        if(this.currentBet === 0){
-            this.possibleActions.bet = true
-        } else{
-            this.possibleActions.raise = true
-        }
+                if(this.currentBet === 0){
+                    this.possibleActions.bet = true
+                } else{
+                    this.possibleActions.raise = true
+                }
 
-        switch(this.stage){
-            case 'preflop':
-                io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                    {isTurn:true,
-                    actions:this.possibleActions,
-                    stack:this.currentPlayer.getStack(),
-                    bigBlind:this.bigBlind,
-                    currentBet:this.currentBet,
-                    playerCurrentBet:this.currentPlayer.getBets()})
-            case 'flop':
-                io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                    {isTurn:true,
-                    actions:this.possibleActions,
-                    stack:this.currentPlayer.getStack(),
-                    bigBlind:this.bigBlind,
-                    currentBet:this.currentBet,
-                    playerCurrentBet:this.currentPlayer.getBets()})
-            case 'turn':
-                io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                    {isTurn:true,
-                    actions:this.possibleActions,
-                    stack:this.currentPlayer.getStack(),
-                    bigBlind:this.bigBlind,
-                    currentBet:this.currentBet,
-                    playerCurrentBet:this.currentPlayer.getBets()})
-            case 'river':
-                io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                    {isTurn:true,
-                    actions:this.possibleActions,
-                    stack:this.currentPlayer.getStack(),
-                    bigBlind:this.bigBlind,
-                    currentBet:this.currentBet,
-                    playerCurrentBet:this.currentPlayer.getBets()})
+                switch(this.stage){
+                    case 'preflop':
+                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                            {isTurn:true,
+                            actions:this.possibleActions,
+                            stack:this.currentPlayer.getStack(),
+                            bigBlind:this.bigBlind,
+                            currentBet:this.currentBet,
+                            playerCurrentBet:this.currentPlayer.getBets()})
+                    case 'flop':
+                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                            {isTurn:true,
+                            actions:this.possibleActions,
+                            stack:this.currentPlayer.getStack(),
+                            bigBlind:this.bigBlind,
+                            currentBet:this.currentBet,
+                            playerCurrentBet:this.currentPlayer.getBets()})
+                    case 'turn':
+                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                            {isTurn:true,
+                            actions:this.possibleActions,
+                            stack:this.currentPlayer.getStack(),
+                            bigBlind:this.bigBlind,
+                            currentBet:this.currentBet,
+                            playerCurrentBet:this.currentPlayer.getBets()})
+                    case 'river':
+                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                            {isTurn:true,
+                            actions:this.possibleActions,
+                            stack:this.currentPlayer.getStack(),
+                            bigBlind:this.bigBlind,
+                            currentBet:this.currentBet,
+                            playerCurrentBet:this.currentPlayer.getBets()})
+                }
         }
     }
     ///Server Client rift
