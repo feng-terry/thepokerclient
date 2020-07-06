@@ -7,7 +7,7 @@ Table=function(io){
     this.players = [];
     this.holdPlayers = []
     this.activePlayers = []
-    this.sitOut = []
+    this.sitOutList = []
     this.deck = new Deck();
     this.deck.shuffle();
     this.stage;
@@ -99,6 +99,12 @@ Table=function(io){
         this.currentBet = this.bigBlind
 
         io.emit('update')
+    }
+
+    this.sitOut = function(player){
+        player.setCheckFold(true)
+        this.players.splice(this.players.indexOf(player),1)
+        this.sitOutList.push(player)
     }
 
     this.newHand = function(){
@@ -307,8 +313,10 @@ Table=function(io){
     }
 
     this.clearPremoves = function(){
-        this.currentPlayer.setCheckFold(false)
-        this.currentPlayer.setCallAny(false)
+        if (this.players.includes(this.currentPlayer)){
+            this.currentPlayer.setCheckFold(false)
+            this.currentPlayer.setCallAny(false)
+        }
         io.emit('update')
     }
 
