@@ -102,10 +102,15 @@ Table=function(io){
     }
 
     this.sitIn = function(player){
+        player.setCheckFold(false)
         this.sitOutList.splice(this.indexOf(player),1)
         this.players.push(player)
     }
-
+    this.sitOut = function(player){
+        player.setCheckFold(true)
+        this.players.splice(this.players.indexOf(player),1)
+        this.sitOutList.push(player)
+    }
     this.newHand = function(){
         //Blind Increase
         this.totalTurns+=1
@@ -312,8 +317,10 @@ Table=function(io){
     }
 
     this.clearPremoves = function(){
-        this.currentPlayer.setCheckFold(false)
-        this.currentPlayer.setCallAny(false)
+        if (this.players.includes(this.currentPlayer)){
+            this.currentPlayer.setCheckFold(false)
+            this.currentPlayer.setCallAny(false)
+        }
         io.emit('update')
     }
 
