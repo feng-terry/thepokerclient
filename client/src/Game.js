@@ -9,7 +9,7 @@ import CheckboxBar from './Components/CheckboxBar'
 
 function Game(props){
     const [players,setPlayers] = useState({})
-    const [tablePlayers,setTablePlayers] = useState([])
+    const [activeNotSatOutPlayers,setActiveNotSatOutPlayers] = useState([])
     const [cards,setCards]=useState([])
     const [communityCards,setCommunityCards]=useState([])
     const [isTurn,setIsTurn]=useState()
@@ -32,7 +32,7 @@ function Game(props){
             setPlayers(data.players)
             setPot(data.pot)
             setCurrentBet(data.currentBet)
-            setTablePlayers(data.tablePlayers)
+            setActiveNotSatOutPlayers(data.activeNotSatOutPlayers)
             setKey(Math.random())
         })
 
@@ -79,7 +79,7 @@ function Game(props){
     return(
         <div>
             <p>{playerElements}</p>
-            {(isTurn && tablePlayers.length>0)? 
+            {(isTurn && activeNotSatOutPlayers.length>0)? 
                     <DecisionBar 
                         socket={props.socket} 
                         fold={actions.fold} 
@@ -92,7 +92,7 @@ function Game(props){
                         currentBet={currentBet}
                         playerCurrentBet={playerCurrentBet}/>:
                         
-                    tablePlayers.map(player => player.socketId).includes(props.socket.id)?  
+                    activeNotSatOutPlayers.map(player => player.socketId).includes(props.socket.id)?  
                         <CheckboxBar 
                                 socket={props.socket}
                                 currentBet={currentBet}

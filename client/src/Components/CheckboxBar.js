@@ -13,7 +13,7 @@ export default function CheckboxBar(props){
         setIsCheckFold(!isCheckFold)
         props.socket.emit('checkFold',!isCheckFold)
     }
-
+    
     function handleCallAny(){
         setIsCallAny(!isCallAny)
         props.socket.emit('callAny',!isCallAny)

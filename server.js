@@ -35,7 +35,7 @@ io.on('connection',(socket) =>{
     for (const id of spectators){
       setTimeout(function(){io.to(id).emit('sitDownButton')},500)
     }
-    setTimeout(function(){io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})},500)
+    setTimeout(function(){io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})},500)
   }
 
   socket.on('newGame',(data)=>{
@@ -46,7 +46,7 @@ io.on('connection',(socket) =>{
         Table.addPlayer(player)
       }
       
-      io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+      io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
       Table.newHand();
       
 
@@ -71,6 +71,9 @@ io.on('connection',(socket) =>{
 
   socket.on('sitIn', ()=>{
     Table.sitIn(players[socket.id])
+    if (Table.getPlayers().length === 2){
+      Table.newHand()
+    }
     
   })
 
@@ -80,7 +83,7 @@ io.on('connection',(socket) =>{
     delete players[playerId]
     
     io.emit('newName',players)
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
     // handle disconnect  
   })
 
@@ -94,14 +97,14 @@ io.on('connection',(socket) =>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.fold()
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('check', ()=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.check()
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('call', ()=>{
@@ -109,25 +112,25 @@ io.on('connection',(socket) =>{
       Table.call()
     }
     
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('bet',(betValue)=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.bet(betValue)
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('raise',(raiseValue)=>{
     if (socket.id === Table.currentPlayer.getSocketId()){
       Table.raise(raiseValue)
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('update', ()=>{
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),tablePlayers:Table.getActivePlayers()})
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('checkFold', (data) =>{

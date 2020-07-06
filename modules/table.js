@@ -103,14 +103,20 @@ Table=function(io){
 
     this.sitIn = function(player){
         player.setCheckFold(false)
-        this.sitOutList.splice(this.indexOf(player),1)
+        this.sitOutList.splice(this.players.indexOf(player),1)
         this.players.push(player)
+        console.log('sat in')
     }
+
     this.sitOut = function(player){
         player.setCheckFold(true)
         this.players.splice(this.players.indexOf(player),1)
         this.sitOutList.push(player)
+        this.premoves()
+        io.emit('update')
+        console.log('sat out')
     }
+
     this.newHand = function(){
         //Blind Increase
         this.totalTurns+=1
@@ -123,7 +129,7 @@ Table=function(io){
         this.players = this.players.concat(this.holdPlayers)
         //Resetting the Table
         this.cards = [];
-        for (const player of this.players){
+        for (const player of this.players.concat(this.sitOutList)){
             player.cards = []
             player.bets = 0
             player.totalBets = 0
@@ -144,7 +150,9 @@ Table=function(io){
         this.activePlayers[0].addStack(this.pot)
         this.pot =0
     
-        this.newHand()
+        if (this.players.length > 1){
+            this.newHand()
+        } 
     }
 
     this.dealHands = function(){
@@ -204,7 +212,8 @@ Table=function(io){
 
     this.takeBets = function(){
         let totalAmount = 0;
-        for (let player of this.players){
+        //Takes bets from all players and those who sat out this round
+        for (let player of this.players.concat(this.sitOutList)){
             totalAmount += player.getBets();
             player.bets = 0;
         }
@@ -271,7 +280,7 @@ Table=function(io){
                     minBet = player.getTotalBets()
                     minPlayer = player
                 }
-            } 
+            }
             //Calculating the size of the sidepot
             let partialPot = minBet*this.activePlayers.length
 
@@ -405,9 +414,9 @@ Table=function(io){
                                                                                     raise:false}})
 
         if (this.activePlayers.length < 2){
-            this.endRound()//Still have to write
+            this.endRound()
         } else if (this.currentPlayer === this.finalPlayer){
-            this.nextStage() //Still have to write
+            this.nextStage() 
         }
         else{
             this.currentPlayer = tempPlayer
@@ -525,6 +534,15 @@ Table=function(io){
     }
     this.getCurrentBet = function(){
         return this.currentBet
+    }
+    this.getActiveNotSatOutPlayers = function(){
+        let result = []
+        for (const player of this.activePlayers){
+            if (!this.sitOutList.includes(player)){
+                result.push(player)
+            }
+        }
+        return result
     }
 
 }
