@@ -7,7 +7,7 @@ Table=function(io){
     this.players = [];
     this.holdPlayers = []
     this.activePlayers = []
-    this.sitOut = []
+    this.sitOutList = []
     this.deck = new Deck();
     this.deck.shuffle();
     this.stage;
@@ -99,6 +99,11 @@ Table=function(io){
         this.currentBet = this.bigBlind
 
         io.emit('update')
+    }
+
+    this.sitIn = function(player){
+        this.sitOutList.splice(this.indexOf(player),1)
+        this.players.push(player)
     }
 
     this.newHand = function(){
@@ -261,7 +266,7 @@ Table=function(io){
                     minBet = player.getTotalBets()
                     minPlayer = player
                 }
-            }
+            } 
             //Calculating the size of the sidepot
             let partialPot = minBet*this.activePlayers.length
 

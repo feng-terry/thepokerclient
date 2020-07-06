@@ -71,6 +71,7 @@ io.on('connection',(socket) =>{
 
   socket.on('sitIn', ()=>{
     Table.sitIn(players[socket.id])
+    
   })
 
   socket.on('disconnect', () =>{
