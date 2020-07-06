@@ -102,9 +102,6 @@ Table=function(io){
     }
 
     this.newHand = function(){
-        //Emitting SitIn/SitOut buttons
-
-
         //Blind Increase
         this.totalTurns+=1
         if (this.totalTurns%this.blindsIncreaseTimer===0){
@@ -312,6 +309,7 @@ Table=function(io){
     this.clearPremoves = function(){
         this.currentPlayer.setCheckFold(false)
         this.currentPlayer.setCallAny(false)
+        io.emit('update')
     }
 
     this.premoves = function(){

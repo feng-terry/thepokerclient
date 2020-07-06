@@ -66,7 +66,11 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('sitOut', ()=>{
-    //toDo
+    Table.sitOut(players[socket.id])
+  })
+
+  socket.on('sitIn', ()=>{
+    Table.sitIn(players[socket.id])
   })
 
   socket.on('disconnect', () =>{
@@ -126,16 +130,10 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('checkFold', (data) =>{
-    console.log('server')
-    console.log(players[socket.id].name)
-    console.log(data)
     players[socket.id].setCheckFold(data)
   })
 
   socket.on('callAny', (data) =>{
-    console.log('server')
-    console.log(players[socket.id].name)
-    console.log(data)
     players[socket.id].setCallAny(data)
   })
 }
