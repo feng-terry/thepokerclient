@@ -8,6 +8,7 @@ Table=function(io){
     this.holdPlayers = []
     this.activePlayers = []
     this.sitOutList = []
+    this.sitInList = []
     this.deck = new Deck();
     this.deck.shuffle();
     this.stage;
@@ -55,7 +56,7 @@ Table=function(io){
     }
 
     this.addHoldPlayer = function(player){
-        player.setSeat(this.players.length + this.holdPlayers.length + 1)
+        player.setSeat(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1)
         player.addStack(this.startingStack)
         this.holdPlayers.push(player)
     }
@@ -95,6 +96,7 @@ Table=function(io){
             player.addBet(bigBlindAmount)
         }
         this.holdPlayers = []
+        this.sitInList = []
 
         this.currentBet = this.bigBlind
 
@@ -104,8 +106,7 @@ Table=function(io){
     this.sitIn = function(player){
         player.setCheckFold(false)
         this.sitOutList.splice(this.players.indexOf(player),1)
-        this.players.push(player)
-        console.log('sat in')
+        this.sitInList.push(player)
     }
 
     this.sitOut = function(player){
@@ -117,6 +118,27 @@ Table=function(io){
         console.log('sat out')
     }
 
+    this.findLeft = function(seat,mapArr){
+       const index =  mapArr.indexOf(seat - 1)
+
+       if (index >= 0){
+           return this.players[index]
+       } else if (seat === 1){
+           this.findLeft(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1,mapArr)
+       }else{
+           this.findLeft(seat-1,mapArr)
+       }
+    }
+
+    this.placePlayers = function(){
+        for (const player of this.sitInList.concat(this.holdPlayers)){
+            const mapArr = this.players.map(player=>player.getSeat())
+
+            const leftPlayer = this.findLeft(player.getSeat(),mapArr)
+            this.players.splice(this.players.indexOf(leftPlayer) + 1 ,0,player)
+        }
+    }
+
     this.newHand = function(){
         //Blind Increase
         this.totalTurns+=1
@@ -124,9 +146,9 @@ Table=function(io){
             this.increaseBlinds()
         }
         //Switching position
-        this.players.unshift(this.players.pop())
-        //Adding players that sat in
-        this.players = this.players.concat(this.holdPlayers)
+        this.players.push(this.players.shift())
+        //Adding players that sat down
+        this.placePlayers()
         //Resetting the Table
         this.cards = [];
         for (const player of this.players.concat(this.sitOutList)){
@@ -140,6 +162,7 @@ Table=function(io){
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
         //Initalize Functions
+        console.log(this.activePlayers.map(player => player.name))
         this.postBlinds()
         this.dealHands()
         this.preflop()
