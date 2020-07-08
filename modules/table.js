@@ -19,6 +19,7 @@ Table=function(io){
     this.leftOverChips = 0;
     this.isLeftOverChips = true;
     this.totalTurns=0
+    this.bigBlindSeat = 0;
     //Settings
     this.startingStack;
     this.bigBlind; //boolean of whether or not blinds will increase
@@ -93,8 +94,25 @@ Table=function(io){
         }
 
         for (const player of this.holdPlayers){
-            player.addBet(bigBlindAmount)
+            console.log('not suposed to be here')
+            if(smallBlindPlayer === player){
+                player.clearBets()
+                player.addBet(bigBlindAmount)
+            }else if (bigBlindPlayer != player){
+                player.addBet(bigBlindAmount)
+            }
         }
+        for (const player of this.sitInList){
+            console.log('I:',this.bigBlindSeat)
+            console.log("P:",player.getSeat())
+            console.log('O:', player.getSitOutSeat())
+            let oweBlinds = ((this.bigBlindSeat > player.getSeat() && player.getSeat() > player.getSitOutSeat())||(player.getSitOutSeat() > this.bigBlindSeat && this.bigBlindSeat > player.getSeat())||(player.getSeat() > player.getSitOutSeat() && player.getSitOutSeat() > this.bigBlindSeat))
+            if (oweBlinds || player.getBlindCycle()){ //I:Sit in Seat O:Sit out Seat P:Player Seat, oweBlinds is I>P>O, O>I>P, P>O>I consult:https://imgur.com/a/VnUbLsB
+                player.addBet(bigBlindAmount)
+                player.setBlindCycle(false)
+            }
+        }
+
         this.holdPlayers = []
         this.sitInList = []
 
@@ -106,16 +124,16 @@ Table=function(io){
     this.sitIn = function(player){
         player.setCheckFold(false)
         this.sitOutList.splice(this.players.indexOf(player),1)
-        this.sitInList.push(player)
+        this.sitInList.push(player)  
     }
 
     this.sitOut = function(player){
         player.setCheckFold(true)
+        player.setSitOutSeat(this.bigBlindSeat)
         this.players.splice(this.players.indexOf(player),1)
         this.sitOutList.push(player)
         this.premoves()
         io.emit('update')
-        console.log('sat out')
     }
 
     this.findLeft = function(seat,mapArr){
@@ -136,6 +154,23 @@ Table=function(io){
 
             const leftPlayer = this.findLeft(player.getSeat(),mapArr)
             this.players.splice(this.players.indexOf(leftPlayer) + 1 ,0,player)
+        }
+    }
+
+    this.checkBlindCycle = function(){
+        let player = this.activePlayers[1]
+        while (this.bigBlindSeat != player.getSeat()){
+            this.bigBlindSeat += 1
+            if (this.bigBlindSeat > this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length){
+                this.bigBlindSeat = 1
+            }
+
+            //Checking if a blind cycle has passed with each increment of the bigBlindSeat
+            for (const sitOutPlayer of this.sitOutList){
+                if (sitOutPlayer.getSitOutSeat() === this.bigBlindSeat){
+                    sitOutPlayer.setBlindCycle(true)
+                }
+            }
         }
     }
 
@@ -162,7 +197,7 @@ Table=function(io){
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
         //Initalize Functions
-        console.log(this.activePlayers.map(player => player.name))
+        this.checkBlindCycle()
         this.postBlinds()
         this.dealHands()
         this.preflop()

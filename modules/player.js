@@ -8,6 +8,8 @@ Player = function(name,socketId){
     this.totalBets = 0;
     this.socketId = socketId;
     this.seat;
+    this.sitOutSeat;
+    this.blindCycle = false;
     this.checkFold;
     this.callAny;
 
@@ -42,6 +44,12 @@ Player = function(name,socketId){
     this.getCallAny = function(){
         return this.callAny
     }
+    this.getSitOutSeat = function(){
+        return this.sitOutSeat
+    }
+    this.getBlindCycle = function(){
+        return this.blindCycle
+    }
     //Setter Methods
     this.addStack = function(amount){
         this.stack = Number(this.stack) + Number(amount);
@@ -72,6 +80,17 @@ Player = function(name,socketId){
     }
     this.setCallAny = function(value){
         this.callAny = value
+    }
+    this.setSitOutSeat = function(value){
+        this.sitOutSeat = value
+    }
+    this.setBlindCycle = function(bool){
+        this.bindCycle = bool
+    }
+    this.clearBets = function(){
+        this.addStack(Number(this.bets))
+        this.bets = 0
+        this.totalBets = 0
     }
 }
 module.exports={
