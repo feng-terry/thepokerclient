@@ -20,6 +20,7 @@ Table=function(io){
     this.isLeftOverChips = true;
     this.totalTurns=0
     this.bigBlindSeat = 0;
+    this.disconnectChips = 0;
     //Settings
     this.startingStack;
     this.bigBlind; //boolean of whether or not blinds will increase
@@ -28,6 +29,7 @@ Table=function(io){
     this.blindsIncreaseTimer = 5; //setting for number of hands until blinds increase, 5 is default
     this.blindsPercentage=0; // multiplier of how much the blinds will increase by -> 10% = 1.10
     this.seats;
+    this.lobbyName;
 
     this.setSettings = function(data){
         this.startingStack = data.startingStack
@@ -37,6 +39,7 @@ Table=function(io){
         this.blindsIncrease=data.blindsIncrease;
         this.blindsIncreaseTimer = data.blindsIncreaseTimer; //setting for number of hands until blinds increase, 5 is default
         this.blindsPercentage=data.blindsPercentage+1;
+        this.lobbyName=data.lobbyName;
     }
 
     this.increaseBlinds = function(){
@@ -66,9 +69,26 @@ Table=function(io){
         const index = this.players.indexOf(playerObject)
 
         if (index > -1) {
-            this.players.splice(index, 1);
+            this.players.splice(index,1)
+
+            if(this.currentPlayer === playerObject){
+                this.fold()
+            }else{ //Modified fold
+                if(this.finalPlayer === playerObject){
+                    this.finalPlayer = this.previousPlayer(playerObject)
+                } 
+
+                this.addPot(playerObject.getBets())
+                this.disconnectChips += playerObject.getBets()
+
+                const foldIndex = this.activePlayers.indexOf(playerObject);
+                this.activePlayers.splice(foldIndex,1);
+
+                if (this.activePlayers.length < 2){
+                    this.endRound()
+                } 
+            }
         }
-          
     }
 
     this.initializeActions = function(){
@@ -94,7 +114,6 @@ Table=function(io){
         }
 
         for (const player of this.holdPlayers){
-            console.log('not suposed to be here')
             if(smallBlindPlayer === player){
                 player.clearBets()
                 player.addBet(bigBlindAmount)
@@ -103,9 +122,6 @@ Table=function(io){
             }
         }
         for (const player of this.sitInList){
-            console.log('I:',this.bigBlindSeat)
-            console.log("P:",player.getSeat())
-            console.log('O:', player.getSitOutSeat())
             let oweBlinds = ((this.bigBlindSeat > player.getSeat() && player.getSeat() > player.getSitOutSeat())||(player.getSitOutSeat() > this.bigBlindSeat && this.bigBlindSeat > player.getSeat())||(player.getSeat() > player.getSitOutSeat() && player.getSitOutSeat() > this.bigBlindSeat))
             if (oweBlinds || player.getBlindCycle()){ //I:Sit in Seat O:Sit out Seat P:Player Seat, oweBlinds is I>P>O, O>I>P, P>O>I consult:https://imgur.com/a/VnUbLsB
                 player.addBet(bigBlindAmount)
@@ -182,7 +198,7 @@ Table=function(io){
         }
         //Switching position
         this.players.push(this.players.shift())
-        //Adding players that sat down
+        //Adding players that sat down and removing the ones that left
         this.placePlayers()
         //Resetting the Table
         this.cards = [];
@@ -351,16 +367,20 @@ Table=function(io){
             const winner = hand.handComparison(this.activePlayers,this.cards)
             if (Array.isArray(winner)){
                 const amount = Math.floor(partialPot/winner.length)
+                const disconnectAmount = Math.floor(this.disconnectChips/winner.length)
                 for (const player of winner){
-                    player.addStack(amount)
-                    this.pot -= amount
+                    player.addStack(amount + disconnectAmount)
+                    this.pot -= (amount + disconnectAmount) 
                     partialPot -= amount
+                    this.disconnectChips -= disconnectAmount
                 }
-                this.leftOverChips = partialPot
+                this.leftOverChips = partialPot + this.disconnectChips
                 this.pot -= this.leftOverChips
+                this.disconnectChips = 0
             } else {
-                winner.addStack(partialPot)
-                this.pot -= partialPot
+                winner.addStack(partialPot + this.disconnectChips)
+                this.pot -= (partialPot + this.disconnectChips)
+                this.disconnectChips = 0
             }
             //Removing the minPlayer and recursively calling
             this.activePlayers.splice(this.activePlayers.indexOf(minPlayer),1)
