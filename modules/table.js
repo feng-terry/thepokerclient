@@ -9,11 +9,13 @@ Table=function(io){
     this.activePlayers = []
     this.sitOutList = []
     this.sitInList = []
+    this.revealList = []
     this.deck = new Deck();
     this.deck.shuffle();
     this.stage;
     this.finalPlayer;
     this.currentPlayer;
+    this.firstToReveal;
     this.currentBet = 0 ;
     this.possibleActions;
     this.leftOverChips = 0;
@@ -208,6 +210,7 @@ Table=function(io){
             player.totalBets = 0
         }
         this.isLeftOverChips = true
+        this.revealList=[]
         io.emit('communityCards',this.cards)
         this.deck = new Deck()
         this.deck.shuffle();
@@ -342,6 +345,9 @@ Table=function(io){
     }
 
     this.showdown = function(){
+        if (this.stage === 'river'){
+            this.firstToReveal = this.nextAbsolutePlayer(this.finalPlayer)
+        }
         this.stage = 'showdown'
         this.takeBets()
         //////////////////////////////////////////////////////////
@@ -365,6 +371,7 @@ Table=function(io){
             }
             //Determining the winner
             const winner = hand.handComparison(this.activePlayers,this.cards)
+            this.addRevealList(this.firstToReveal)
             if (Array.isArray(winner)){
                 const amount = Math.floor(partialPot/winner.length)
                 const disconnectAmount = Math.floor(this.disconnectChips/winner.length)
@@ -396,10 +403,33 @@ Table=function(io){
                     this.removePlayer(player)
                 }
             }
-            setTimeout(function(){}, 2000)
+            console.log(this.revealList.map(player=>player.name))
+            console.log("TableCards:", this.cards)
+            setTimeout(function(){}, 8000)
             if (this.players.length > 1){
                 this.newHand()
             }            
+        }
+    }
+
+    this.addRevealList = function(firstToReveal){
+        let bestPlayer = firstToReveal
+        this.revealList.push(firstToReveal)
+
+        for (let i=this.activePlayers.indexOf(firstToReveal)+1;i<this.activePlayers.length+this.activePlayers.indexOf(firstToReveal)-1;i++){
+            let index = i
+            if (index >= this.activePlayers.length){
+                index = index - this.activePlayers.length
+            }
+
+            const winner = handComparison([bestPlayer,this.activePlayers[index]],this.cards)
+
+            if (winner != bestPlayer && !Array.isArray(winner)){
+                this.revealList.push(winner)
+                bestPlayer = winner
+            }else if (Array.isArray(winner)){
+                this.revealList = Array.from(new Set(this.revealList.concat(winner)))
+            }
         }
     }
 
@@ -580,6 +610,17 @@ Table=function(io){
         }
 
         return this.nextPlayer(this.activePlayers[index])
+    }
+
+    this.nextAbsolutePlayer = function(player){
+        let index = this.activePlayers.indexOf(player)
+        if (index+1> this.activePlayers.length -1){
+            index = 0
+        }else{
+            index++
+        }
+
+        return this.activePlayers[index]
     }
 
     this.previousPlayer = function(player){
