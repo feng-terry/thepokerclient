@@ -26,6 +26,7 @@ function Game(props){
     const [isSitDown,setIsSitDown]=useState(false)
     const [isSitOut,setIsSitOut]=useState(true)
     const [key,setKey]=useState(Math.random())
+    const [revealList,setRevealList]=useState([])
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -60,13 +61,21 @@ function Game(props){
         props.socket.on('sitDownButton', ()=>{
             setIsSitDown(true)
         })
+
+        props.socket.on('revealList', (data)=>{
+            setRevealList(data)
+        })
     },[])
 
+    console.log(revealList)
     const playerElements =  Object.values(players).map(player => {
                                 if (players[props.socket.id] === player){
                                     return(
                                         <PlayerCard name={player.name} stack = {player.stack} cards={cards} bets={player.bets}/>
                                     )
+                                } else if (revealList.map(revealPlayer => revealPlayer.socketId).includes(player.socketId)){
+                                    console.log("Player:",player)
+                                    return(<PlayerCard name={player.name} stack = {player.stack} cards={player.cards} bets={player.bets}/>)
                                 } else{
                                     return(
                                         <PlayerCard name={player.name} stack = {player.stack} cards={[{rank:0,suit:0},{rank:0,suit:0}]} bets={player.bets}/>
