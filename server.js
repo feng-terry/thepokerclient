@@ -63,6 +63,10 @@ io.on('connection',(socket) =>{
     players[socket.id] = new player.Player(data.playerName,socket.id)
     spectators.splice(spectators.indexOf(socket.id),1)
     Table.addHoldPlayer(players[socket.id])
+
+    if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
+      Table.newHand()
+    }
   })
 
   socket.on('sitOut', ()=>{
@@ -71,10 +75,19 @@ io.on('connection',(socket) =>{
 
   socket.on('sitIn', ()=>{
     Table.sitIn(players[socket.id])
-    if (Table.getPlayers().length === 2){
+    
+    if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
       Table.newHand()
     }
-    
+
+  })
+
+  socket.on('bustOut', (data)=>{
+    spectators.push(data)
+    delete players[data]
+    for (const id of spectators){
+      setTimeout(function(){io.to(id).emit('sitDownButton')},500)
+    }
   })
 
   socket.on('disconnect', () =>{

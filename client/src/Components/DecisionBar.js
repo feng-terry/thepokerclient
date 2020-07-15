@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 
 function DecisionBar(props){
     const [betValue,setBetValue]=useState(Math.min(props.bigBlind,props.stack))
-    const [raiseValue,setRaiseValue]=useState(Math.min(2*props.currentBet,props.stack))
+    const [raiseValue,setRaiseValue]=useState(Math.min(2*props.currentBet - props.playerCurrentBet,props.stack))
 
     function handleFold(){
         props.socket.emit('fold')
@@ -59,8 +59,8 @@ function DecisionBar(props){
 
             {props.raise? 
                 <form onSubmit={handleRaise}>
-                    <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet,props.stack) - props.playerCurrentBet} max={props.stack}/>
-                    <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet,props.stack) - props.playerCurrentBet} max={props.stack}/>
+                    <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
+                    <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
                     <button>Raise</button>
                 </form>:null} 
 

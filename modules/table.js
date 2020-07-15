@@ -118,10 +118,11 @@ Table=function(io){
         smallBlindAmount = Math.floor(bigBlindAmount/2)
         smallBlindPlayer.addBet(smallBlindAmount)
 
+        //Antes
         for (let i = 2; i < this.activePlayers.length; i++){
             this.activePlayers[i].addBet(this.antes)
         }
-
+        //Blinds
         for (const player of this.holdPlayers){
             if(smallBlindPlayer === player){
                 player.clearBets()
@@ -130,6 +131,7 @@ Table=function(io){
                 player.addBet(bigBlindAmount)
             }
         }
+        //Sit in posting big blind
         for (const player of this.sitInList){
             let oweBlinds = ((this.bigBlindSeat > player.getSeat() && player.getSeat() > player.getSitOutSeat())||(player.getSitOutSeat() > this.bigBlindSeat && this.bigBlindSeat > player.getSeat())||(player.getSeat() > player.getSitOutSeat() && player.getSitOutSeat() > this.bigBlindSeat))
             if (oweBlinds || player.getBlindCycle()){ //I:Sit in Seat O:Sit out Seat P:Player Seat, oweBlinds is I>P>O, O>I>P, P>O>I consult:https://imgur.com/a/VnUbLsB
@@ -230,7 +232,7 @@ Table=function(io){
     }
 
     this.newHand = function(){
-        console.log("New Hand")
+        this.stage = 'newHand'
         //Blind Increase
         this.totalTurns+=1
         if (this.totalTurns%this.blindsIncreaseTimer===0){
@@ -241,7 +243,6 @@ Table=function(io){
         //Adding players that sat down and removing the ones that left and aligning their seat #
         this.placePlayers()
         this.resetSeats()
-        console.log('placed players')
         //Resetting the Table
         this.cards = [];
         for (const player of this.players.concat(this.sitOutList)){
@@ -258,14 +259,12 @@ Table=function(io){
         this.deck = new Deck()
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
-        console.log('right before checkBlindCycle')
         //Initalize Functions
-        this.checkBlindCycle()
-        console.log("checked blind cycle")
+        if (this.players.length > 2){
+            this.checkBlindCycle()
+        }
         this.postBlinds()
-        console.log('posted blinds')
         this.dealHands()
-        console.log('dealt hands')
         this.preflop()
     }
 
@@ -284,7 +283,7 @@ Table=function(io){
             player.addCards(this.deck);
         }
         for (const player of this.activePlayers){
-            io.to(player.socketId).emit('dealCards', player.getCards())
+            io.emit('update')
         }
     }
 
@@ -468,10 +467,16 @@ Table=function(io){
             for (const player of Array.from(this.players)){
                 if (player.getStack() === 0){
                     this.removePlayer(player)
+                    io.emit('bustOut',player.getSocketId())
                 }
             }
+            this.resetSeats()
+
             io.emit('revealList',this.revealList)
-            console.log(this.players.map(player => player.name))
+            this.activePlayers = []
+            io.emit('update')
+
+            this.stage = 'prehand'
             if (this.players.length > 1){
                 setTimeout(()=>{this.newHand()},4000)
             }            
@@ -728,6 +733,9 @@ Table=function(io){
             }
         }
         return result
+    }
+    this.getStage = function(){
+        return this.stage
     }
 
 }

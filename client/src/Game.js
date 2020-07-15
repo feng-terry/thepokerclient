@@ -10,7 +10,6 @@ import CheckboxBar from './Components/CheckboxBar'
 function Game(props){
     const [players,setPlayers] = useState({})
     const [activeNotSatOutPlayers,setActiveNotSatOutPlayers] = useState([])
-    const [cards,setCards]=useState([])
     const [communityCards,setCommunityCards]=useState([])
     const [isTurn,setIsTurn]=useState()
     const [actions,setActions]=useState({   fold:false,
@@ -37,10 +36,6 @@ function Game(props){
             setKey(Math.random())
         })
 
-        props.socket.on('dealCards', data => {
-            setCards(data)
-        })
-
         props.socket.on('communityCards', data => {
             setCommunityCards(data)
         })
@@ -65,16 +60,18 @@ function Game(props){
         props.socket.on('revealList', (data)=>{
             setRevealList(data)
         })
+
+        props.socket.on('bustOut', (data)=>{
+            props.socket.emit('bustOut', data)
+        })
     },[])
 
-    console.log(revealList)
     const playerElements =  Object.values(players).map(player => {
                                 if (players[props.socket.id] === player){
                                     return(
-                                        <PlayerCard name={player.name} stack = {player.stack} cards={cards} bets={player.bets}/>
+                                        <PlayerCard name={player.name} stack = {player.stack} cards={player.cards} bets={player.bets}/>
                                     )
                                 } else if (revealList.map(revealPlayer => revealPlayer.socketId).includes(player.socketId)){
-                                    console.log("Player:",player)
                                     return(<PlayerCard name={player.name} stack = {player.stack} cards={player.cards} bets={player.bets}/>)
                                 } else{
                                     return(
