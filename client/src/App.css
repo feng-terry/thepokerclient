@@ -1,10 +1,10 @@
 header{
-  color:#E79E0D;
+  color:#D4AA7D;
   text-align:center;
 }
 
 body{
-  background-color:#12789F;
+  background-color:#114B5F;
 }
 
 .app-form{
@@ -21,10 +21,10 @@ body{
 }
 
 .card{
-  border:2px solid #177DD8; 
+  border:2px solid #D4A47D; 
   width: 5%;
 }
 
 .cardBack{
-  border:2px solid #177DD8; 
+  border:2px solid #D4A47D; 
 }

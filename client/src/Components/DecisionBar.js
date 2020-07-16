@@ -26,6 +26,10 @@ function DecisionBar(props){
         props.socket.emit('raise',raiseValue)
     }
 
+    function handleAllIn(){
+        props.socket.emit('raise',props.stack)
+    }
+
     function handleBetChange(e){
         setBetValue(e.target.value)
     }
@@ -46,9 +50,14 @@ function DecisionBar(props){
                 className = "decision-button"
                 onClick={()=>(handleCheck())}>Check</button>:null}
 
-            {props.call? <button 
-                className = "decision-button"
-                onClick={()=>handleCall()}>Call</button>:null}
+            {props.call? 
+                Math.min(2*props.currentBet - props.playerCurrentBet,props.stack) === props.stack? 
+                    null:
+                    <button 
+                        className = "decision-button"
+                        onClick={()=>handleCall()}>Call
+                    </button>:
+                null}
 
             {props.bet? 
                 <form onSubmit={handleBet}>
@@ -57,12 +66,19 @@ function DecisionBar(props){
                     <button>Bet</button>
                 </form>:null}    
 
-            {props.raise? 
-                <form onSubmit={handleRaise}>
-                    <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
-                    <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
-                    <button>Raise</button>
-                </form>:null} 
+            {props.raise?
+                Math.min(2*props.currentBet - props.playerCurrentBet,props.stack) === props.stack?     
+                    <button
+                        className='decision-button'
+                        onClick={handleAllIn}
+                    >All In</button>
+                    
+                    :<form onSubmit={handleRaise}>
+                        <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
+                        <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
+                        <button>Raise</button>
+                    </form>
+                :null} 
 
 
 

@@ -67,6 +67,7 @@ io.on('connection',(socket) =>{
     if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
       Table.newHand()
     }
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('sitOut', ()=>{
@@ -79,7 +80,7 @@ io.on('connection',(socket) =>{
     if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
       Table.newHand()
     }
-
+    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
   socket.on('bustOut', (data)=>{
