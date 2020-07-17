@@ -11,6 +11,9 @@ export default function PlayerCard(props){
             <h6>{props.name}</h6>
             <p>Stack:{props.stack}</p>
             <p>Bets:{props.bets}</p>
+            {props.socketId === props.currentPlayer.socketId?
+                <p>Timer: {props.timer}s</p>
+                :null}
         </div>
     )
 }

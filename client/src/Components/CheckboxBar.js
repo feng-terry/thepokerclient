@@ -12,35 +12,36 @@ export default function CheckboxBar(props){
     function handleCheckFold(){
         setIsCheckFold(!isCheckFold)
         props.socket.emit('checkFold',!isCheckFold)
+        
+        setIsCallAny(false)
+        props.socket.emit('callAny',false)
     }
     
     function handleCallAny(){
         setIsCallAny(!isCallAny)
         props.socket.emit('callAny',!isCallAny)
+
+        setIsCheckFold(false)
+        props.socket.emit('checkFold',false)
     }
 
     return(
         <div>
-            {props.currentBet > playerBet? 
-                    <div><label for='fold'>Fold</label><input 
-                    id='fold' 
-                    type='checkbox'
-                    onClick={handleCheckFold}
-                    checked={isCheckFold}/></div>:
-
-                    <div><label for='check-fold'>Check/Fold</label><input 
-                    id='check-fold' 
-                    type='checkbox' 
-                    onClick={()=>(handleCheckFold())}
-                    checked={isCheckFold}/></div>
-            }
+            <label for='fold'>{props.currentBet > playerBet? 'Fold':'Check/Fold'}</label>
+            <input 
+                id='fold' 
+                type='checkbox'
+                onClick={handleCheckFold}
+                checked={isCheckFold}
+            />
 
             <label for='call-any'>Call Any</label>
             <input 
-            id='call-any' 
-            type='checkbox'
-            onClick={()=>(handleCallAny())}
-            checked={isCallAny}/>
+                id='call-any' 
+                type='checkbox'
+                onClick={()=>(handleCallAny())}
+                checked={isCallAny}
+            />
         </div>
     )
 

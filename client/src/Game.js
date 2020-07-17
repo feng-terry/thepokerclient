@@ -26,6 +26,9 @@ function Game(props){
     const [isSitOut,setIsSitOut]=useState(true)
     const [key,setKey]=useState(Math.random())
     const [revealList,setRevealList]=useState([])
+    const [timer,setTimer]=useState(0)
+    const [currentPlayer,setCurrentPlayer]=useState({socketId:2})
+
 
     useEffect(()=>{
         props.socket.on('nameAndStack', (data)=>{
@@ -64,18 +67,48 @@ function Game(props){
         props.socket.on('bustOut', (data)=>{
             props.socket.emit('bustOut', data)
         })
+
+        props.socket.on('timer',(data)=>{
+            setTimer(data.countDown)
+            setCurrentPlayer(data.player)
+        })
     },[])
 
     const playerElements =  Object.values(players).map(player => {
                                 if (players[props.socket.id] === player){
                                     return(
-                                        <PlayerCard name={player.name} stack = {player.stack} cards={player.cards} bets={player.bets}/>
+                                        <PlayerCard 
+                                            name={player.name} 
+                                            socketId = {player.socketId} 
+                                            stack={player.stack} 
+                                            cards={player.cards} 
+                                            bets={player.bets} 
+                                            timer={timer} 
+                                            currentPlayer={currentPlayer}
+                                        />
                                     )
                                 } else if (revealList.map(revealPlayer => revealPlayer.socketId).includes(player.socketId)){
-                                    return(<PlayerCard name={player.name} stack = {player.stack} cards={player.cards} bets={player.bets}/>)
+                                    return(
+                                        <PlayerCard 
+                                            name={player.name} 
+                                            socketId = {player.socketId} 
+                                            stack = {player.stack} 
+                                            cards={player.cards} 
+                                            bets={player.bets}
+                                            timer={timer} 
+                                            currentPlayer={currentPlayer}
+                                        />)
                                 } else{
                                     return(
-                                        <PlayerCard name={player.name} stack = {player.stack} cards={[{rank:0,suit:0},{rank:0,suit:0}]} bets={player.bets}/>
+                                        <PlayerCard 
+                                            name={player.name} 
+                                            socketId = {player.socketId} 
+                                            stack = {player.stack} 
+                                            cards={[{rank:0,suit:0},{rank:0,suit:0}]} 
+                                            bets={player.bets}
+                                            timer={timer} 
+                                            currentPlayer={currentPlayer}
+                                        />
                                     )
                                 }
                             })

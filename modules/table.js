@@ -25,6 +25,8 @@ Table=function(io){
     this.bigBlindSeat = 0;
     this.disconnectChips = 0;
     this.currentlyAllIn = false
+    this.countDown;
+    this.turnTimer;
     //Settings
     this.startingStack;
     this.bigBlind; //boolean of whether or not blinds will increase
@@ -34,6 +36,7 @@ Table=function(io){
     this.blindsPercentage=0; // multiplier of how much the blinds will increase by -> 10% = 1.10
     this.seats;
     this.lobbyName;
+    this.timer;
 
     this.setSettings = function(data){
         this.startingStack = data.startingStack
@@ -44,6 +47,7 @@ Table=function(io){
         this.blindsIncreaseTimer = data.blindsIncreaseTimer; //setting for number of hands until blinds increase, 5 is default
         this.blindsPercentage=data.blindsPercentage+1;
         this.lobbyName=data.lobbyName;
+        this.timer = Number(data.timer)
     }
 
     this.increaseBlinds = function(){
@@ -108,6 +112,11 @@ Table=function(io){
             bet:false,
             raise:false
         }
+    }
+
+    this.resetCountDown = function(){
+        clearInterval(this.turnTimer)
+        this.countDown = this.timer
     }
 
     this.postBlinds = function(){
@@ -187,8 +196,6 @@ Table=function(io){
     this.checkBlindCycle = function(){
         let player = this.activePlayers[1]
         while (this.bigBlindSeat != player.getSeat()){
-            console.log('Big Blind Seat:',this.bigBlindSeat)
-            console.log('player.getSeat:', player.getSeat())
             this.bigBlindSeat += 1
             if (this.bigBlindSeat > this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length){
                 this.bigBlindSeat = 1
@@ -225,10 +232,6 @@ Table=function(io){
             this.players[index].setSeat(counter)
             counter++
         }
-
-        console.log(this.players)
-
-
     }
 
     this.newHand = function(){
@@ -286,7 +289,7 @@ Table=function(io){
             io.emit('update')
         }
     }
-
+        
     this.checkNextStage = function(){
         if (this.currentPlayer === this.finalPlayer){
             this.nextStage()
@@ -296,21 +299,32 @@ Table=function(io){
         }
     }
 
+   /*this.fourthCard = function(){
+        this.addCard()
+        io.emit('communityCards',this.cards)
+        setTimeout(this.fifthCard(),1500)
+    }
+
+    this.fifthCard = function(){
+        this.addCard()
+        io.emit('communityCards',this.cards)                
+        this.showdown()
+    }*/
+
     this.nextStage = function(){
         if (this.allPlayersAllIn()){
             
             this.revealList = Array.from(this.activePlayers)
             io.emit('revealList', this.revealList)
-            for (let i = this.cards.length; i < 5;i++){
-                this.addCard()
-                if (i >= 3){
-                    setTimeout(function(){}, 1500)
-                    io.emit('communityCards',this.cards)
-                }
-            }
-            
             this.currentlyAllIn = true
-            this.showdown()
+
+            while(this.cards.length < 3){
+                this.addCard()
+            }
+            io.emit('communityCards',this.cards)
+
+            //Work in progress, finish monday
+            
         }else if (this.stage === 'preflop'){
             this.flop()
         } else if (this.stage === 'flop'){
@@ -527,6 +541,8 @@ Table=function(io){
     }
 
     this.playTurn = function(){
+        this.countDown = this.timer
+
         this.initializeActions()
         if (this.currentPlayer.getCheckFold() || this.currentPlayer.getCallAny()){
            this.premoves()
@@ -578,11 +594,26 @@ Table=function(io){
                             currentBet:this.currentBet,
                             playerCurrentBet:this.currentPlayer.getBets()})
                 }
+
+                //Timer
+                this.turnTimer = setInterval(()=>{
+                    io.emit('timer',{player:this.currentPlayer,countDown:this.countDown})
+                    this.countDown --
+                    if (this.countDown === 0){
+                        if(this.currentBet > this.currentPlayer.getBets()){
+                            this.fold()
+                        } else {
+                            this.check()
+                        }
+                    }
+                },1000) 
+                io.emit('update')
         }
     }
     ///Server Client rift
 
     this.fold = function(){
+        this.resetCountDown()
         const tempPlayer = this.nextPlayer(this.currentPlayer)
         index = this.activePlayers.indexOf(this.currentPlayer);
         this.foldPlayers = this.foldPlayers.concat(this.activePlayers.splice(index,1));
@@ -604,6 +635,7 @@ Table=function(io){
     }
 
     this.check = function(){
+        this.resetCountDown()
         io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
                                                                                     check:false,
                                                                                     call:false,
@@ -613,6 +645,7 @@ Table=function(io){
     }
     
     this.call = function(){
+        this.resetCountDown()
         io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
                                                                                     check:false,
                                                                                     call:false,
@@ -624,6 +657,7 @@ Table=function(io){
     }
 
     this.bet = function(value){
+        this.resetCountDown()
         io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
                                                                                     check:false,
                                                                                     call:false,
@@ -644,6 +678,7 @@ Table=function(io){
     }
 
     this.raise = function(value){
+        this.resetCountDown()
         io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
                                                                                     check:false,
                                                                                     call:false,

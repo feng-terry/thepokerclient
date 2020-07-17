@@ -6,6 +6,7 @@ function SettingsForm(props){
     const [blinds,setBlinds] = useState(0)
     const [seats,setSeats] = useState(6)
     const [lobbyName,setLobbyName] = useState("")
+    const [timer,setTimer] = useState(0)
     const [antes,setAntes] = useState(0)
     const [blindsPercentage,setBlindsPercentage]=useState(0)
     const [blindsIncreaseTimer,setBlindsIncreaseTimer]=useState(0)
@@ -20,7 +21,8 @@ function SettingsForm(props){
             lobbyName:lobbyName,
             antes:Number(antes),
             blindsPercentage:Number(blindsPercentage)/100,
-            blindsIncreaseTimer:Number(blindsIncreaseTimer)
+            blindsIncreaseTimer:Number(blindsIncreaseTimer),
+            timer:Number(timer)
             }
         )
     }
@@ -122,6 +124,33 @@ function SettingsForm(props){
                         onChange={(event)=>setBlindsIncreaseTimer(event.target.value)}
                         />
                         <p>hands.</p>
+                    </div>
+                    <div className='timer'>
+                        <p>Turn Timer:</p>
+
+                        <input 
+                        type="radio"
+                        id="15-seconds"
+                        name='timer'
+                        onClick={()=>setTimer(15)}
+                        />
+                        <label for="15-seconds" onClick={()=>setTimer(15)}>15 Seconds</label>
+
+                        <input 
+                        type="radio"
+                        id="30-seconds"
+                        name='timer'
+                        onClick={()=>setTimer(30)}
+                        />
+                        <label for="30-seconds" onClick={()=>setTimer(30)}>30 Seconds</label>
+                        
+                        <input 
+                        type="radio"
+                        id="120-seconds"
+                        name='timer'
+                        onClick={()=>setTimer(120)}
+                        />
+                        <label for="120-seconds" onClick={()=>setTimer(120)}>2 Minutes</label>
                     </div>
 
                     <button>Start</button>

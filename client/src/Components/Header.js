@@ -3,7 +3,7 @@ import React from "react"
 function Header(){
     return(
         <header>
-            <h1>Poker Client</h1>
+            <h1>Beachball Poker</h1>
         </header>
     )
 }
