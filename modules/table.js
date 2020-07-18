@@ -27,6 +27,7 @@ Table=function(io){
     this.currentlyAllIn = false
     this.countDown;
     this.turnTimer;
+    this.allInInterval;
     //Settings
     this.startingStack;
     this.bigBlind; //boolean of whether or not blinds will increase
@@ -311,6 +312,11 @@ Table=function(io){
         this.showdown()
     }*/
 
+    this.allInIntervalFinished = function(){
+        clearInterval(this.allInInterval)
+        this.showdown()
+    }
+
     this.nextStage = function(){
         if (this.allPlayersAllIn()){
             
@@ -324,7 +330,14 @@ Table=function(io){
             io.emit('communityCards',this.cards)
 
             //Work in progress, finish monday
-            
+            this.allInInterval = setInterval(()=>{
+                this.addCard()
+                io.emit('communityCards',this.cards)
+                if (this.cards.length === 5){
+                    this.allInIntervalFinished()
+                }
+            },1500)
+
         }else if (this.stage === 'preflop'){
             this.flop()
         } else if (this.stage === 'flop'){
@@ -489,7 +502,6 @@ Table=function(io){
             io.emit('revealList',this.revealList)
             this.activePlayers = []
             io.emit('update')
-
             this.stage = 'prehand'
             if (this.players.length > 1){
                 setTimeout(()=>{this.newHand()},4000)

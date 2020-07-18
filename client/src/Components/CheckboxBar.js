@@ -5,7 +5,7 @@ export default function CheckboxBar(props){
     const [isCallAny,setIsCallAny] = useState(false)
     let playerBet = 0
 
-    if (Object.values(props.players).length > 0){
+    if (Object.values(props.players).length > 0 && Object.keys(props.players).includes(props.socket.id)){
         playerBet = props.players[props.socket.id].bets
     }
 

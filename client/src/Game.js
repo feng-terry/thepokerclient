@@ -131,13 +131,13 @@ function Game(props){
                         currentBet={currentBet}
                         playerCurrentBet={playerCurrentBet}/>:
                         
-                    activeNotSatOutPlayers.map(player => player.socketId).includes(props.socket.id)?  
+                    activeNotSatOutPlayers.map(player => player.socketId).includes(props.socket.id)?
                         <CheckboxBar 
-                                socket={props.socket}
-                                currentBet={currentBet}
-                                players={players}
-                                key={key}
-                                />:
+                            socket={props.socket}
+                            currentBet={currentBet}
+                            players={players}
+                            key={key}
+                        />:
                         null
             }
             <p>{communityElements}</p>
