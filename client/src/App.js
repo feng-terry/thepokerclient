@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import socketIOClient from "socket.io-client"
+import {Route, Switch } from 'react-router-dom';
 import './App.css';
+import Home from './Components/Home'
 import Header from './Components/Header'
 import Form from './Components/Form'
 import SettingsForm from './Components/Settings/SettingsForm'
@@ -8,6 +10,7 @@ import DecisionBar from './Components/DecisionBar';
 import PlayersList from './Components/Settings/PlayersList';
 import CreateGame from './Components/CreateGame';
 import Game from './Game';
+import Temp from './Temp'
 
 const socket = socketIOClient("http://localhost:3000")
 
@@ -40,7 +43,15 @@ state = {
   };
 
   render() {
-    if (this.state.page === 'homePage'){
+    return(
+      <main>
+        <Switch>
+          <Route path="/" render={(routeProps)=><Home data={this.state.data} socket={socket} {...routeProps}/>} exact/>
+          <Route path="/game" component={Temp}/>
+        </Switch>
+      </main>
+    )
+    /*if (this.state.page === 'homePage'){
       return(<div>
                 <Header className='app-header'/>
                 <CreateGame socket = {socket}/>
@@ -58,7 +69,7 @@ state = {
       return(<div>
               <Game socket={socket}/>
             </div>)
-    }
+    }*/
   }
 }
 

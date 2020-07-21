@@ -1,14 +1,16 @@
 import React from 'react'
+import { Link } from 'react-router-dom';
 
 function CreateGame(props){
     
-    function handleClick(e){
-        e.preventDefault()
-        props.socket.emit('changePageState','settingsPage')
+    function handleClick(){
+        props.socket.emit('consolelog')
+        console.log(props)
     }
-
     return (
-        <button onClick = {handleClick}>Create Game</button>
+        <Link to="/game">
+            <button onClick = {handleClick}>Create Game</button>
+        </Link>
     )
 }
 

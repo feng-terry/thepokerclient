@@ -25,6 +25,9 @@ const io = socket(server)
 let Table = new table.Table(io)
 
 io.on('connection',(socket) =>{
+  socket.on('consolelog',()=>{
+  console.log('working')
+  })
   const playerId = socket.id
   spectators.push(playerId) 
   console.log('made socket connection', socket.id)
