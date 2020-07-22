@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {useState,useEffect} from 'react';
 import socketIOClient from "socket.io-client"
 import {Route, Switch } from 'react-router-dom';
 import './App.css';
@@ -14,25 +14,19 @@ import Temp from './Temp'
 
 const socket = socketIOClient("http://localhost:3000")
 
+function App(){
+  const [data,setData] = useState(null)
+  const [lobbyId,setLobbyId] = useState(null)
 
-class App extends Component {
-state = {
-    data: null,
-    page:'homePage',
-  };
-
-  componentDidMount() {
+  useEffect(()=>{
       // Call our fetch function below once the component mounts
-    this.callBackendAPI()
-      .then(res => this.setState({ data: res.express }))
+    callBackendAPI()
+      .then(res => setData(res.express))
       .catch(err => console.log(err));
+  },[])
 
-    socket.on('pageState', data => {
-      this.setState({page:data})
-    })
-  }
     // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
-  callBackendAPI = async () => {
+  let callBackendAPI = async () => {
     const response = await fetch('/express_backend');
     const body = await response.json();
 
@@ -42,12 +36,12 @@ state = {
     return body;
   };
 
-  render() {
+
     return(
       <main>
         <Switch>
-          <Route path="/" render={(routeProps)=><Home data={this.state.data} socket={socket} {...routeProps}/>} exact/>
-          <Route path="/game" component={Temp}/>
+          <Route path="/" render={(routeProps)=><Home data={data} socket={socket} setLobbyId = {setLobbyId} {...routeProps}/>} exact/>
+          <Route path="/game" render={(routeProps)=><Temp socket={socket} lobbyId = {lobbyId} {...routeProps}/>}/>
         </Switch>
       </main>
     )
@@ -71,6 +65,6 @@ state = {
             </div>)
     }*/
   }
-}
+
 
 export default App;

@@ -300,18 +300,6 @@ Table=function(io){
         }
     }
 
-   /*this.fourthCard = function(){
-        this.addCard()
-        io.emit('communityCards',this.cards)
-        setTimeout(this.fifthCard(),1500)
-    }
-
-    this.fifthCard = function(){
-        this.addCard()
-        io.emit('communityCards',this.cards)                
-        this.showdown()
-    }*/
-
     this.allInIntervalFinished = function(){
         clearInterval(this.allInInterval)
         this.showdown()
@@ -329,7 +317,6 @@ Table=function(io){
             }
             io.emit('communityCards',this.cards)
 
-            //Work in progress, finish monday
             this.allInInterval = setInterval(()=>{
                 this.addCard()
                 io.emit('communityCards',this.cards)
