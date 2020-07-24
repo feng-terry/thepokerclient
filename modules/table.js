@@ -1,10 +1,11 @@
 const hand = require('../handComparison');
 const player = require('./player');
 
-Table=function(io){
+Table=function(io,lobbyId){
     this.pot = 0;
     this.cards = [];
     this.players = [];
+    this.spectators =[];
     this.holdPlayers = []
     this.activePlayers = []
     this.foldPlayers=[]
@@ -38,6 +39,7 @@ Table=function(io){
     this.seats;
     this.lobbyName;
     this.timer;
+    this.lobbyId = lobbyId
 
     this.setSettings = function(data){
         this.startingStack = data.startingStack
@@ -105,6 +107,14 @@ Table=function(io){
         }
     }
 
+    this.addSpectator = function(id){
+        this.spectators.push(id)
+    }
+
+    this.removeSpectator = function(id){
+        this.spectators.splice(this.spectators.indexOf(id),1)
+    }
+
     this.initializeActions = function(){
         this.possibleActions = {
             fold:false,
@@ -155,7 +165,7 @@ Table=function(io){
 
         this.currentBet = this.bigBlind
 
-        io.emit('update')
+        this.emitUpdate()
     }
 
     this.sitIn = function(player){
@@ -170,7 +180,7 @@ Table=function(io){
         this.players.splice(this.players.indexOf(player),1)
         this.sitOutList.push(player)
         this.premoves()
-        io.emit('update')
+        this.emitUpdate()
     }
 
     this.findLeft = function(seat,mapArr){
@@ -236,6 +246,7 @@ Table=function(io){
     }
 
     this.newHand = function(){
+        console.log('newHand Started')
         this.stage = 'newHand'
         //Blind Increase
         this.totalTurns+=1
@@ -258,8 +269,8 @@ Table=function(io){
         this.revealList=[]
         this.foldPlayers = []
         this.currentlyAllIn = false
-        io.emit('revealList',this.revealList)
-        io.emit('communityCards',this.cards)
+        this.emitRevealList()
+        this.emitCommunityCards()
         this.deck = new Deck()
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
@@ -287,7 +298,7 @@ Table=function(io){
             player.addCards(this.deck);
         }
         for (const player of this.activePlayers){
-            io.emit('update')
+            this.emitUpdate()
         }
     }
         
@@ -309,17 +320,17 @@ Table=function(io){
         if (this.allPlayersAllIn()){
             
             this.revealList = Array.from(this.activePlayers)
-            io.emit('revealList', this.revealList)
+            this.emitRevealList()
             this.currentlyAllIn = true
 
             while(this.cards.length < 3){
                 this.addCard()
             }
-            io.emit('communityCards',this.cards)
+            this.emitCommunityCards()
 
             this.allInInterval = setInterval(()=>{
                 this.addCard()
-                io.emit('communityCards',this.cards)
+                this.emitCommunityCards()
                 if (this.cards.length === 5){
                     this.allInIntervalFinished()
                 }
@@ -371,6 +382,7 @@ Table=function(io){
     }
 
     this.preflop = function(){
+        console.log('preflop happens')
         this.stage = 'preflop'
         this.finalPlayer = this.activePlayers[1]
         this.currentPlayer = this.nextPlayer(this.finalPlayer) 
@@ -393,7 +405,7 @@ Table=function(io){
         this.addCard()
         this.addCard()
 
-        io.emit('communityCards',this.cards)
+        this.emitCommunityCards()
 
         this.playTurn()
     }
@@ -412,7 +424,7 @@ Table=function(io){
         //Deal 1 cards
         this.addCard()
 
-        io.emit('communityCards',this.cards)
+        this.emitCommunityCards()
         this.playTurn()
     }
 
@@ -486,9 +498,9 @@ Table=function(io){
             }
             this.resetSeats()
 
-            io.emit('revealList',this.revealList)
+            this.emitRevealList()
             this.activePlayers = []
-            io.emit('update')
+            this.emitUpdate()
             this.stage = 'prehand'
             if (this.players.length > 1){
                 setTimeout(()=>{this.newHand()},4000)
@@ -522,7 +534,7 @@ Table=function(io){
             this.currentPlayer.setCheckFold(false)
             this.currentPlayer.setCallAny(false)
         }
-        io.emit('update')
+        this.emitUpdate()
     }
 
     this.premoves = function(){
@@ -541,58 +553,58 @@ Table=function(io){
 
     this.playTurn = function(){
         this.countDown = this.timer
-
         this.initializeActions()
         if (this.currentPlayer.getCheckFold() || this.currentPlayer.getCallAny()){
            this.premoves()
         } else{
-                if (this.currentBet === this.currentPlayer.getBets()){
-                    this.possibleActions.check = true
-                } else{
-                    this.possibleActions.fold = true
-                    this.possibleActions.call=true
-                }
+            console.log('playturn')
+            if (this.currentBet === this.currentPlayer.getBets()){
+                this.possibleActions.check = true
+            } else{
+                this.possibleActions.fold = true
+                this.possibleActions.call=true
+            }
 
-                if(this.currentBet === 0){
-                    this.possibleActions.bet = true
-                } else{
-                    this.possibleActions.raise = true
-                }
+            if(this.currentBet === 0){
+                this.possibleActions.bet = true
+            } else{
+                this.possibleActions.raise = true
+            }
 
-                switch(this.stage){
-                    case 'preflop':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                    case 'flop':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                    case 'turn':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                    case 'river':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                }
+            switch(this.stage){
+                case 'preflop':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+                case 'flop':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+                case 'turn':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+                case 'river':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+            }
 
                 //Timer
                 this.turnTimer = setInterval(()=>{
@@ -606,7 +618,7 @@ Table=function(io){
                         }
                     }
                 },1000) 
-                io.emit('update')
+                this.emitUpdate()
         }
     }
     ///Server Client rift
@@ -768,8 +780,32 @@ Table=function(io){
         }
         return result
     }
+    this.getAllPlayers = function(){
+        let result = Array.from(new Set(this.players.concat(this.activePlayers).concat(this.holdPlayers).concat(this.sitInList).concat(this.sitOutList)))
+        result = result.map(player => player.socketId).concat(this.spectators)
+        return result
+    }
     this.getStage = function(){
         return this.stage
+    }
+    // Emitters
+    this.emitRevealList = function(){
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('revealList',this.revealList)
+        }
+    }
+    this.emitCommunityCards = function(){
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('communityCards',this.cards)
+        }
+    }
+    this.emitUpdate = function(){
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('update')
+        }
     }
 
 }

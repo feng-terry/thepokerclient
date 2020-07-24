@@ -13,7 +13,7 @@ function SettingsForm(props){
 
     function handleSubmit(e){
         e.preventDefault()
-        props.socket.emit('changePageState','gamePage')
+        props.socket.emit('changePageState',{lobbyId:props.lobbyId,page:'game'})
         props.socket.emit('newGame',{
             startingStack:Number(startingStack),
             blinds:Number(blinds),
@@ -22,9 +22,11 @@ function SettingsForm(props){
             antes:Number(antes),
             blindsPercentage:Number(blindsPercentage)/100,
             blindsIncreaseTimer:Number(blindsIncreaseTimer),
-            timer:Number(timer)
+            timer:Number(timer),
+            lobbyId:props.lobbyId
             }
         )
+        console.log('submitted Form')
     }
 
 

@@ -4,7 +4,6 @@ import {Route, Switch } from 'react-router-dom';
 import './App.css';
 import Home from './Components/Home'
 import Header from './Components/Header'
-import Form from './Components/Form'
 import SettingsForm from './Components/Settings/SettingsForm'
 import DecisionBar from './Components/DecisionBar';
 import PlayersList from './Components/Settings/PlayersList';
@@ -23,6 +22,11 @@ function App(){
     callBackendAPI()
       .then(res => setData(res.express))
       .catch(err => console.log(err));
+
+    socket.on('updateLobbyId', data=>{
+      console.log('got new lobby id')
+      setLobbyId(data)
+    })
   },[])
 
     // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js

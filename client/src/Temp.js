@@ -1,23 +1,39 @@
 import React, {useState,useEffect} from 'react'
 import Header from './Components/Header'
-import Form from './Components/Form'
+import NameForm from './Components/NameForm'
 import PlayersList from './Components/Settings/PlayersList'
 import SettingsForm from './Components/Settings/SettingsForm'
+import Game from './Game'
 
 
 
 export default function Temp(props){ 
-    useEffect(()=>{
+    const [pageState,setPageState] = useState('settings')
 
+    useEffect(()=>{
+        props.socket.on('pageState',(data)=>{
+            setPageState(data)
+        })
     },[])
 
-    return(
-        <div>
-            <Header className='app-header'/>
-            <Form className = 'app-form' socket = {props.socket}/>
-            <PlayersList socket = {props.socket}/>
-            <SettingsForm socket= {props.socket}/>
-            <p>Lobby Id:{props.lobbyId}</p>
-        </div>
-    )
+    
+    if (pageState === 'settings'){
+        return(
+            <div>
+                <Header className='app-header'/>
+                <NameForm className = 'app-form' socket = {props.socket} lobbyId={props.lobbyId}/>
+                <PlayersList socket = {props.socket}/>
+                <p>Lobby Id:{props.lobbyId}</p>
+                <SettingsForm socket= {props.socket} lobbyId={props.lobbyId}/>
+            </div>
+        )
+    } else if (pageState === 'game'){
+        return(
+            <Game socket={props.socket} lobbyId={props.lobbyId}/>
+        )
+    }else{
+        return(
+            <p>Uh oh</p>
+        )
+    }
 }

@@ -5,29 +5,29 @@ function DecisionBar(props){
     const [raiseValue,setRaiseValue]=useState(Math.min(2*props.currentBet - props.playerCurrentBet,props.stack))
 
     function handleFold(){
-        props.socket.emit('fold')
+        props.socket.emit('fold',{lobbyId:props.lobbyId})
     }
 
     function handleCheck(){
-        props.socket.emit('check')
+        props.socket.emit('check',{lobbyId:props.lobbyId})
     }
 
     function handleCall(){
-        props.socket.emit('call')
+        props.socket.emit('call',{lobbyId:props.lobbyId})
     }
 
     function handleBet(e){
         e.preventDefault()
-        props.socket.emit('bet',betValue)
+        props.socket.emit('bet',{lobbyId:props.lobbyId,betValue:betValue})
     }
 
     function handleRaise(e){
         e.preventDefault()
-        props.socket.emit('raise',raiseValue)
+        props.socket.emit('raise',{lobbyId:props.lobbyId,raiseValue:raiseValue})
     }
 
     function handleAllIn(){
-        props.socket.emit('raise',props.stack)
+        props.socket.emit('raise',{lobbyId:props.lobbyId,raiseValue:props.stack})
     }
 
     function handleBetChange(e){

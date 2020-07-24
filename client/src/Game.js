@@ -53,7 +53,7 @@ function Game(props){
         })
 
         props.socket.on('update',() => {
-            props.socket.emit('update')
+            props.socket.emit('update', props.lobbyId)
         })
 
         props.socket.on('sitDownButton', ()=>{
@@ -129,21 +129,23 @@ function Game(props){
                         stack={stack} 
                         bigBlind={bigBlind}
                         currentBet={currentBet}
-                        playerCurrentBet={playerCurrentBet}/>:
+                        playerCurrentBet={playerCurrentBet}
+                        lobbyId={props.lobbyId}/>:
                         
                     activeNotSatOutPlayers.map(player => player.socketId).includes(props.socket.id)?
                         <CheckboxBar 
                             socket={props.socket}
                             currentBet={currentBet}
                             players={players}
+                            lobbyId={props.lobbyId}
                             key={key}
                         />:
                         null
             }
             <p>{communityElements}</p>
             <p>Pot:{pot}</p>
-            {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown}/>:
-             isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>:<SitInButton socket={props.socket} setIsSitOut={setIsSitOut}/>}
+            {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:
+             isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>:<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>}
             
         </div>
     )

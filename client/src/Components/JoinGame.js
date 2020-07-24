@@ -5,8 +5,8 @@ function JoinGame(props){
     const [id,setId]=useState()    
 
     function handleClick(){
-        console.log(id)
         props.setLobbyId(id)
+        props.socket.emit('addSpectator',{lobbyId:id})
     }
 
     return (
