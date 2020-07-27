@@ -10,6 +10,7 @@ import PlayersList from './Components/Settings/PlayersList';
 import CreateGame from './Components/CreateGame';
 import Game from './Game';
 import Temp from './Temp'
+import WaitingScreen from './Components/WaitingScreen'
 
 const socket = socketIOClient("http://localhost:3000")
 
@@ -18,13 +19,12 @@ function App(){
   const [lobbyId,setLobbyId] = useState(null)
 
   useEffect(()=>{
-      // Call our fetch function below once the component mounts
+    // Call our fetch function below once the component mounts
     callBackendAPI()
       .then(res => setData(res.express))
       .catch(err => console.log(err));
 
     socket.on('updateLobbyId', data=>{
-      console.log('got new lobby id')
       setLobbyId(data)
     })
   },[])
@@ -46,6 +46,7 @@ function App(){
         <Switch>
           <Route path="/" render={(routeProps)=><Home data={data} socket={socket} setLobbyId = {setLobbyId} {...routeProps}/>} exact/>
           <Route path="/game" render={(routeProps)=><Temp socket={socket} lobbyId = {lobbyId} {...routeProps}/>}/>
+          <Route path='/id' render = {(routeProps)=><WaitingScreen socket={socket} lobbyId = {lobbyId} setLobbyId = {setLobbyId} {...routeProps}/>}/>
         </Switch>
       </main>
     )

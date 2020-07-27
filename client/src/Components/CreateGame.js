@@ -15,7 +15,6 @@ function CreateGame(props){
     }
     
     function handleClick(){
-        console.log('it woprks')
         generateLobbyId()
             .then(res => props.setLobbyId(res.lobbyId))
             .catch(err => console.log(err))

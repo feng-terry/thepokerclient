@@ -246,7 +246,6 @@ Table=function(io,lobbyId){
     }
 
     this.newHand = function(){
-        console.log('newHand Started')
         this.stage = 'newHand'
         //Blind Increase
         this.totalTurns+=1
@@ -382,7 +381,6 @@ Table=function(io,lobbyId){
     }
 
     this.preflop = function(){
-        console.log('preflop happens')
         this.stage = 'preflop'
         this.finalPlayer = this.activePlayers[1]
         this.currentPlayer = this.nextPlayer(this.finalPlayer) 
@@ -557,7 +555,6 @@ Table=function(io,lobbyId){
         if (this.currentPlayer.getCheckFold() || this.currentPlayer.getCallAny()){
            this.premoves()
         } else{
-            console.log('playturn')
             if (this.currentBet === this.currentPlayer.getBets()){
                 this.possibleActions.check = true
             } else{
@@ -617,7 +614,7 @@ Table=function(io,lobbyId){
                             this.check()
                         }
                     }
-                },1000) 
+                },1000)
                 this.emitUpdate()
         }
     }

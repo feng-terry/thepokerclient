@@ -27,6 +27,10 @@ app.get('/generateLobbyId', (req,res) => {
   res.send({lobbyId:id})
 })
 
+app.get('/id/:id', (req, res) => {
+  console.log(req.params.id)
+})
+
 app.use(express.static('/client/public'))
 
 let Table = new table.Table(io)
@@ -40,9 +44,6 @@ function emitNewName(lobbyId){
 }
 
 function emitNameAndStack(lobbyId){
-  console.log(Object.keys(rooms))
-  console.log(rooms)
-  console.log(lobbyId)
   const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
   for (const id of emitTo){
     io.to(id).emit('nameAndStack', {
@@ -70,8 +71,6 @@ io.on('connection',(socket) =>{
   spectators.push(playerId) 
 
   console.log('made socket connection', socket.id)
-
-  io.emit('pageState',pageState)
   
   if (pageState === 'gamePage'){
     for (const id of spectators){
@@ -85,7 +84,6 @@ io.on('connection',(socket) =>{
       rooms[data.lobbyId].spectators.push(socket.id)
       rooms[data.lobbyId].table.addSpectator(socket.id)
       playerRoom[socket.id] = data.lobbyId
-      console.log('addSpectatr',data.lobbyId)
       io.to(socket.id).emit('updateLobbyId',data.lobbyId)
       emitNewName(data.lobbyId)
     }
@@ -95,18 +93,15 @@ io.on('connection',(socket) =>{
     rooms[data.lobbyId].lobbyLeader = socket.id
     rooms[data.lobbyId].spectators.push(socket.id)
     playerRoom[socket.id] = data.lobbyId
-    console.log('newRoom',data.lobbyId)
     io.to(socket.id).emit('updateLobbyId',data.lobbyId)
   })
 
   socket.on('newGame',(data)=>{
       rooms[data.lobbyId].table.setSettings(data)
-      
       for (const player of Object.values(rooms[data.lobbyId].players)){
         player.addStack(rooms[data.lobbyId].table.startingStack)
         rooms[data.lobbyId].table.addPlayer(player)
       }
-      
       emitNameAndStack(data.lobbyId)
       rooms[data.lobbyId].table.newHand();
     } 
@@ -208,9 +203,9 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('update', (lobbyId)=>{
-    console.log('update')
-    console.log('socketId of update:', socket.id)
-    emitNameAndStack(lobbyId)
+    if (Object.keys(rooms).includes(lobbyId)){
+      emitNameAndStack(lobbyId)
+    }
   })
 
   socket.on('checkFold', (data) =>{
