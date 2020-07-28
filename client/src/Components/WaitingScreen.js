@@ -1,15 +1,39 @@
-import React,{useEffect} from 'react'
+import React,{useEffect, useState} from 'react'
 import { useLocation } from 'react-router-dom'
+import Temp from '../Temp'
 
 export default function WaitingScreen(props){
     const location = useLocation()
+    const [inRoom,setInRoom] = useState(false)
 
     useEffect(()=>{
         console.log(location.pathname)
-        fetch(location.pathname)
+        callRoomIdApi()
+            .then(res => {
+                props.setLobbyId(res.lobbyId)
+                setInRoom(res.inRoom)
+                console.log(res)
+                console.log(res.inRoom)
+                console.log(inRoom)
+            })
+            .catch(err => console.log(err))
     },[])
 
+    let callRoomIdApi = async () => {
+        const response = await fetch(location.pathname);
+        const body = await response.json();
+        console.log(body)
+        props.socket.emit('addSpectator', {lobbyId:body.lobbyId})
+    
+        if (response.status !== 200) {
+          throw Error(body.message) 
+        }
+        return body;
+      };
+
     return(
-        <p>Loading</p>
+        <div>
+            {inRoom? <Temp socket={props.socket} lobbyId={props.lobbyId}/>:<p>Loading</p>}
+        </div>
     )
 }

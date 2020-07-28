@@ -11,6 +11,8 @@ export default function Temp(props){
     const [pageState,setPageState] = useState('settings')
 
     useEffect(()=>{
+        props.socket.emit('changePageState',{lobbyId:props.lobbyId})
+
         props.socket.on('pageState',(data)=>{
             setPageState(data)
         })

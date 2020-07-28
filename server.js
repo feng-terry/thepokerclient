@@ -23,12 +23,14 @@ app.get('/express_backend', (req, res) => {
 
 app.get('/generateLobbyId', (req,res) => {
   const id = (Math.random()+1).toString(36).slice(2,18)
-  rooms[id] = {players:{},spectators:[],table:new table.Table(io,id),lobbyLeader:''}
+  rooms[id] = {players:{},spectators:[],table:new table.Table(io,id),lobbyLeader:'',pageState:'settings'}
   res.send({lobbyId:id})
 })
 
 app.get('/id/:id', (req, res) => {
-  console.log(req.params.id)
+  if (Object.keys(rooms).includes(req.params.id)){
+    res.send({lobbyId:req.params.id,inRoom:true})
+  }   
 })
 
 app.use(express.static('/client/public'))
@@ -86,6 +88,10 @@ io.on('connection',(socket) =>{
       playerRoom[socket.id] = data.lobbyId
       io.to(socket.id).emit('updateLobbyId',data.lobbyId)
       emitNewName(data.lobbyId)
+
+      if (rooms[data.lobbyId].pageState === 'game'){
+        setTimeout(()=>{io.to(socket.id).emit('sitDownButton')},1000)
+      }
     }
   })
 
@@ -162,8 +168,14 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('changePageState',(data)=>{
-    emitPageState(data.lobbyId,data.page)
-    emitNewName(data.lobbyId)
+    if (data.lobbyId != null){
+      if (data.page != undefined){
+        rooms[data.lobbyId].pageState = data.page
+      }
+      emitPageState(data.lobbyId,rooms[data.lobbyId].pageState)
+      emitNewName(data.lobbyId)
+      setTimeout(()=>{emitNameAndStack(data.lobbyId)},500)
+    }
   })
 
   socket.on('fold', (data)=>{
