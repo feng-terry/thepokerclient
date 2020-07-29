@@ -51,7 +51,7 @@ function DecisionBar(props){
                 onClick={()=>(handleCheck())}>Check</button>:null}
 
             {props.call? 
-                Math.min(2*props.currentBet - props.playerCurrentBet,props.stack) === props.stack? 
+                props.currentBet >= props.stack + props.playerCurrentBet? 
                     null:
                     <button 
                         className = "decision-button"
@@ -67,7 +67,7 @@ function DecisionBar(props){
                 </form>:null}    
 
             {props.raise?
-                Math.min(2*props.currentBet - props.playerCurrentBet,props.stack) === props.stack?     
+                props.currentBet >= props.stack + props.playerCurrentBet || 2*props.currentBet - props.playerCurrentBet >= props.stack?     
                     <button
                         className='decision-button'
                         onClick={handleAllIn}

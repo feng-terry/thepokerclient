@@ -145,7 +145,7 @@ function Game(props){
             <p>{communityElements}</p>
             <p>Pot:{pot}</p>
             {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:
-             isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut}/>:<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>}
+             isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId} />:<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>}
             
         </div>
     )

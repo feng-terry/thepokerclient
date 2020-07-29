@@ -121,33 +121,34 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('sitDown',(data)=>{
-    players[socket.id] = new player.Player(data.playerName,socket.id)
-    spectators.splice(spectators.indexOf(socket.id),1)
-    Table.addHoldPlayer(players[socket.id])
+    rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
+    rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
+    rooms[data.lobbyId].table.addHoldPlayer(rooms[data.lobbyId].players[socket.id])
 
-    if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
-      Table.newHand()
+    if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
+      rooms[data.lobbyId].table.newHand()
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitNameAndStack(data.lobbyId)
   })
 
-  socket.on('sitOut', ()=>{
-    Table.sitOut(players[socket.id])
+  socket.on('sitOut', (data)=>{
+    console.log('in the listener')
+    rooms[data.lobbyId].table.sitOut(rooms[data.lobbyId].players[socket.id])
   })
 
-  socket.on('sitIn', ()=>{
-    Table.sitIn(players[socket.id])
+  socket.on('sitIn', (data)=>{
+    rooms[data.lobbyId].table.sitIn(rooms[data.lobbyId].players[socket.id])
     
-    if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
-      Table.newHand()
+    if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
+      rooms[data.lobbyId].table.newHand()
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitNameAndStack(data.lobbyId)
   })
 
   socket.on('bustOut', (data)=>{
-    spectators.push(data)
-    delete players[data]
-    for (const id of spectators){
+    rooms[data.lobbyId].spectators.push(data.socketId)
+    delete rooms[data.lobbyId].players[data.socketId]
+    for (const id of rooms[data.lobbyId].spectators){
       setTimeout(function(){io.to(id).emit('sitDownButton')},500)
     }
   })
@@ -168,7 +169,7 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('changePageState',(data)=>{
-    if (data.lobbyId != null){
+    if (Object.keys(rooms).includes(data.lobbyId)){
       if (data.page != undefined){
         rooms[data.lobbyId].pageState = data.page
       }
@@ -221,11 +222,11 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('checkFold', (data) =>{
-    players[socket.id].setCheckFold(data)
+    rooms[data.lobbyId].players[socket.id].setCheckFold(data.value)
   })
 
   socket.on('callAny', (data) =>{
-    players[socket.id].setCallAny(data)
+    rooms[data.lobbyId].players[socket.id].setCallAny(data.value)
   })
 }
 )

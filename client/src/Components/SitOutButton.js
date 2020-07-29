@@ -4,7 +4,7 @@ function SitOutButton(props){
     function handleSubmit(event){
         event.preventDefault()
         props.setIsSitOut(false)
-        props.socket.emit('sitOut')
+        props.socket.emit('sitOut',{lobbyId:props.lobbyId})
     }
     return(
         <form onSubmit={handleSubmit}>

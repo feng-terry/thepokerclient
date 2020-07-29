@@ -155,6 +155,9 @@ Table=function(io,lobbyId){
         for (const player of this.sitInList){
             let oweBlinds = ((this.bigBlindSeat > player.getSeat() && player.getSeat() > player.getSitOutSeat())||(player.getSitOutSeat() > this.bigBlindSeat && this.bigBlindSeat > player.getSeat())||(player.getSeat() > player.getSitOutSeat() && player.getSitOutSeat() > this.bigBlindSeat))
             if (oweBlinds || player.getBlindCycle()){ //I:Sit in Seat O:Sit out Seat P:Player Seat, oweBlinds is I>P>O, O>I>P, P>O>I consult:https://imgur.com/a/VnUbLsB
+                if(smallBlindPlayer === player){
+                    player.clearBets()
+                }
                 player.addBet(bigBlindAmount)
                 player.setBlindCycle(false)
             }
@@ -175,6 +178,8 @@ Table=function(io,lobbyId){
     }
 
     this.sitOut = function(player){
+        console.log('inside function')
+        console.log('player:',player)
         player.setCheckFold(true)
         player.setSitOutSeat(this.bigBlindSeat)
         this.players.splice(this.players.indexOf(player),1)
@@ -491,7 +496,7 @@ Table=function(io,lobbyId){
             for (const player of Array.from(this.players)){
                 if (player.getStack() === 0){
                     this.removePlayer(player)
-                    io.emit('bustOut',player.getSocketId())
+                    io.emit('bustOut',{socketId:player.getSocketId(),lobbyId:this.lobbyId})
                 }
             }
             this.resetSeats()

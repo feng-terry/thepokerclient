@@ -11,18 +11,18 @@ export default function CheckboxBar(props){
 
     function handleCheckFold(){
         setIsCheckFold(!isCheckFold)
-        props.socket.emit('checkFold',!isCheckFold)
+        props.socket.emit('checkFold',{lobbyId:props.lobbyId,value:!isCheckFold})
         
         setIsCallAny(false)
-        props.socket.emit('callAny',false)
+        props.socket.emit('callAny',{lobbyId:props.lobbyId,value:false})
     }
     
     function handleCallAny(){
         setIsCallAny(!isCallAny)
-        props.socket.emit('callAny',!isCallAny)
+        props.socket.emit('callAny',{lobbyId:props.lobbyId,value:!isCallAny})
 
         setIsCheckFold(false)
-        props.socket.emit('checkFold',false)
+        props.socket.emit('checkFold',{lobbyId:props.lobbyId,value:false})
     }
 
     return(
