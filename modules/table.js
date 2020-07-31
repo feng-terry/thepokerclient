@@ -12,6 +12,8 @@ Table=function(io,lobbyId){
     this.sitOutList = []
     this.sitInList = []
     this.revealList = []
+    this.winnerLogList = []
+    this.winnerLog={}
     this.deck = new Deck();
     this.deck.shuffle();
     this.stage;
@@ -178,8 +180,6 @@ Table=function(io,lobbyId){
     }
 
     this.sitOut = function(player){
-        console.log('inside function')
-        console.log('player:',player)
         player.setCheckFold(true)
         player.setSitOutSeat(this.bigBlindSeat)
         this.players.splice(this.players.indexOf(player),1)
@@ -272,6 +272,7 @@ Table=function(io,lobbyId){
         this.isLeftOverChips = true
         this.revealList=[]
         this.foldPlayers = []
+        this.winnerLog={}
         this.currentlyAllIn = false
         this.emitRevealList()
         this.emitCommunityCards()
@@ -439,7 +440,7 @@ Table=function(io,lobbyId){
         this.takeBets()
         //////////////////////////////////////////////////////////
         if (this.pot != 0){
-            //Finding the minimun bet and the player assosciated with it
+            //Finding the minimum bet and the player assosciated with it
             let minBet = this.pot + 1
             let minPlayer
             for (const player of this.activePlayers.concat(this.foldPlayers)){
@@ -470,6 +471,7 @@ Table=function(io,lobbyId){
                     this.pot -= (amount + disconnectAmount) 
                     partialPot -= amount
                     this.disconnectChips -= disconnectAmount
+                    this.addToWinnerLog(player, amount+disconnectAmount, hand.hand(player.getCards().concat(this.cards)))
                 }
                 this.leftOverChips = partialPot + this.disconnectChips
                 this.pot -= this.leftOverChips
@@ -478,6 +480,7 @@ Table=function(io,lobbyId){
                 winner.addStack(partialPot + this.disconnectChips)
                 this.pot -= (partialPot + this.disconnectChips)
                 this.disconnectChips = 0
+                this.addToWinnerLog(winner, partialPot+this.disconnectChips, hand.hand(winner.getCards().concat(this.cards)))
             }
             //Removing the minPlayer and recursively calling
             if(this.foldPlayers.includes(minPlayer)){
@@ -500,7 +503,7 @@ Table=function(io,lobbyId){
                 }
             }
             this.resetSeats()
-
+            this.emitWinnerLog()
             this.emitRevealList()
             this.activePlayers = []
             this.emitUpdate()
@@ -529,6 +532,31 @@ Table=function(io,lobbyId){
             }else if (Array.isArray(winner)){
                 this.revealList = Array.from(new Set(this.revealList.concat(winner)))
             }
+        }
+    }
+
+    this.addToWinnerLog = function(player,amount,hand){
+        const interpreter = {
+            0:"a straight flush",
+            1:"four of a kind",
+            2:"a full house",
+            3:"a flush",
+            4:"a straight",
+            5:"three of a kind",
+            6:"two pair",
+            7:"a pair",
+            8:"high card"
+        }
+        if (Object.keys(this.winnerLog).includes(player.getSocketId())){
+            this.winnerLog[player.getSocketId()].chips+=amount
+        } else {
+            this.winnerLog[player.getSocketId()]={
+                chips:amount,
+                hand:interpreter[hand[0]],
+                name: player.getName(),
+                cards: player.getCards()
+            }
+
         }
     }
 
@@ -807,6 +835,16 @@ Table=function(io,lobbyId){
         const emitTo = this.getAllPlayers()
         for (const id of emitTo){
             io.to(id).emit('update')
+        }
+    }
+    this.emitWinnerLog = function(){
+        this.winnerLogList.push({
+            winnerLog:this.winnerLog,
+            communityCards:this.cards
+        })
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('winnerLog',this.winnerLogList)
         }
     }
 

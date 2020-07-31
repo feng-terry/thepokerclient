@@ -25,7 +25,7 @@ export default function Temp(props){
                 <Header className='app-header'/>
                 <NameForm className = 'app-form' socket = {props.socket} lobbyId={props.lobbyId}/>
                 <PlayersList socket = {props.socket}/>
-                <p>Lobby Id:{props.lobbyId}</p>
+                <p>Lobby Id: {props.lobbyId}</p>
                 <SettingsForm socket= {props.socket} lobbyId={props.lobbyId}/>
             </div>
         )

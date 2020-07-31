@@ -6,6 +6,7 @@ import SitDownButton from './Components/SitDownButton'
 import SitOutButton from './Components/SitOutButton'
 import SitInButton from './Components/SitInButton'
 import CheckboxBar from './Components/CheckboxBar'
+import Log from './Components/Log'
 
 function Game(props){
     const [players,setPlayers] = useState({})
@@ -28,6 +29,7 @@ function Game(props){
     const [revealList,setRevealList]=useState([])
     const [timer,setTimer]=useState(0)
     const [currentPlayer,setCurrentPlayer]=useState({socketId:2})
+    const [log,setLog]=useState([])
 
 
     useEffect(()=>{
@@ -72,6 +74,10 @@ function Game(props){
             setTimer(data.countDown)
             setCurrentPlayer(data.player)
         })
+
+        props.socket.on('winnerLog',(data)=>{
+            setLog(data)
+        })
     },[])
 
     const playerElements =  Object.values(players).map(player => {
@@ -114,7 +120,9 @@ function Game(props){
                             })
 
     const communityElements = communityCards.map(card => <Card rank={card.rank} suit={card.suit}/>)
-       
+    
+    const logElements = log.map(data => <Log winnerLog={data.winnerLog} communityCards={data.communityCards}/>)
+
     return(
         <div>
             <p>{playerElements}</p>
@@ -146,7 +154,7 @@ function Game(props){
             <p>Pot:{pot}</p>
             {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:
              isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId} />:<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>}
-            
+            {logElements}
         </div>
     )
 }
