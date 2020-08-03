@@ -7,9 +7,6 @@ const app = express()
 const port = process.env.PORT || 5000
 let rooms = {}
 let playerRoom = {}
-let players = {}
-let spectators = []
-let pageState = 'homePage'
 
 
 // console.log that your server is up and running
@@ -33,6 +30,14 @@ app.get('/id/:id', (req, res) => {
   }   
 })
 
+app.get('/checkMinPlayers/:id', (req, res) => {
+  res.send((Object.keys(rooms[req.params.id].players)).length > 1)
+})
+
+app.get('/checkLobbyId/:id', (req, res) => {
+  res.send((Object.keys(rooms).includes(req.params.id)))
+})
+
 app.use(express.static('/client/public'))
 
 let Table = new table.Table(io)
@@ -46,6 +51,7 @@ function emitNewName(lobbyId){
 }
 
 function emitNameAndStack(lobbyId){
+  rooms[lobbyId].spectators = Array.from(new Set(rooms[lobbyId].spectators))
   const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
   for (const id of emitTo){
     io.to(id).emit('nameAndStack', {
@@ -62,25 +68,25 @@ function emitPageState(lobbyId,page){
     io.to(id).emit('pageState',page)
   }
 }
+
+function emitSitDownButton(lobbyId){
+  const avaiableSeats = rooms[lobbyId].table.hasSeats()
+  for (const id of rooms[lobbyId].spectators){
+    setTimeout(function(){io.to(id).emit('sitDownButton',avaiableSeats)},500)
+  } 
+}
+
+function emitInGame(lobbyId){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('inGame',rooms[lobbyId].table.inGame(rooms[lobbyId].players[id]))
+  }
+}
 ////////////////////////////
 
 io.on('connection',(socket) =>{
-  socket.on('consolelog',()=>{
-  console.log('working')
-  })
-
-  const playerId = socket.id
-  spectators.push(playerId) 
-
   console.log('made socket connection', socket.id)
   
-  if (pageState === 'gamePage'){
-    for (const id of spectators){
-      setTimeout(function(){io.to(id).emit('sitDownButton')},500)
-    }
-    setTimeout(function(){io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})},500)
-  }
-
   socket.on('addSpectator',(data)=>{
     if (Object.keys(rooms).includes(data.lobbyId)){
       rooms[data.lobbyId].spectators.push(socket.id)
@@ -89,8 +95,8 @@ io.on('connection',(socket) =>{
       io.to(socket.id).emit('updateLobbyId',data.lobbyId)
       emitNewName(data.lobbyId)
 
-      if (rooms[data.lobbyId].pageState === 'game'){
-        setTimeout(()=>{io.to(socket.id).emit('sitDownButton')},1000)
+      if (rooms[data.lobbyId].pageState === 'game' && rooms[data.lobbyId].table.hasSeats()){
+        setTimeout(()=>{io.to(socket.id).emit('sitDownButton',true)},1000)
       }
     }
   })
@@ -108,6 +114,7 @@ io.on('connection',(socket) =>{
         player.addStack(rooms[data.lobbyId].table.startingStack)
         rooms[data.lobbyId].table.addPlayer(player)
       }
+      emitInGame(data.lobbyId)
       emitNameAndStack(data.lobbyId)
       rooms[data.lobbyId].table.newHand();
     } 
@@ -123,11 +130,14 @@ io.on('connection',(socket) =>{
   socket.on('sitDown',(data)=>{
     rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
     rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
+    rooms[data.lobbyId].table.removeSpectator(socket.id)
     rooms[data.lobbyId].table.addHoldPlayer(rooms[data.lobbyId].players[socket.id])
 
     if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
       rooms[data.lobbyId].table.newHand()
     }
+    emitInGame(data.lobbyId)
+    emitSitDownButton(data.lobbyId) //Takes away the sit down button
     emitNameAndStack(data.lobbyId)
   })
 
@@ -147,10 +157,10 @@ io.on('connection',(socket) =>{
 
   socket.on('bustOut', (data)=>{
     rooms[data.lobbyId].spectators.push(data.socketId)
+    rooms[data.lobbyId].table.spectators.push(data.socketId)
     delete rooms[data.lobbyId].players[data.socketId]
-    for (const id of rooms[data.lobbyId].spectators){
-      setTimeout(function(){io.to(id).emit('sitDownButton')},500)
-    }
+    emitInGame(data.lobbyId)
+    emitSitDownButton(data.lobbyId)
   })
 
   socket.on('disconnect', () =>{
@@ -161,7 +171,9 @@ io.on('connection',(socket) =>{
       Table.removePlayer(rooms[lobbyId].players[socket.id])   
       delete rooms[lobbyId].players[socket.id]
       delete playerRoom[socket.id]
-      
+
+      emitInGame(data.lobbyId)
+      emitSitDownButton(lobbyId)
       emitNewName(lobbyId)
       emitNameAndStack(lobbyId)
     }

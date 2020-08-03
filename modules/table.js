@@ -73,9 +73,11 @@ Table=function(io,lobbyId){
     }
 
     this.addHoldPlayer = function(player){
-        player.setSeat(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1)
-        player.addStack(this.startingStack)
-        this.holdPlayers.push(player)
+        if (this.hasSeats()){
+            player.setSeat(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1)
+            player.addStack(this.startingStack)
+            this.holdPlayers.push(player)
+        }
     }
 
     this.removePlayer = function(playerObject){
@@ -84,7 +86,7 @@ Table=function(io,lobbyId){
         if (index > -1) {
             this.players.splice(index,1)
 
-            if (this.stage != 'showdown'){
+            if (this.stage !== 'showdown'){
 
                 if(this.currentPlayer === playerObject){
                     this.fold()
@@ -115,6 +117,18 @@ Table=function(io,lobbyId){
 
     this.removeSpectator = function(id){
         this.spectators.splice(this.spectators.indexOf(id),1)
+    }
+
+    this.hasSeats = function(){
+        return(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1 <= this.seats)
+    }
+
+    this.inGame = function(player){
+        if (player !== undefined){
+            const result = Array.from(new Set(this.players.concat(this.activePlayers).concat(this.holdPlayers).concat(this.sitInList).concat(this.sitOutList)))
+            return result.includes(player)
+        }
+        return false
     }
 
     this.initializeActions = function(){
@@ -149,7 +163,7 @@ Table=function(io,lobbyId){
             if(smallBlindPlayer === player){
                 player.clearBets()
                 player.addBet(bigBlindAmount)
-            }else if (bigBlindPlayer != player){
+            }else if (bigBlindPlayer !== player){
                 player.addBet(bigBlindAmount)
             }
         }
@@ -211,7 +225,7 @@ Table=function(io,lobbyId){
 
     this.checkBlindCycle = function(){
         let player = this.activePlayers[1]
-        while (this.bigBlindSeat != player.getSeat()){
+        while (this.bigBlindSeat !== player.getSeat()){
             this.bigBlindSeat += 1
             if (this.bigBlindSeat > this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length){
                 this.bigBlindSeat = 1
@@ -368,7 +382,7 @@ Table=function(io,lobbyId){
 
     this.onlyStack = function(stackPlayer){
         for (const player of this.activePlayers){
-            if (player.getStack() != 0 && player != stackPlayer){
+            if (player.getStack() !== 0 && player !== stackPlayer){
                 return false
             }
         }
@@ -439,7 +453,7 @@ Table=function(io,lobbyId){
         this.stage = 'showdown'
         this.takeBets()
         //////////////////////////////////////////////////////////
-        if (this.pot != 0){
+        if (this.pot !== 0){
             //Finding the minimum bet and the player assosciated with it
             let minBet = this.pot + 1
             let minPlayer
@@ -526,7 +540,7 @@ Table=function(io,lobbyId){
 
             const winner = handComparison([bestPlayer,this.activePlayers[index]],this.cards)
 
-            if (winner != bestPlayer && !Array.isArray(winner)){
+            if (winner !== bestPlayer && !Array.isArray(winner)){
                 this.revealList.push(winner)
                 bestPlayer = winner
             }else if (Array.isArray(winner)){
@@ -752,7 +766,7 @@ Table=function(io,lobbyId){
             index++
         }
 
-        if (this.activePlayers[index].getStack() != 0){
+        if (this.activePlayers[index].getStack() !== 0){
             return this.activePlayers[index]
         }
 
@@ -778,7 +792,7 @@ Table=function(io,lobbyId){
             index--
         }
 
-        if (this.activePlayers[index].getStack() != 0){
+        if (this.activePlayers[index].getStack() !== 0){
             return this.activePlayers[index]
         }
 

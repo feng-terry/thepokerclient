@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState,useEffect} from 'react'
 import "./style.css"
 
 function SettingsForm(props){
@@ -10,25 +10,45 @@ function SettingsForm(props){
     const [antes,setAntes] = useState(0)
     const [blindsPercentage,setBlindsPercentage]=useState(0)
     const [blindsIncreaseTimer,setBlindsIncreaseTimer]=useState(0)
+    const [canStart,setCanStart] = useState(false)
+
+    let checkMinPlayers = async ()=>{
+        console.log('/checkMinPlayers/'+props.lobbyId)
+        const response = await fetch('/checkMinPlayers/' + props.lobbyId)
+        const body = await response.json()
+        
+        if (response.status !== 200) {
+            throw Error(body.message) 
+          }
+        return body;
+    }
 
     function handleSubmit(e){
         e.preventDefault()
-        props.socket.emit('changePageState',{lobbyId:props.lobbyId,page:'game'})
-        props.socket.emit('newGame',{
-            startingStack:Number(startingStack),
-            blinds:Number(blinds),
-            seats:Number(seats),
-            lobbyName:lobbyName,
-            antes:Number(antes),
-            blindsPercentage:Number(blindsPercentage)/100,
-            blindsIncreaseTimer:Number(blindsIncreaseTimer),
-            timer:Number(timer),
-            lobbyId:props.lobbyId
-            }
-        )
-        console.log('submitted Form')
+        checkMinPlayers()
+            .then(res => setCanStart(res))
+            .catch(err => console.log(err))
     }
 
+    useEffect(()=>{
+        console.log('canStart',canStart)
+        if(canStart){
+            props.socket.emit('changePageState',{lobbyId:props.lobbyId,page:'game'})
+            props.socket.emit('newGame',{
+                startingStack:Number(startingStack),
+                blinds:Number(blinds),
+                seats:Number(seats),
+                lobbyName:lobbyName,
+                antes:Number(antes),
+                blindsPercentage:Number(blindsPercentage)/100,
+                blindsIncreaseTimer:Number(blindsIncreaseTimer),
+                timer:Number(timer),
+                lobbyId:props.lobbyId
+                }
+            )
+            console.log('submitted Form')
+        }
+    },[canStart])
 
         return(
             <div id="settings">
@@ -87,6 +107,7 @@ function SettingsForm(props){
                         type="radio"
                         id="two-seats"
                         name="seats"
+                        onClick={()=>setSeats(2)}
                         />
                         <label for="two-seats" onClick={()=>setSeats(2)}>2</label>
 
@@ -94,6 +115,7 @@ function SettingsForm(props){
                         type="radio"
                         id="six-seats"
                         name="seats"
+                        onClick={()=>setSeats(6)}
                         />
                         <label for="six-seats" onClick={()=>setSeats(6)}>6</label>
                         
@@ -101,6 +123,7 @@ function SettingsForm(props){
                         type="radio"
                         id="nine-seats"
                         name="seats"
+                        onClick={()=>setSeats(9)}
                         />
                         <label for="nine-seats" onClick={()=>setSeats(9)}>9</label>
                     </div>

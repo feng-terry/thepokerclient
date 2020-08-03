@@ -12,9 +12,6 @@ export default function WaitingScreen(props){
             .then(res => {
                 props.setLobbyId(res.lobbyId)
                 setInRoom(res.inRoom)
-                console.log(res)
-                console.log(res.inRoom)
-                console.log(inRoom)
             })
             .catch(err => console.log(err))
     },[])
@@ -22,7 +19,7 @@ export default function WaitingScreen(props){
     let callRoomIdApi = async () => {
         const response = await fetch(location.pathname);
         const body = await response.json();
-        console.log(body)
+
         props.socket.emit('addSpectator', {lobbyId:body.lobbyId})
     
         if (response.status !== 200) {

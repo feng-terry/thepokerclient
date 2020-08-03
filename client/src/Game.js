@@ -30,6 +30,7 @@ function Game(props){
     const [timer,setTimer]=useState(0)
     const [currentPlayer,setCurrentPlayer]=useState({socketId:2})
     const [log,setLog]=useState([])
+    const [inGame,setInGame]=useState(false)
 
 
     useEffect(()=>{
@@ -58,8 +59,12 @@ function Game(props){
             props.socket.emit('update', props.lobbyId)
         })
 
-        props.socket.on('sitDownButton', ()=>{
-            setIsSitDown(true)
+        props.socket.on('sitDownButton', (data)=>{
+            setIsSitDown(data)
+        })
+
+        props.socket.on('inGame',(data)=>{
+            setInGame(data)
         })
 
         props.socket.on('revealList', (data)=>{
@@ -152,8 +157,12 @@ function Game(props){
             }
             <p>{communityElements}</p>
             <p>Pot:{pot}</p>
-            {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:
-             isSitOut? <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId} />:<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>}
+            {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:null}
+            {inGame? 
+                isSitOut?
+                    <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>
+                    :<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>
+                :null}
             {logElements}
         </div>
     )
