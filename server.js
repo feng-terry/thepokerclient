@@ -13,7 +13,7 @@ let playerRoom = {}
 const server = app.listen(port, () => console.log(`Listening on port ${port}`))
 const io = socket(server)
 
-// create a GET route
+//Express
 app.get('/express_backend', (req, res) => {
   res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' })
 })
@@ -39,8 +39,6 @@ app.get('/checkLobbyId/:id', (req, res) => {
 })
 
 app.use(express.static('/client/public'))
-
-let Table = new table.Table(io)
 
 //Helper Functions
 function emitNewName(lobbyId){
@@ -82,6 +80,21 @@ function emitInGame(lobbyId){
     io.to(id).emit('inGame',rooms[lobbyId].table.inGame(rooms[lobbyId].players[id]))
   }
 }
+
+function emitLobbyLeader(lobbyId){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('lobbyLeader',rooms[lobbyId].lobbyLeader)
+  }
+}
+
+function emitLockedSettings(lobbyId,data){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('lockedSettings',data)
+  }
+}
+
 ////////////////////////////
 
 io.on('connection',(socket) =>{
@@ -92,6 +105,7 @@ io.on('connection',(socket) =>{
       rooms[data.lobbyId].spectators.push(socket.id)
       rooms[data.lobbyId].table.addSpectator(socket.id)
       playerRoom[socket.id] = data.lobbyId
+      emitLobbyLeader(data.lobbyId)
       io.to(socket.id).emit('updateLobbyId',data.lobbyId)
       emitNewName(data.lobbyId)
 
@@ -103,8 +117,10 @@ io.on('connection',(socket) =>{
 
   socket.on('newRoom',(data)=>{
     rooms[data.lobbyId].lobbyLeader = socket.id
+    console.log(rooms[data.lobbyId])
     rooms[data.lobbyId].spectators.push(socket.id)
     playerRoom[socket.id] = data.lobbyId
+    emitLobbyLeader(data.lobbyId)
     io.to(socket.id).emit('updateLobbyId',data.lobbyId)
   })
 
@@ -166,9 +182,9 @@ io.on('connection',(socket) =>{
   socket.on('disconnect', () =>{
     const lobbyId = playerRoom[socket.id]
 
-    if(lobbyId != undefined){
+    if(lobbyId !== undefined){
       console.log('disconnected', socket.id)
-      Table.removePlayer(rooms[lobbyId].players[socket.id])   
+      rooms[lobbyId].table.removePlayer(rooms[lobbyId].players[socket.id])   
       delete rooms[lobbyId].players[socket.id]
       delete playerRoom[socket.id]
 
@@ -239,6 +255,12 @@ io.on('connection',(socket) =>{
 
   socket.on('callAny', (data) =>{
     rooms[data.lobbyId].players[socket.id].setCallAny(data.value)
+  })
+
+  socket.on('lockedSettings',(data)=>{
+    if (Object.keys(rooms).includes(data.lobbyId)){
+      emitLockedSettings(data.lobbyId,data)
+    }
   })
 }
 )

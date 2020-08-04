@@ -4,11 +4,13 @@ import NameForm from './Components/NameForm'
 import PlayersList from './Components/Settings/PlayersList'
 import SettingsForm from './Components/Settings/SettingsForm'
 import Game from './Game'
+import LockedSettingsForm from './Components/Settings/LockedSettingsForm'
 
 
 
 export default function Temp(props){ 
     const [pageState,setPageState] = useState('settings')
+    const [lobbyLeaderSocketId,setLobbyLeaderSocketId] = useState()
 
     useEffect(()=>{
         props.socket.emit('changePageState',{lobbyId:props.lobbyId})
@@ -16,8 +18,11 @@ export default function Temp(props){
         props.socket.on('pageState',(data)=>{
             setPageState(data)
         })
-    },[])
 
+        props.socket.on('lobbyLeader',(data)=>{
+            setLobbyLeaderSocketId(data)
+        })
+    },[])
     
     if (pageState === 'settings'){
         return(
@@ -26,7 +31,10 @@ export default function Temp(props){
                 <NameForm className = 'app-form' socket = {props.socket} lobbyId={props.lobbyId}/>
                 <PlayersList socket = {props.socket}/>
                 <p>Lobby Id: {props.lobbyId}</p>
-                <SettingsForm socket= {props.socket} lobbyId={props.lobbyId}/>
+                {(lobbyLeaderSocketId === props.socket.id)? 
+                    <SettingsForm socket= {props.socket} lobbyId={props.lobbyId}/>
+                    :<LockedSettingsForm socket={props.socket} lobbyId={props.lobbyId}/>
+                }
             </div>
         )
     } else if (pageState === 'game'){
