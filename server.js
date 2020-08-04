@@ -117,7 +117,6 @@ io.on('connection',(socket) =>{
 
   socket.on('newRoom',(data)=>{
     rooms[data.lobbyId].lobbyLeader = socket.id
-    console.log(rooms[data.lobbyId])
     rooms[data.lobbyId].spectators.push(socket.id)
     playerRoom[socket.id] = data.lobbyId
     emitLobbyLeader(data.lobbyId)
@@ -188,7 +187,7 @@ io.on('connection',(socket) =>{
       delete rooms[lobbyId].players[socket.id]
       delete playerRoom[socket.id]
 
-      emitInGame(data.lobbyId)
+      emitInGame(lobbyId)
       emitSitDownButton(lobbyId)
       emitNewName(lobbyId)
       emitNameAndStack(lobbyId)
@@ -260,6 +259,7 @@ io.on('connection',(socket) =>{
   socket.on('lockedSettings',(data)=>{
     if (Object.keys(rooms).includes(data.lobbyId)){
       emitLockedSettings(data.lobbyId,data)
+
     }
   })
 }

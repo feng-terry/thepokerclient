@@ -7,10 +7,14 @@ function SettingsForm(props){
     const [seats,setSeats] = useState(6)
     const [lobbyName,setLobbyName] = useState("")
     const [timer,setTimer] = useState(0)
+    const [anteSwitch,setAnteSwitch]=useState(false)
     const [antes,setAntes] = useState(0)
+    const [blindsSwitch, setBlindsSwitch]=useState(false)
     const [blindsPercentage,setBlindsPercentage]=useState(0)
     const [blindsIncreaseTimer,setBlindsIncreaseTimer]=useState(0)
     const [canStart,setCanStart] = useState(false)
+
+    
 
     let checkMinPlayers = async ()=>{
         console.log('/checkMinPlayers/'+props.lobbyId)
@@ -39,7 +43,9 @@ function SettingsForm(props){
                 blinds:Number(blinds),
                 seats:Number(seats),
                 lobbyName:lobbyName,
+                anteSwitch:anteSwitch,
                 antes:Number(antes),
+                blindsSwitch:blindsSwitch,
                 blindsPercentage:Number(blindsPercentage)/100,
                 blindsIncreaseTimer:Number(blindsIncreaseTimer),
                 timer:Number(timer),
@@ -57,7 +63,9 @@ function SettingsForm(props){
         startingStack,
         blinds,
         seats,
+        anteSwitch,
         antes,
+        blindsSwitch,
         blindsPercentage,
         blindsIncreaseTimer,
         timer
@@ -70,7 +78,9 @@ function SettingsForm(props){
             startingStack:startingStack,
             blinds:blinds,
             seats:seats,
+            anteSwitch:anteSwitch,
             antes:antes,
+            blindsSwitch,
             blindsPercentage:blindsPercentage,
             blindsIncreaseTimer:blindsIncreaseTimer,
             timer:timer,
@@ -111,8 +121,10 @@ function SettingsForm(props){
                 <div id="ante-block">
                     <label for="ante-switch">Antes:</label>
                     <label className="switch">
-                        <input type="checkbox"
+                        <input 
+                        type="checkbox"
                         id="ante-switch"
+                        onChange={()=>setAnteSwitch(!anteSwitch)}
                         />
                         <span className="slider round"></span>
                     </label>   
@@ -158,7 +170,10 @@ function SettingsForm(props){
 
                 <label for="raise-blinds-switch">Raise Blinds:</label>
                     <label className="switch">
-                        <input type="checkbox" id="raise-blinds-switch"/>
+                        <input 
+                        type="checkbox"
+                        id="raise-blinds-switch"
+                        onChange={()=>setBlindsSwitch(!blindsSwitch)}/>
                         <span className="slider round"></span>
                 </label>
 

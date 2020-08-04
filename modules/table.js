@@ -34,7 +34,7 @@ Table=function(io,lobbyId){
     //Settings
     this.startingStack;
     this.bigBlind; //boolean of whether or not blinds will increase
-    this.antes;
+    this.antes=0;
     this.blindsIncrease;
     this.blindsIncreaseTimer = 5; //setting for number of hands until blinds increase, 5 is default
     this.blindsPercentage=0; // multiplier of how much the blinds will increase by -> 10% = 1.10
@@ -47,7 +47,9 @@ Table=function(io,lobbyId){
         this.startingStack = data.startingStack
         this.bigBlind = data.blinds
         this.seats = data.seats
-        this.antes = data.antes
+        if(data.anteSwitch){
+            this.antes = data.antes
+        }
         this.blindsIncrease=data.blindsIncrease;
         this.blindsIncreaseTimer = data.blindsIncreaseTimer; //setting for number of hands until blinds increase, 5 is default
         this.blindsPercentage=data.blindsPercentage+1;
@@ -369,7 +371,7 @@ Table=function(io,lobbyId){
     this.allPlayersAllIn = function(){
         let counter = 0
         for (const player of this.activePlayers){
-            if (player.getStack() != 0){
+            if (player.getStack() !== 0){
                 counter++
             }
         }

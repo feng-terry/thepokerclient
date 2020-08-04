@@ -8,7 +8,7 @@ export default function CheckboxBar(props){
     if (Object.values(props.players).length > 0 && Object.keys(props.players).includes(props.socket.id)){
         playerBet = props.players[props.socket.id].bets
     }
-
+    
     function handleCheckFold(){
         setIsCheckFold(!isCheckFold)
         props.socket.emit('checkFold',{lobbyId:props.lobbyId,value:!isCheckFold})
