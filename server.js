@@ -95,6 +95,14 @@ function emitLockedSettings(lobbyId,data){
   }
 }
 
+function deleteEmptyLobbies(){
+  for (const lobbyId in rooms){
+    if (Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators).length <= 0){
+      delete rooms[lobbyId]
+    }
+  }
+}
+
 ////////////////////////////
 
 io.on('connection',(socket) =>{
@@ -187,6 +195,7 @@ io.on('connection',(socket) =>{
       delete rooms[lobbyId].players[socket.id]
       delete playerRoom[socket.id]
 
+      deleteEmptyLobbies()
       emitInGame(lobbyId)
       emitSitDownButton(lobbyId)
       emitNewName(lobbyId)
