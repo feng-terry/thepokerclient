@@ -5,154 +5,271 @@ const http = require("http")
 const socket = require('socket.io')
 const app = express()
 const port = process.env.PORT || 5000
-let players = {}
-let spectators = []
-let pageState = 'homePage'
+let rooms = {}
+let playerRoom = {}
 
 
 // console.log that your server is up and running
 const server = app.listen(port, () => console.log(`Listening on port ${port}`))
+const io = socket(server)
 
-// create a GET route
+//Express
 app.get('/express_backend', (req, res) => {
   res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' })
 })
 
+app.get('/generateLobbyId', (req,res) => {
+  const id = (Math.random()+1).toString(36).slice(2,18)
+  rooms[id] = {players:{},spectators:[],table:new table.Table(io,id),lobbyLeader:'',pageState:'settings'}
+  res.send({lobbyId:id})
+})
+
+app.get('/id/:id', (req, res) => {
+  if (Object.keys(rooms).includes(req.params.id)){
+    res.send({lobbyId:req.params.id,inRoom:true})
+  }   
+})
+
+app.get('/checkMinPlayers/:id', (req, res) => {
+  res.send((Object.keys(rooms[req.params.id].players)).length > 1)
+})
+
+app.get('/checkLobbyId/:id', (req, res) => {
+  res.send((Object.keys(rooms).includes(req.params.id)))
+})
+
 app.use(express.static('/client/public'))
 
-const io = socket(server)
+//Helper Functions
+function emitNewName(lobbyId){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('newName',rooms[lobbyId].players)
+  }
+}
 
-let Table = new table.Table(io)
+function emitNameAndStack(lobbyId){
+  rooms[lobbyId].spectators = Array.from(new Set(rooms[lobbyId].spectators))
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('nameAndStack', {
+      players:rooms[lobbyId].players,
+      pot:rooms[lobbyId].table.getPot(),
+      currentBet:rooms[lobbyId].table.getCurrentBet(),
+      activeNotSatOutPlayers:rooms[lobbyId].table.getActiveNotSatOutPlayers()})
+  }
+}
+
+function emitPageState(lobbyId,page){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('pageState',page)
+  }
+}
+
+function emitSitDownButton(lobbyId){
+  const avaiableSeats = rooms[lobbyId].table.hasSeats()
+  for (const id of rooms[lobbyId].spectators){
+    setTimeout(function(){io.to(id).emit('sitDownButton',avaiableSeats)},500)
+  } 
+}
+
+function emitInGame(lobbyId){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('inGame',rooms[lobbyId].table.inGame(rooms[lobbyId].players[id]))
+  }
+}
+
+function emitLobbyLeader(lobbyId){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('lobbyLeader',rooms[lobbyId].lobbyLeader)
+  }
+}
+
+function emitLockedSettings(lobbyId,data){
+  const emitTo = Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators)
+  for (const id of emitTo){
+    io.to(id).emit('lockedSettings',data)
+  }
+}
+
+function deleteEmptyLobbies(){
+  for (const lobbyId in rooms){
+    if (Object.keys(rooms[lobbyId].players).concat(rooms[lobbyId].spectators).length <= 0){
+      delete rooms[lobbyId]
+    }
+  }
+}
+
+////////////////////////////
 
 io.on('connection',(socket) =>{
-  const playerId = socket.id
-  spectators.push(playerId) 
   console.log('made socket connection', socket.id)
-  io.emit('pageState',pageState)
-  setTimeout((function() {io.emit('newName',players)}), 375)
+  
+  socket.on('addSpectator',(data)=>{
+    if (Object.keys(rooms).includes(data.lobbyId)){
+      rooms[data.lobbyId].spectators.push(socket.id)
+      rooms[data.lobbyId].table.addSpectator(socket.id)
+      playerRoom[socket.id] = data.lobbyId
+      emitLobbyLeader(data.lobbyId)
+      io.to(socket.id).emit('updateLobbyId',data.lobbyId)
+      emitNewName(data.lobbyId)
 
-  if (pageState === 'gamePage'){
-    for (const id of spectators){
-      setTimeout(function(){io.to(id).emit('sitDownButton')},500)
+      if (rooms[data.lobbyId].pageState === 'game' && rooms[data.lobbyId].table.hasSeats()){
+        setTimeout(()=>{io.to(socket.id).emit('sitDownButton',true)},1000)
+      }
     }
-    setTimeout(function(){io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})},500)
-  }
+  })
+
+  socket.on('newRoom',(data)=>{
+    rooms[data.lobbyId].lobbyLeader = socket.id
+    rooms[data.lobbyId].spectators.push(socket.id)
+    playerRoom[socket.id] = data.lobbyId
+    emitLobbyLeader(data.lobbyId)
+    io.to(socket.id).emit('updateLobbyId',data.lobbyId)
+  })
 
   socket.on('newGame',(data)=>{
-      Table.setSettings(data)
-      
-      for (const player of Object.values(players)){
-        player.addStack(Table.startingStack)
-        Table.addPlayer(player)
+      rooms[data.lobbyId].table.setSettings(data)
+      for (const player of Object.values(rooms[data.lobbyId].players)){
+        player.addStack(rooms[data.lobbyId].table.startingStack)
+        rooms[data.lobbyId].table.addPlayer(player)
       }
-      
-      io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
-      Table.newHand();
-      
-
+      emitInGame(data.lobbyId)
+      emitNameAndStack(data.lobbyId)
+      rooms[data.lobbyId].table.newHand();
     } 
   )
 
   socket.on('newName',function(data){
-    players[socket.id]=new player.Player(data.playerName,socket.id)
-    spectators.splice(spectators.indexOf(socket.id),1)
-    io.emit('newName',players)
+    rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
+    rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
+    rooms[data.lobbyId].table.removeSpectator(socket.id)
+    emitNewName(data.lobbyId)
   })
 
   socket.on('sitDown',(data)=>{
-    players[socket.id] = new player.Player(data.playerName,socket.id)
-    spectators.splice(spectators.indexOf(socket.id),1)
-    Table.addHoldPlayer(players[socket.id])
+    rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
+    rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
+    rooms[data.lobbyId].table.removeSpectator(socket.id)
+    rooms[data.lobbyId].table.addHoldPlayer(rooms[data.lobbyId].players[socket.id])
 
-    if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
-      Table.newHand()
+    if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
+      rooms[data.lobbyId].table.newHand()
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitInGame(data.lobbyId)
+    emitSitDownButton(data.lobbyId) //Takes away the sit down button
+    emitNameAndStack(data.lobbyId)
   })
 
-  socket.on('sitOut', ()=>{
-    Table.sitOut(players[socket.id])
+  socket.on('sitOut', (data)=>{
+    console.log('in the listener')
+    rooms[data.lobbyId].table.sitOut(rooms[data.lobbyId].players[socket.id])
   })
 
-  socket.on('sitIn', ()=>{
-    Table.sitIn(players[socket.id])
+  socket.on('sitIn', (data)=>{
+    rooms[data.lobbyId].table.sitIn(rooms[data.lobbyId].players[socket.id])
     
-    if (Table.getStage() === 'prehand' && Table.getPlayers().concat(Table.sitInList.concat(Table.holdPlayers)).length >= 2){
-      Table.newHand()
+    if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
+      rooms[data.lobbyId].table.newHand()
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitNameAndStack(data.lobbyId)
   })
 
   socket.on('bustOut', (data)=>{
-    spectators.push(data)
-    delete players[data]
-    for (const id of spectators){
-      setTimeout(function(){io.to(id).emit('sitDownButton')},500)
-    }
+    rooms[data.lobbyId].spectators.push(data.socketId)
+    rooms[data.lobbyId].table.spectators.push(data.socketId)
+    delete rooms[data.lobbyId].players[data.socketId]
+    emitInGame(data.lobbyId)
+    emitSitDownButton(data.lobbyId)
   })
 
   socket.on('disconnect', () =>{
-    console.log('disconnected', socket.id)
-    Table.removePlayer(players[playerId])
-    delete players[playerId]
-    
-    io.emit('newName',players)
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    const lobbyId = playerRoom[socket.id]
+
+    if(lobbyId !== undefined){
+      console.log('disconnected', socket.id)
+      rooms[lobbyId].table.removePlayer(rooms[lobbyId].players[socket.id])   
+      delete rooms[lobbyId].players[socket.id]
+      delete playerRoom[socket.id]
+
+      deleteEmptyLobbies()
+      emitInGame(lobbyId)
+      emitSitDownButton(lobbyId)
+      emitNewName(lobbyId)
+      emitNameAndStack(lobbyId)
+    }
     // handle disconnect  
   })
 
   socket.on('changePageState',(data)=>{
-    pageState = data
-    io.emit('pageState',pageState)
-    io.emit('newName',players)
-  })
-
-  socket.on('fold', ()=>{
-    if (socket.id === Table.currentPlayer.getSocketId()){
-      Table.fold()
+    if (Object.keys(rooms).includes(data.lobbyId)){
+      if (data.page != undefined){
+        rooms[data.lobbyId].pageState = data.page
+      }
+      emitPageState(data.lobbyId,rooms[data.lobbyId].pageState)
+      emitNewName(data.lobbyId)
+      setTimeout(()=>{emitNameAndStack(data.lobbyId)},500)
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
   })
 
-  socket.on('check', ()=>{
-    if (socket.id === Table.currentPlayer.getSocketId()){
-      Table.check()
+  socket.on('fold', (data)=>{
+    if (socket.id === rooms[data.lobbyId].table.currentPlayer.getSocketId()){
+      rooms[data.lobbyId].table.fold()
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitNameAndStack(data.lobbyId)
   })
 
-  socket.on('call', ()=>{
-    if (socket.id === Table.currentPlayer.getSocketId()){
-      Table.call()
+  socket.on('check', (data)=>{
+    if (socket.id === rooms[data.lobbyId].table.currentPlayer.getSocketId()){
+      rooms[data.lobbyId].table.check()
+    }
+    emitNameAndStack(data.lobbyId)
+  })
+
+  socket.on('call', (data)=>{
+    if (socket.id === rooms[data.lobbyId].table.currentPlayer.getSocketId()){
+      rooms[data.lobbyId].table.call()
     }
     
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitNameAndStack(data.lobbyId)
   })
 
-  socket.on('bet',(betValue)=>{
-    if (socket.id === Table.currentPlayer.getSocketId()){
-      Table.bet(betValue)
+  socket.on('bet',(data)=>{
+    if (socket.id === rooms[data.lobbyId].table.currentPlayer.getSocketId()){
+      rooms[data.lobbyId].table.bet(data.betValue)
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitNameAndStack(data.lobbyId)
   })
 
-  socket.on('raise',(raiseValue)=>{
-    if (socket.id === Table.currentPlayer.getSocketId()){
-      Table.raise(raiseValue)
+  socket.on('raise',(data)=>{
+    if (socket.id === rooms[data.lobbyId].table.currentPlayer.getSocketId()){
+      rooms[data.lobbyId].table.raise(data.raiseValue)
     }
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+    emitNameAndStack(data.lobbyId)
   })
 
-  socket.on('update', ()=>{
-    io.emit('nameAndStack', {players:players,pot:Table.getPot(),currentBet:Table.getCurrentBet(),activeNotSatOutPlayers:Table.getActiveNotSatOutPlayers()})
+  socket.on('update', (lobbyId)=>{
+    if (Object.keys(rooms).includes(lobbyId)){
+      emitNameAndStack(lobbyId)
+    }
   })
 
   socket.on('checkFold', (data) =>{
-    players[socket.id].setCheckFold(data)
+    rooms[data.lobbyId].players[socket.id].setCheckFold(data.value)
   })
 
   socket.on('callAny', (data) =>{
-    players[socket.id].setCallAny(data)
+    rooms[data.lobbyId].players[socket.id].setCallAny(data.value)
+  })
+
+  socket.on('lockedSettings',(data)=>{
+    if (Object.keys(rooms).includes(data.lobbyId)){
+      emitLockedSettings(data.lobbyId,data)
+
+    }
   })
 }
 )

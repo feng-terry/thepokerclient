@@ -1,16 +1,19 @@
 const hand = require('../handComparison');
 const player = require('./player');
 
-Table=function(io){
+Table=function(io,lobbyId){
     this.pot = 0;
     this.cards = [];
     this.players = [];
+    this.spectators =[];
     this.holdPlayers = []
     this.activePlayers = []
     this.foldPlayers=[]
     this.sitOutList = []
     this.sitInList = []
     this.revealList = []
+    this.winnerLogList = []
+    this.winnerLog={}
     this.deck = new Deck();
     this.deck.shuffle();
     this.stage;
@@ -31,19 +34,22 @@ Table=function(io){
     //Settings
     this.startingStack;
     this.bigBlind; //boolean of whether or not blinds will increase
-    this.antes;
+    this.antes=0;
     this.blindsIncrease;
     this.blindsIncreaseTimer = 5; //setting for number of hands until blinds increase, 5 is default
     this.blindsPercentage=0; // multiplier of how much the blinds will increase by -> 10% = 1.10
     this.seats;
     this.lobbyName;
     this.timer;
+    this.lobbyId = lobbyId
 
     this.setSettings = function(data){
         this.startingStack = data.startingStack
         this.bigBlind = data.blinds
         this.seats = data.seats
-        this.antes = data.antes
+        if(data.anteSwitch){
+            this.antes = data.antes
+        }
         this.blindsIncrease=data.blindsIncrease;
         this.blindsIncreaseTimer = data.blindsIncreaseTimer; //setting for number of hands until blinds increase, 5 is default
         this.blindsPercentage=data.blindsPercentage+1;
@@ -69,9 +75,11 @@ Table=function(io){
     }
 
     this.addHoldPlayer = function(player){
-        player.setSeat(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1)
-        player.addStack(this.startingStack)
-        this.holdPlayers.push(player)
+        if (this.hasSeats()){
+            player.setSeat(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1)
+            player.addStack(this.startingStack)
+            this.holdPlayers.push(player)
+        }
     }
 
     this.removePlayer = function(playerObject){
@@ -80,7 +88,7 @@ Table=function(io){
         if (index > -1) {
             this.players.splice(index,1)
 
-            if (this.stage != 'showdown'){
+            if (this.stage !== 'showdown'){
 
                 if(this.currentPlayer === playerObject){
                     this.fold()
@@ -103,6 +111,26 @@ Table=function(io){
                 }
             }
         }
+    }
+
+    this.addSpectator = function(id){
+        this.spectators.push(id)
+    }
+
+    this.removeSpectator = function(id){
+        this.spectators.splice(this.spectators.indexOf(id),1)
+    }
+
+    this.hasSeats = function(){
+        return(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1 <= this.seats)
+    }
+
+    this.inGame = function(player){
+        if (player !== undefined){
+            const result = Array.from(new Set(this.players.concat(this.activePlayers).concat(this.holdPlayers).concat(this.sitInList).concat(this.sitOutList)))
+            return result.includes(player)
+        }
+        return false
     }
 
     this.initializeActions = function(){
@@ -137,7 +165,7 @@ Table=function(io){
             if(smallBlindPlayer === player){
                 player.clearBets()
                 player.addBet(bigBlindAmount)
-            }else if (bigBlindPlayer != player){
+            }else if (bigBlindPlayer !== player){
                 player.addBet(bigBlindAmount)
             }
         }
@@ -145,6 +173,9 @@ Table=function(io){
         for (const player of this.sitInList){
             let oweBlinds = ((this.bigBlindSeat > player.getSeat() && player.getSeat() > player.getSitOutSeat())||(player.getSitOutSeat() > this.bigBlindSeat && this.bigBlindSeat > player.getSeat())||(player.getSeat() > player.getSitOutSeat() && player.getSitOutSeat() > this.bigBlindSeat))
             if (oweBlinds || player.getBlindCycle()){ //I:Sit in Seat O:Sit out Seat P:Player Seat, oweBlinds is I>P>O, O>I>P, P>O>I consult:https://imgur.com/a/VnUbLsB
+                if(smallBlindPlayer === player){
+                    player.clearBets()
+                }
                 player.addBet(bigBlindAmount)
                 player.setBlindCycle(false)
             }
@@ -155,7 +186,7 @@ Table=function(io){
 
         this.currentBet = this.bigBlind
 
-        io.emit('update')
+        this.emitUpdate()
     }
 
     this.sitIn = function(player){
@@ -170,7 +201,7 @@ Table=function(io){
         this.players.splice(this.players.indexOf(player),1)
         this.sitOutList.push(player)
         this.premoves()
-        io.emit('update')
+        this.emitUpdate()
     }
 
     this.findLeft = function(seat,mapArr){
@@ -196,7 +227,7 @@ Table=function(io){
 
     this.checkBlindCycle = function(){
         let player = this.activePlayers[1]
-        while (this.bigBlindSeat != player.getSeat()){
+        while (this.bigBlindSeat !== player.getSeat()){
             this.bigBlindSeat += 1
             if (this.bigBlindSeat > this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length){
                 this.bigBlindSeat = 1
@@ -257,9 +288,10 @@ Table=function(io){
         this.isLeftOverChips = true
         this.revealList=[]
         this.foldPlayers = []
+        this.winnerLog={}
         this.currentlyAllIn = false
-        io.emit('revealList',this.revealList)
-        io.emit('communityCards',this.cards)
+        this.emitRevealList()
+        this.emitCommunityCards()
         this.deck = new Deck()
         this.deck.shuffle();
         this.activePlayers = Array.from(this.players);
@@ -287,7 +319,7 @@ Table=function(io){
             player.addCards(this.deck);
         }
         for (const player of this.activePlayers){
-            io.emit('update')
+            this.emitUpdate()
         }
     }
         
@@ -300,18 +332,6 @@ Table=function(io){
         }
     }
 
-   /*this.fourthCard = function(){
-        this.addCard()
-        io.emit('communityCards',this.cards)
-        setTimeout(this.fifthCard(),1500)
-    }
-
-    this.fifthCard = function(){
-        this.addCard()
-        io.emit('communityCards',this.cards)                
-        this.showdown()
-    }*/
-
     this.allInIntervalFinished = function(){
         clearInterval(this.allInInterval)
         this.showdown()
@@ -321,18 +341,17 @@ Table=function(io){
         if (this.allPlayersAllIn()){
             
             this.revealList = Array.from(this.activePlayers)
-            io.emit('revealList', this.revealList)
+            this.emitRevealList()
             this.currentlyAllIn = true
 
             while(this.cards.length < 3){
                 this.addCard()
             }
-            io.emit('communityCards',this.cards)
+            this.emitCommunityCards()
 
-            //Work in progress, finish monday
             this.allInInterval = setInterval(()=>{
                 this.addCard()
-                io.emit('communityCards',this.cards)
+                this.emitCommunityCards()
                 if (this.cards.length === 5){
                     this.allInIntervalFinished()
                 }
@@ -352,7 +371,7 @@ Table=function(io){
     this.allPlayersAllIn = function(){
         let counter = 0
         for (const player of this.activePlayers){
-            if (player.getStack() != 0){
+            if (player.getStack() !== 0){
                 counter++
             }
         }
@@ -365,7 +384,7 @@ Table=function(io){
 
     this.onlyStack = function(stackPlayer){
         for (const player of this.activePlayers){
-            if (player.getStack() != 0 && player != stackPlayer){
+            if (player.getStack() !== 0 && player !== stackPlayer){
                 return false
             }
         }
@@ -406,7 +425,7 @@ Table=function(io){
         this.addCard()
         this.addCard()
 
-        io.emit('communityCards',this.cards)
+        this.emitCommunityCards()
 
         this.playTurn()
     }
@@ -425,7 +444,7 @@ Table=function(io){
         //Deal 1 cards
         this.addCard()
 
-        io.emit('communityCards',this.cards)
+        this.emitCommunityCards()
         this.playTurn()
     }
 
@@ -436,8 +455,8 @@ Table=function(io){
         this.stage = 'showdown'
         this.takeBets()
         //////////////////////////////////////////////////////////
-        if (this.pot != 0){
-            //Finding the minimun bet and the player assosciated with it
+        if (this.pot !== 0){
+            //Finding the minimum bet and the player assosciated with it
             let minBet = this.pot + 1
             let minPlayer
             for (const player of this.activePlayers.concat(this.foldPlayers)){
@@ -468,6 +487,7 @@ Table=function(io){
                     this.pot -= (amount + disconnectAmount) 
                     partialPot -= amount
                     this.disconnectChips -= disconnectAmount
+                    this.addToWinnerLog(player, amount+disconnectAmount, hand.hand(player.getCards().concat(this.cards)))
                 }
                 this.leftOverChips = partialPot + this.disconnectChips
                 this.pot -= this.leftOverChips
@@ -476,6 +496,7 @@ Table=function(io){
                 winner.addStack(partialPot + this.disconnectChips)
                 this.pot -= (partialPot + this.disconnectChips)
                 this.disconnectChips = 0
+                this.addToWinnerLog(winner, partialPot+this.disconnectChips, hand.hand(winner.getCards().concat(this.cards)))
             }
             //Removing the minPlayer and recursively calling
             if(this.foldPlayers.includes(minPlayer)){
@@ -494,14 +515,14 @@ Table=function(io){
             for (const player of Array.from(this.players)){
                 if (player.getStack() === 0){
                     this.removePlayer(player)
-                    io.emit('bustOut',player.getSocketId())
+                    io.emit('bustOut',{socketId:player.getSocketId(),lobbyId:this.lobbyId})
                 }
             }
             this.resetSeats()
-
-            io.emit('revealList',this.revealList)
+            this.emitWinnerLog()
+            this.emitRevealList()
             this.activePlayers = []
-            io.emit('update')
+            this.emitUpdate()
             this.stage = 'prehand'
             if (this.players.length > 1){
                 setTimeout(()=>{this.newHand()},4000)
@@ -521,7 +542,7 @@ Table=function(io){
 
             const winner = handComparison([bestPlayer,this.activePlayers[index]],this.cards)
 
-            if (winner != bestPlayer && !Array.isArray(winner)){
+            if (winner !== bestPlayer && !Array.isArray(winner)){
                 this.revealList.push(winner)
                 bestPlayer = winner
             }else if (Array.isArray(winner)){
@@ -530,12 +551,37 @@ Table=function(io){
         }
     }
 
+    this.addToWinnerLog = function(player,amount,hand){
+        const interpreter = {
+            0:"a straight flush",
+            1:"four of a kind",
+            2:"a full house",
+            3:"a flush",
+            4:"a straight",
+            5:"three of a kind",
+            6:"two pair",
+            7:"a pair",
+            8:"high card"
+        }
+        if (Object.keys(this.winnerLog).includes(player.getSocketId())){
+            this.winnerLog[player.getSocketId()].chips+=amount
+        } else {
+            this.winnerLog[player.getSocketId()]={
+                chips:amount,
+                hand:interpreter[hand[0]],
+                name: player.getName(),
+                cards: player.getCards()
+            }
+
+        }
+    }
+
     this.clearPremoves = function(){
         if (this.players.includes(this.currentPlayer)){
             this.currentPlayer.setCheckFold(false)
             this.currentPlayer.setCallAny(false)
         }
-        io.emit('update')
+        this.emitUpdate()
     }
 
     this.premoves = function(){
@@ -554,58 +600,57 @@ Table=function(io){
 
     this.playTurn = function(){
         this.countDown = this.timer
-
         this.initializeActions()
         if (this.currentPlayer.getCheckFold() || this.currentPlayer.getCallAny()){
            this.premoves()
         } else{
-                if (this.currentBet === this.currentPlayer.getBets()){
-                    this.possibleActions.check = true
-                } else{
-                    this.possibleActions.fold = true
-                    this.possibleActions.call=true
-                }
+            if (this.currentBet === this.currentPlayer.getBets()){
+                this.possibleActions.check = true
+            } else{
+                this.possibleActions.fold = true
+                this.possibleActions.call=true
+            }
 
-                if(this.currentBet === 0){
-                    this.possibleActions.bet = true
-                } else{
-                    this.possibleActions.raise = true
-                }
+            if(this.currentBet === 0){
+                this.possibleActions.bet = true
+            } else{
+                this.possibleActions.raise = true
+            }
 
-                switch(this.stage){
-                    case 'preflop':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                    case 'flop':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                    case 'turn':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                    case 'river':
-                        io.to(this.currentPlayer.getSocketId()).emit('turn', 
-                            {isTurn:true,
-                            actions:this.possibleActions,
-                            stack:this.currentPlayer.getStack(),
-                            bigBlind:this.bigBlind,
-                            currentBet:this.currentBet,
-                            playerCurrentBet:this.currentPlayer.getBets()})
-                }
+            switch(this.stage){
+                case 'preflop':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+                case 'flop':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+                case 'turn':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+                case 'river':
+                    io.to(this.currentPlayer.getSocketId()).emit('turn', 
+                        {isTurn:true,
+                        actions:this.possibleActions,
+                        stack:this.currentPlayer.getStack(),
+                        bigBlind:this.bigBlind,
+                        currentBet:this.currentBet,
+                        playerCurrentBet:this.currentPlayer.getBets()})
+            }
 
                 //Timer
                 this.turnTimer = setInterval(()=>{
@@ -618,8 +663,8 @@ Table=function(io){
                             this.check()
                         }
                     }
-                },1000) 
-                io.emit('update')
+                },1000)
+                this.emitUpdate()
         }
     }
     ///Server Client rift
@@ -723,7 +768,7 @@ Table=function(io){
             index++
         }
 
-        if (this.activePlayers[index].getStack() != 0){
+        if (this.activePlayers[index].getStack() !== 0){
             return this.activePlayers[index]
         }
 
@@ -749,7 +794,7 @@ Table=function(io){
             index--
         }
 
-        if (this.activePlayers[index].getStack() != 0){
+        if (this.activePlayers[index].getStack() !== 0){
             return this.activePlayers[index]
         }
 
@@ -781,8 +826,42 @@ Table=function(io){
         }
         return result
     }
+    this.getAllPlayers = function(){
+        let result = Array.from(new Set(this.players.concat(this.activePlayers).concat(this.holdPlayers).concat(this.sitInList).concat(this.sitOutList)))
+        result = result.map(player => player.socketId).concat(this.spectators)
+        return result
+    }
     this.getStage = function(){
         return this.stage
+    }
+    // Emitters
+    this.emitRevealList = function(){
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('revealList',this.revealList)
+        }
+    }
+    this.emitCommunityCards = function(){
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('communityCards',this.cards)
+        }
+    }
+    this.emitUpdate = function(){
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('update')
+        }
+    }
+    this.emitWinnerLog = function(){
+        this.winnerLogList.push({
+            winnerLog:this.winnerLog,
+            communityCards:this.cards
+        })
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('winnerLog',this.winnerLogList)
+        }
     }
 
 }

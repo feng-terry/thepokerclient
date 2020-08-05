@@ -11,6 +11,7 @@ function SitDownButton (props){
         event.preventDefault()
         props.setIsSitDown(false)
         props.socket.emit('sitDown', {
+            lobbyId:props.lobbyId,
             playerName:name
         })
     }

@@ -1,35 +1,36 @@
-import React, { Component } from 'react';
+import React, {useState,useEffect} from 'react';
 import socketIOClient from "socket.io-client"
+import {Route, Switch } from 'react-router-dom';
 import './App.css';
+import Home from './Components/Home'
 import Header from './Components/Header'
-import Form from './Components/Form'
 import SettingsForm from './Components/Settings/SettingsForm'
 import DecisionBar from './Components/DecisionBar';
 import PlayersList from './Components/Settings/PlayersList';
 import CreateGame from './Components/CreateGame';
 import Game from './Game';
+import Temp from './Temp'
+import WaitingScreen from './Components/WaitingScreen'
 
 const socket = socketIOClient("http://localhost:3000")
 
+function App(){
+  const [data,setData] = useState(null)
+  const [lobbyId,setLobbyId] = useState(null)
 
-class App extends Component {
-state = {
-    data: null,
-    page:'homePage',
-  };
-
-  componentDidMount() {
-      // Call our fetch function below once the component mounts
-    this.callBackendAPI()
-      .then(res => this.setState({ data: res.express }))
+  useEffect(()=>{
+    // Call our fetch function below once the component mounts
+    callBackendAPI()
+      .then(res => setData(res.express))
       .catch(err => console.log(err));
 
-    socket.on('pageState', data => {
-      this.setState({page:data})
+    socket.on('updateLobbyId', data=>{
+      setLobbyId(data)
     })
-  }
+  },[])
+
     // Fetches our GET route from the Express server. (Note the route we are fetching matches the GET route from server.js
-  callBackendAPI = async () => {
+  let callBackendAPI = async () => {
     const response = await fetch('/express_backend');
     const body = await response.json();
 
@@ -39,8 +40,17 @@ state = {
     return body;
   };
 
-  render() {
-    if (this.state.page === 'homePage'){
+
+    return(
+      <main>
+        <Switch>
+          <Route path="/" render={(routeProps)=><Home data={data} socket={socket} setLobbyId = {setLobbyId} {...routeProps}/>} exact/>
+          <Route path="/game" render={(routeProps)=><Temp socket={socket} lobbyId = {lobbyId} {...routeProps}/>}/>
+          <Route path='/id' render = {(routeProps)=><WaitingScreen socket={socket} lobbyId = {lobbyId} setLobbyId = {setLobbyId} {...routeProps}/>}/>
+        </Switch>
+      </main>
+    )
+    /*if (this.state.page === 'homePage'){
       return(<div>
                 <Header className='app-header'/>
                 <CreateGame socket = {socket}/>
@@ -58,8 +68,8 @@ state = {
       return(<div>
               <Game socket={socket}/>
             </div>)
-    }
+    }*/
   }
-}
+
 
 export default App;

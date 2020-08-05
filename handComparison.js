@@ -93,7 +93,7 @@ function isStraightFlush(cardList){
         return [4,straight[straight.length-1]];
     }    
 }
-function hand(cardList){
+hand = function(cardList){
     let histogram = generateHistogram(cardList)
     //4 of a Kind
     if (histogram.includes(4) === true){
@@ -331,5 +331,6 @@ function compareFlush(tableCards,player1,player2){
 }
 
 module.exports={
-    handComparison:handComparison
+    handComparison:handComparison,
+    hand:hand
 }

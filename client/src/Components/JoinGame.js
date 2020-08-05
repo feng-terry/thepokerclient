@@ -1,0 +1,65 @@
+import React,{useState, useEffect} from 'react'
+import { Link } from 'react-router-dom';
+
+function JoinGame(props){
+    const [id,setId]=useState()   
+    const [validLobby,setValidLobby] = useState(false)
+    const [errorMessage,setErrorMessage]=useState(false) 
+
+    function handleClick(){
+        props.setLobbyId(id)
+        props.socket.emit('addSpectator',{lobbyId:id})
+    }
+
+    function handleInvalidClick(e){
+        e.preventDefault()
+        setErrorMessage(true)
+    }
+
+    function handleChange(e){
+        setId(e.target.value)
+    }
+
+    useEffect(()=>{
+        checkLobbyId()
+            .then(res => setValidLobby(res))
+            .catch(err => console.log(err))
+    },[id])
+
+    useEffect(()=>{
+        if (validLobby){
+            setErrorMessage(false)
+        }
+    },[validLobby])
+
+    let checkLobbyId = async ()=>{
+        const response = await fetch('/checkLobbyId/' + id)
+        const body = await response.json()
+
+        if (response.status !== 200){
+            throw Error(body.message)
+        }
+        return body;
+    }
+
+    return (
+        <form>
+            <input 
+                type='text' 
+                placeholder='Enter Lobby Id' 
+                value={id} 
+                onChange={handleChange}
+            />
+            {validLobby?
+                <Link to="/game">
+                    <button onClick ={handleClick}>Join Game</button>
+                </Link>
+                :<button onClick={handleInvalidClick}>Join Game</button>}
+            {errorMessage? <p>Invalid Lobby Id</p>:null}
+
+        </form>
+    )
+
+}
+
+export default JoinGame

@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-function Form (props){
+function NameForm (props){
     const [name,setName] = useState("")
 
     function handleNameChange(event){
@@ -10,6 +10,7 @@ function Form (props){
     function handleSubmit(event){
         event.preventDefault()
         props.socket.emit('newName', {
+            lobbyId:props.lobbyId,
             playerName:name
         })
     }
@@ -26,4 +27,4 @@ function Form (props){
     )
 }
 
-export default Form
+export default NameForm
