@@ -21,9 +21,11 @@ function CreateGame(props){
 
     }
     return (
-        <Link to="/game">
-            <button onClick = {handleClick}>Create Game</button>
-        </Link>
+        <div className='button-container-div'>
+            <Link to="/game">
+                <button className='homepage-button' onClick = {handleClick}>Create Game</button>
+            </Link>
+        </div>
     )
 }
 

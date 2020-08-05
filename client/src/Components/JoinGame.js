@@ -44,17 +44,23 @@ function JoinGame(props){
 
     return (
         <form>
-            <input 
-                type='text' 
-                placeholder='Enter Lobby Id' 
-                value={id} 
-                onChange={handleChange}
-            />
+            <div className='button-container-div'>
+                <input 
+                    type='text' 
+                    placeholder='Enter Lobby Id' 
+                    value={id} 
+                    onChange={handleChange}
+                />
+            </div>
             {validLobby?
-                <Link to="/game">
-                    <button onClick ={handleClick}>Join Game</button>
-                </Link>
-                :<button onClick={handleInvalidClick}>Join Game</button>}
+                <div className='button-container-div'>
+                    <Link to="/game">
+                        <button className='homepage-button' onClick ={handleClick}>Join Game</button>
+                    </Link>
+                </div>
+                :<div className='button-container-div'>
+                    <button className='homepage-button' onClick={handleInvalidClick}>Join Game</button>
+                </div>}
             {errorMessage? <p>Invalid Lobby Id</p>:null}
 
         </form>

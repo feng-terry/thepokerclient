@@ -1,18 +1,16 @@
 header{
-  color:#C79661;
+  color:#59311D;
   text-align:center;
   font-size: larger;
+  -webkit-text-stroke: 1px #EFD09E; /* width and color */
 }
-
 body{
   background-color:#00A7E1;
 }
-
 .app-form{
   width:20%;
   box-sizing: border-box;
 }
-
 .player-card{
   display:block;
   border: 3px solid #FFFFFF;
@@ -20,12 +18,26 @@ body{
   float:right;
   position: relative;
 }
-
 .card{
   border:2px solid #D4A47D; 
   width: 5%;
 }
-
 .cardBack{
   border:2px solid #D4A47D; 
 }
+.button-container-div{
+  text-align: center;
+}
+.homepage-button{
+  border-radius: 50px;
+  border: 3px solid #C79661;
+  padding: 2px 0px 2px;
+  background: #EFD09E;
+  width:10%;
+  padding: 0.5% 0%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight:bold;
+  color:#59311D;
+}
+
