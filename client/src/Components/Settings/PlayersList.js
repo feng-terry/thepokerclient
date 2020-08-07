@@ -13,7 +13,7 @@ function PlayersList(props){
 
     return(
         <div id="playersListBox">
-            <p>{playerElements}</p>
+            {playerElements}
         </div>
     )
 }

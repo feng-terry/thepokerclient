@@ -1,11 +1,28 @@
-header{
-  color:#59311D;
-  text-align:center;
-  font-size: larger;
-  -webkit-text-stroke: 1px #EFD09E; /* width and color */
+h1{
+  border-bottom:none;
+  margin-block-start: 0em;
+  margin-block-end: 0em;
 }
 body{
-  background-color:#00A7E1;
+  background-color:#18191a;
+}
+label{
+  border-radius: 10px;
+  width:max(10%,100px);
+  padding: 0.5% 0.5%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:white;
+}
+a{
+  text-decoration: none;
+  text-align: center;
+}
+.logo-header{
+  color:white;
+  text-align:center;
+  font-size: 3.5em;
+  -webkit-text-stroke: 3px #24A5F5; /* width and color */
 }
 .app-form{
   width:20%;
@@ -29,15 +46,94 @@ body{
   text-align: center;
 }
 .homepage-button{
-  border-radius: 50px;
-  border: 3px solid #C79661;
-  padding: 2px 0px 2px;
-  background: #EFD09E;
-  width:10%;
+  border-radius: 40px;
+  border:none;
+  background: #24A5F5;
+  width:max(8%,100px);
   padding: 0.5% 0%;
   font-size: 18px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight:bold;
-  color:#59311D;
+  color:white;
 }
+.homepage-input{
+  border-radius: 40px;
+  border: none;
+  background: #3A3B3C;
+  width:max(8%,100px);
+  padding: 0.5% 0%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight:bold;
+  color:#B0B3B8;
+  text-align:center;
+}
+.settings-button{
+  border-radius: 40px;
+  border: none;
+  background: #24A5F5;
+  width:max(8%,100px);
+  padding: 0.5% 0%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:white;
+}
+.settings-input{
+  border-radius: 40px;
+  border: none;
+  background: #3A3B3C;
+  width:max(8%,100px);
+  padding: 0.5% 0%;
+  margin: 2px 0px;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#B0B3B4;
+  text-align:center;
+}
+.raise-blinds{
+  display:flex;
+  flex-flow: row wrap;
+  align-items:center;
+}
+#enter-name{
+  width:max(10%,150px);
+  line-height: 16px;
+  padding: 0.5% 1%;
+  margin:3px;
+}
+#enter-button{
+  width:max(10%,100px);
+}
+#settings p{
+  border-radius: 10px;
+  border: none;
+  padding: 0.5% 0.5%;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:white;
+}
+#settings{
+    display:block;
+    text-align:right;
+    border-radius:40px;
+    width:max(35%,300px);
+    padding:10px;
+    position:relative;
+    left:10%;
+    right:10%;
+    background-color:#272729;
+}
+#settings-title{
+  text-align:center;
+  color:white;
+}
+#note{
+  display:inline-block;
+  text-align: right;
+  width:57%;
+}
+#lobbyname{
+  width:10em;
+}
+
 

@@ -1,31 +1,16 @@
-#antes-text{
-    position: relative;
-}
-#settings{
-    margin:0 auto;
-    position:fixed;
-    text-align: right;
-    border: 1px solid black;
-    padding:7px;
-}
-#seats-text{
-    float:left;
-}
 .switch {
     margin-top:23px;
     position: relative;
     display: inline-block;
     width: 30px;
     height: 20px;
-  }
-  
-  /* Hide default HTML checkbox */
+}
+/* Hide default HTML checkbox */
 .switch input {
     opacity: 0;
     width: 0;
     height: 0;
-  }
-  
+}
 /* The slider */
 .slider {
 position: absolute;
@@ -38,7 +23,6 @@ background-color: #ccc;
 -webkit-transition: .4s;
 transition: .4s;
 }
-
 .slider:before {
 position: absolute;
 content: "";
@@ -50,60 +34,29 @@ background-color: white;
 -webkit-transition: .4s;
 transition: .4s;
 }
-
 input:checked + .slider {
 background-color: #2196F3;
 }
-
 input:focus + .slider {
 box-shadow: 0 0 1px #2196F3;
 }
-
 input:checked + .slider:before {
 -webkit-transform: translateX(10px);
 -ms-transform: translateX(10px);
 transform: translateX(10px);
 }
-
 /* Rounded sliders */
 .slider.round {
 border-radius: 34px;
 }
-
 .slider.round:before {
 border-radius: 50%;
-}
-
-.raise-blinds{
-    display:flex;
-    flex-flow: row wrap;
-    align-items:center;
-}
-
-
-
-p{
-    font-size:20px;
-    margin:0;
-}
-
-label{
-    font-size:20px;
-}
-
-em{
-    font-size:15px;
 }
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
-}
-h1{
-    text-align:center;
-    border-bottom:1px solid black; ;
-    margin:10px;
 }
 /* Firefox */
 input[type=number] {

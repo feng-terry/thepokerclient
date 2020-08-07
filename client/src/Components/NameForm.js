@@ -21,8 +21,11 @@ function NameForm (props){
                 type='text' 
                 placeholder='Enter Your Name'
                 onChange={handleNameChange}
-                value={name}/>
-                <button>Enter</button>
+                value={name}
+                className='settings-input'
+                id='enter-name'
+            />
+            <button className='settings-button' id='enter-button'>Enter</button>
         </form>
     )
 }

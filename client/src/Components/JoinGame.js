@@ -50,6 +50,7 @@ function JoinGame(props){
                     placeholder='Enter Lobby Id' 
                     value={id} 
                     onChange={handleChange}
+                    className='homepage-input'
                 />
             </div>
             {validLobby?

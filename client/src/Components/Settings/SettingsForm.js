@@ -90,15 +90,16 @@ function SettingsForm(props){
 
     return(
         <div id="settings">
-            <h1>Settings</h1>
+            <h1 id='settings-title'>Settings</h1>
             <form onSubmit={handleSubmit}>
                 
-                <label for="lobbyname">Lobby name: </label>
+                <label for="lobbyname">Lobby name:</label>
                 <input 
                 id="lobbyname" 
                 type="text" 
                 onChange={(e)=>setLobbyName(e.target.value)}
-                value={lobbyName}/>
+                value={lobbyName}
+                className='settings-input'/>
                 <br/>
 
                 <label for="startingStack">Starting stack:</label>
@@ -106,17 +107,20 @@ function SettingsForm(props){
                 id="startingStack" 
                 type="number" 
                 onChange={(event) => setStartingStack(event.target.value)}
-                value={startingStack}/>
+                value={startingStack}
+                className='settings-input'/>
                 <br/>
 
-                <label for="blinds">Big blind: </label>
+                <label for="blinds">Big blind:</label>
                 <input 
                 id="blinds" 
                 type="number" 
                 onChange={(event) => setBlinds(event.target.value)}
                 value = {blinds}
+                className='settings-input'
                 />
-                <p><em>Note: Small blind is always half of big blind.</em></p>
+                <br></br>
+                <p id='note'><em>Note: Small blind is always half of big blind.</em></p>
 
                 <div id="ante-block">
                     <label for="ante-switch">Antes:</label>
@@ -130,17 +134,18 @@ function SettingsForm(props){
                     </label>   
                 </div>
                 
-                <label for="antes">Set Antes: </label>
+                <label for="antes">Set Antes:</label>
                     <input 
                     id="antes" 
                     type="number" 
                     value={antes}
                     onChange={(event) => setAntes(event.target.value)}
+                    className='settings-input'
                     />
                 <br/>
                 <br/>
                 <div>
-                    <p id="seats-text">Set Seats:</p>
+                    <label id="seats-text">Set Seats:</label>
 
                     <input 
                     type="radio"
@@ -166,7 +171,6 @@ function SettingsForm(props){
                     />
                     <label for="nine-seats" onClick={()=>setSeats(9)}>9</label>
                 </div>
-                <br/>
 
                 <label for="raise-blinds-switch">Raise Blinds:</label>
                     <label className="switch">
@@ -176,24 +180,28 @@ function SettingsForm(props){
                         onChange={()=>setBlindsSwitch(!blindsSwitch)}/>
                         <span className="slider round"></span>
                 </label>
-
-                <div className="raise-blinds">
-                    <p>Raise blind by </p> 
-                    <input
-                    type="number"
-                    size="3"
-                    onChange={(event)=>setBlindsPercentage(event.target.value)}
-                    />
-                    <p>% every</p>
-                    <input
-                    type="number"
-                    size="3"
-                    onChange={(event)=>setBlindsIncreaseTimer(event.target.value)}
-                    />
-                    <p>hands.</p>
+                <div style={{display:'inline-block',textAlign:'right'}}>
+                    <div className="raise-blinds">
+                        <p>Raise blind by</p> 
+                        <input
+                        type="number"
+                        size="3"
+                        onChange={(event)=>setBlindsPercentage(event.target.value)}
+                        className='settings-input'
+                        />
+                        <p>% every</p>
+                        <input
+                        type="number"
+                        size="3"
+                        onChange={(event)=>setBlindsIncreaseTimer(event.target.value)}
+                        className='settings-input'
+                        />
+                        <p>hands.</p>
+                    </div>
                 </div>
+
                 <div className='timer'>
-                    <p>Turn Timer:</p>
+                    <label>Turn Timer:</label>
 
                     <input 
                     type="radio"
@@ -220,7 +228,7 @@ function SettingsForm(props){
                     <label for="120-seconds" onClick={()=>setTimer(120)}>2 Minutes</label>
                 </div>
 
-                <button>Start</button>
+                <button className='settings-button'>Start</button>
             </form>
         </div>
     )
