@@ -76,7 +76,7 @@ function DecisionBar(props){
                     :<form onSubmit={handleRaise}>
                         <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
                         <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
-                        <button>Raise</button>
+                        <button className='decision-button' >Raise</button>
                     </form>
                 :null} 
 

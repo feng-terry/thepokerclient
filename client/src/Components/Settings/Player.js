@@ -2,7 +2,7 @@ import React from 'react'
 
 function Player (props){
     return(
-        <p>{props.playerName}</p>
+        <p className='player'>{props.playerName}</p>
     )
 }
 

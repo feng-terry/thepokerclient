@@ -28,7 +28,8 @@ export default function LockedSettingsForm(props){
     },[])
 
     return(
-        <div>
+        <div className='settings-area' id='locked-settings'>
+            <h1 className='settings-title'>Settings</h1>
             <p>Lobby Name: {lobbyName}</p>
             <p>Starting Stack: {startingStack}</p>
             <p>Blinds: {blinds}</p>

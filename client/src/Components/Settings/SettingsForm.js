@@ -89,8 +89,8 @@ function SettingsForm(props){
     }
 
     return(
-        <div id="settings">
-            <h1 id='settings-title'>Settings</h1>
+        <div className="settings-area">
+            <h1 className='settings-title'>Settings</h1>
             <form onSubmit={handleSubmit}>
                 
                 <label for="lobbyname">Lobby name:</label>
@@ -229,7 +229,7 @@ function SettingsForm(props){
                     <label for="120-seconds" onClick={()=>setTimer(120)}>2 Minutes</label>
                 </div>
 
-                <button className='settings-button'>Start</button>
+                <button className='settings-button' id='start-button'>Start</button>
             </form>
         </div>
     )
