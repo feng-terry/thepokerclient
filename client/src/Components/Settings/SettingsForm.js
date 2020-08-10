@@ -180,25 +180,26 @@ function SettingsForm(props){
                         onChange={()=>setBlindsSwitch(!blindsSwitch)}/>
                         <span className="slider round"></span>
                 </label>
-                <div style={{display:'inline-block',textAlign:'right'}}>
-                    <div className="raise-blinds">
-                        <p>Raise blind by</p> 
-                        <input
-                        type="number"
-                        size="3"
-                        onChange={(event)=>setBlindsPercentage(event.target.value)}
-                        className='settings-input'
-                        />
-                        <p>% every</p>
-                        <input
-                        type="number"
-                        size="3"
-                        onChange={(event)=>setBlindsIncreaseTimer(event.target.value)}
-                        className='settings-input'
-                        />
-                        <p>hands.</p>
-                    </div>
-                </div>
+                <br/>              
+                <span className="raise-blinds">
+                    <label htmlFor='raise-blinds-number'>Raise blind by</label> 
+                    <input
+                    type="number"
+                    size="3"
+                    onChange={(event)=>setBlindsPercentage(event.target.value)}
+                    id='raise-blinds-number'
+                    className='settings-input'
+                    />
+                    <label htmlFor='raise-blinds-turns'>% every</label>
+                    <input
+                    type="number"
+                    size="3"
+                    onChange={(event)=>setBlindsIncreaseTimer(event.target.value)}
+                    id='raise-blinds-turns'
+                    className='settings-input'
+                    />
+                    <label>hands.</label>
+                </span>
 
                 <div className='timer'>
                     <label>Turn Timer:</label>
