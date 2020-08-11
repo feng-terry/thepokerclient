@@ -181,5 +181,25 @@ a{
 #start-button{
   font-size:26px;
 }
+#table-outer{
+  display:flex;
+  background-color: #272729;
+  height:43rem;
+  width:67vw;
+  border-radius:28rem;
+  margin:0 auto;
+}
+#table-inner{
+  background-color: #3A3B3C;
+  height:40rem;
+  width:64vw;
+  border-radius:24rem;
+  text-align:center;
+  color:white;
+  margin:auto auto;
+}
+#community-cards{
+  margin:0 auto;
+}
 
 

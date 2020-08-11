@@ -130,6 +130,12 @@ function Game(props){
 
     return(
         <div>
+            <div id='table-outer'>
+                <div id='table-inner'>
+                    <p>Pot:{pot}</p>
+                    <p id='community-cards'>{communityElements}</p>
+                </div>
+            </div>
             <p>{playerElements}</p>
             {(isTurn && activeNotSatOutPlayers.length>0)? 
                     <DecisionBar 
@@ -155,8 +161,6 @@ function Game(props){
                         />:
                         null
             }
-            <p>{communityElements}</p>
-            <p>Pot:{pot}</p>
             {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:null}
             {inGame? 
                 isSitOut?

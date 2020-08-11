@@ -306,7 +306,9 @@ Table=function(io,lobbyId){
 
     this.endRound = function(){
         this.takeBets()
-        this.activePlayers[0].addStack(this.pot)
+        if(this.activePlayers.length > 0){
+            this.activePlayers[0].addStack(this.pot)
+        }
         this.pot =0
     
         if (this.players.length > 1){

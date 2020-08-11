@@ -1,10 +1,11 @@
 import React from 'react'
+import beegYoshi from '../Cards/5C.png'
 
 export default function Card(props){
     if (props.rank === 0){
         return (
             <div className='cardBack'>
-                <h4>Card Back</h4>
+                <img src={beegYoshi} width='100px' height='140px'></img>
             </div>
         )
     }
