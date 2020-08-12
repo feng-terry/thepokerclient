@@ -144,10 +144,12 @@ io.on('connection',(socket) =>{
   )
 
   socket.on('newName',function(data){
-    rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
-    rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
-    rooms[data.lobbyId].table.removeSpectator(socket.id)
-    emitNewName(data.lobbyId)
+    if (Object.keys(rooms).includes(data.lobbyId)){
+      rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
+      rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
+      rooms[data.lobbyId].table.removeSpectator(socket.id)
+      emitNewName(data.lobbyId)
+    }
   })
 
   socket.on('sitDown',(data)=>{
@@ -189,17 +191,17 @@ io.on('connection',(socket) =>{
   socket.on('disconnect', () =>{
     const lobbyId = playerRoom[socket.id]
 
-    if(lobbyId !== undefined){
+    if(Object.keys(rooms).includes(lobbyId)){
       console.log('disconnected', socket.id)
       rooms[lobbyId].table.removePlayer(rooms[lobbyId].players[socket.id])   
       delete rooms[lobbyId].players[socket.id]
       delete playerRoom[socket.id]
 
-      deleteEmptyLobbies()
       emitInGame(lobbyId)
       emitSitDownButton(lobbyId)
       emitNewName(lobbyId)
       emitNameAndStack(lobbyId)
+      deleteEmptyLobbies()
     }
     // handle disconnect  
   })

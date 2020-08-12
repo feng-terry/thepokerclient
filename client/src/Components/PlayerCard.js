@@ -7,13 +7,19 @@ export default function PlayerCard(props){
 
     return (
         <div className = 'player-card'>
-            <p>{cardList}</p>
-            <h6>{props.name}</h6>
-            <p>Stack:{props.stack}</p>
-            <p>Bets:{props.bets}</p>
-            {props.socketId === props.currentPlayer.socketId?
-                <p>Timer: {props.timer}s</p>
-                :null}
+            <div id='player-cards'>
+                {cardList}
+            </div>
+            <div className='player-info'>
+                <h6>{props.name}</h6>
+                <p>Stack:{props.stack}</p>
+                <p>Bets:{props.bets}</p>
+            </div>
+            <div className='player-timer'>
+                {props.socketId === props.currentPlayer.socketId?
+                    <p>Timer: {props.timer}s</p>
+                    :null}
+            </div>
         </div>
     )
 }

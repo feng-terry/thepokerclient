@@ -133,7 +133,9 @@ function Game(props){
             <div id='table-outer'>
                 <div id='table-inner'>
                     <p>Pot:{pot}</p>
-                    <p id='community-cards'>{communityElements}</p>
+                    <div id='community-cards'>
+                        {communityElements}
+                    </div>
                 </div>
             </div>
             <p>{playerElements}</p>

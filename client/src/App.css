@@ -29,18 +29,27 @@ a{
   box-sizing: border-box;
 }
 .player-card{
-  display:block;
-  border: 3px solid #FFFFFF;
-  width:8%;
-  float:right;
-  position: relative;
+  display:flex;
+  width:15rem;
+  flex-direction: column;
+}
+.player-info{
+  color:white;
+  text-align: center;
+  background-color:#24A5F5;
+  border-radius: 1rem;
+}
+.player-info p{
+  margin: 0 auto 0.1rem;
+}
+.player-info h6{
+  margin: 0.25rem auto;
 }
 .card{
-  border:2px solid #D4A47D; 
-  width: 5%;
+  margin:0.5rem;
 }
 .cardBack{
-  border:2px solid #D4A47D; 
+
 }
 .button-container-div{
   text-align: center;
@@ -190,6 +199,8 @@ a{
   margin:0 auto;
 }
 #table-inner{
+  display:flex;
+  flex-direction: column;
   background-color: #3A3B3C;
   height:40rem;
   width:64vw;
@@ -199,7 +210,15 @@ a{
   margin:auto auto;
 }
 #community-cards{
-  margin:0 auto;
+  display:flex;
+  margin: 10rem auto auto auto;
+}
+#player-cards{
+  display:flex;
+  margin: 0 auto;
+}
+#player-cards .card{
+  margin: 0 0.2rem;
 }
 
 
