@@ -27,10 +27,13 @@ function Game(props){
     const [isSitOut,setIsSitOut]=useState(true)
     const [key,setKey]=useState(Math.random())
     const [revealList,setRevealList]=useState([])
-    const [timer,setTimer]=useState(0)
     const [currentPlayer,setCurrentPlayer]=useState({socketId:2})
     const [log,setLog]=useState([])
     const [inGame,setInGame]=useState(false)
+    const [timer,setTimer]=useState({
+        countdown:15,
+        maxTime:15
+    })
 
 
     useEffect(()=>{
@@ -76,7 +79,10 @@ function Game(props){
         })
 
         props.socket.on('timer',(data)=>{
-            setTimer(data.countDown)
+            setTimer({
+                countdown:data.countDown,
+                maxTime:data.maxTime
+            })
             setCurrentPlayer(data.player)
         })
 
@@ -94,7 +100,8 @@ function Game(props){
                                             stack={player.stack} 
                                             cards={player.cards} 
                                             bets={player.bets} 
-                                            timer={timer} 
+                                            maxTime={timer.maxTime}
+                                            countdown={timer.countdown}
                                             currentPlayer={currentPlayer}
                                         />
                                     )
@@ -106,10 +113,11 @@ function Game(props){
                                             stack = {player.stack} 
                                             cards={player.cards} 
                                             bets={player.bets}
-                                            timer={timer} 
+                                            maxTime={timer.maxTime}
+                                            countdown={timer.countdown}
                                             currentPlayer={currentPlayer}
                                         />)
-                                } else{
+                                }else{
                                     return(
                                         <PlayerCard 
                                             name={player.name} 
@@ -117,7 +125,8 @@ function Game(props){
                                             stack = {player.stack} 
                                             cards={[{rank:0,suit:0},{rank:0,suit:0}]} 
                                             bets={player.bets}
-                                            timer={timer} 
+                                            maxTime={timer.maxTime}
+                                            countdown={timer.countdown}
                                             currentPlayer={currentPlayer}
                                         />
                                     )

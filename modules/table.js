@@ -656,7 +656,7 @@ Table=function(io,lobbyId){
 
                 //Timer
                 this.turnTimer = setInterval(()=>{
-                    io.emit('timer',{player:this.currentPlayer,countDown:this.countDown})
+                    this.emitTimer()
                     this.countDown --
                     if (this.countDown === 0){
                         if(this.currentBet > this.currentPlayer.getBets()){
@@ -841,6 +841,12 @@ Table=function(io,lobbyId){
         const emitTo = this.getAllPlayers()
         for (const id of emitTo){
             io.to(id).emit('revealList',this.revealList)
+        }
+    }
+    this.emitTimer = function(){
+        const emitTo = this.getAllPlayers()
+        for (const id of emitTo){
+            io.to(id).emit('timer',{player:this.currentPlayer, countDown:this.countDown,maxTime:this.timer})
         }
     }
     this.emitCommunityCards = function(){

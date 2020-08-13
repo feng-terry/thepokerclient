@@ -1,5 +1,6 @@
 import React from 'react'
 import Card from './Card'
+import Timer from './Timer'
 
 export default function PlayerCard(props){
     
@@ -17,7 +18,9 @@ export default function PlayerCard(props){
             </div>
             <div className='player-timer'>
                 {props.socketId === props.currentPlayer.socketId?
-                    <p>Timer: {props.timer}s</p>
+                <div>
+                    <Timer width={12} percent={(props.countdown-1)/props.maxTime}/>
+                </div>
                     :null}
             </div>
         </div>
