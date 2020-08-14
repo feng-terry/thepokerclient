@@ -3,12 +3,6 @@ import socketIOClient from "socket.io-client"
 import {Route, Switch } from 'react-router-dom';
 import './App.css';
 import Home from './Components/Home'
-import Header from './Components/Header'
-import SettingsForm from './Components/Settings/SettingsForm'
-import DecisionBar from './Components/DecisionBar';
-import PlayersList from './Components/Settings/PlayersList';
-import CreateGame from './Components/CreateGame';
-import Game from './Game';
 import Temp from './Temp'
 import WaitingScreen from './Components/WaitingScreen'
 

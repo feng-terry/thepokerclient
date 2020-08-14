@@ -30,7 +30,7 @@ a{
 }
 .player-card{
   display:flex;
-  width:15rem;
+  width:9rem;
   flex-direction: column;
 }
 .player-timer{
@@ -210,8 +210,8 @@ a{
 #table-outer{
   display:flex;
   background-color: #272729;
-  height:43rem;
-  width:67vw;
+  height:30rem;
+  width:50vw;
   border-radius:28rem;
   margin:0 auto;
 }
@@ -219,16 +219,17 @@ a{
   display:flex;
   flex-direction: column;
   background-color: #3A3B3C;
-  height:40rem;
-  width:64vw;
+  height:27rem;
+  width:47vw;
   border-radius:24rem;
   text-align:center;
   color:white;
   margin:auto auto;
+  box-shadow: 0px 0px 2rem 0.3rem black inset;
 }
 #community-cards{
   display:flex;
-  margin: 10rem auto auto auto;
+  margin: 7rem auto auto auto;
 }
 #player-cards{
   display:flex;
@@ -237,5 +238,92 @@ a{
 #player-cards .card{
   margin: 0 0.2rem;
 }
-
+#game-div{
+  margin:10rem 0 0 0;
+}
+#seat-2-1{
+  position: absolute;
+  top:25%;
+  right:75%;
+}
+#seat-2-2{
+  position: absolute;
+  top:25%;
+  right:17.5%;
+}
+#seat-6-1{
+  position: absolute;
+  top:85%;
+  right:58%;
+}
+#seat-6-2{
+  position: absolute;
+  top:25%;
+  right:75%;
+}
+#seat-6-3{
+  position: absolute;
+  top:-20%;
+  right:58%;
+}
+#seat-6-4{
+  position: absolute;
+  top:-20%;
+  right:35%;
+}
+#seat-6-5{
+  position: absolute;
+  top:25%;
+  right:17.5%;
+}
+#seat-6-6{
+  position: absolute;
+  top:85%;
+  right:35%;
+}
+#seat-9-1{
+  position: absolute;
+  top:85%;
+  right:46%;
+}
+#seat-9-2{
+  position: absolute;
+  top:80%;
+  right:64%;
+}
+#seat-9-3{
+  position: absolute;
+  top:45%;
+  right:74%;
+}
+#seat-9-4{
+  position: absolute;
+  top:-4%;
+  right:71%;
+}
+#seat-9-5{
+  position: absolute;
+  top:-20%;
+  right:56%;  
+}
+#seat-9-6{
+  position: absolute;
+  top:-20%;
+  right:37%;
+}
+#seat-9-7{
+  position: absolute;
+  top:-4%;
+  right:21%;
+}
+#seat-9-8{
+  position: absolute;
+  top:45%;
+  right:18%;
+}
+#seat-9-9{
+  position: absolute;
+  top:80%;
+  right:29%;
+}
 

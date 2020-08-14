@@ -95,6 +95,8 @@ function Game(props){
                                 if (players[props.socket.id] === player){
                                     return(
                                         <PlayerCard 
+                                            seat={player.seat}
+                                            tableSeats={player.tableSeats}
                                             name={player.name} 
                                             socketId = {player.socketId} 
                                             stack={player.stack} 
@@ -108,6 +110,8 @@ function Game(props){
                                 } else if (revealList.map(revealPlayer => revealPlayer.socketId).includes(player.socketId)){
                                     return(
                                         <PlayerCard 
+                                            seat={player.seat}
+                                            tableSeats={player.tableSeats}
                                             name={player.name} 
                                             socketId = {player.socketId} 
                                             stack = {player.stack} 
@@ -120,6 +124,8 @@ function Game(props){
                                 }else{
                                     return(
                                         <PlayerCard 
+                                            seat={player.seat}
+                                            tableSeats={player.tableSeats}
                                             name={player.name} 
                                             socketId = {player.socketId} 
                                             stack = {player.stack} 
@@ -139,15 +145,17 @@ function Game(props){
 
     return(
         <div>
-            <div id='table-outer'>
-                <div id='table-inner'>
-                    <p>Pot:{pot}</p>
-                    <div id='community-cards'>
-                        {communityElements}
+            <div id='game-div' style={{position:'relative'}}>
+                <div id='table-outer'>
+                    <div id='table-inner'>
+                        <p>Pot:{pot}</p>
+                        <div id='community-cards'>
+                            {communityElements}
+                        </div>
                     </div>
                 </div>
+                <p>{playerElements}</p>
             </div>
-            <p>{playerElements}</p>
             {(isTurn && activeNotSatOutPlayers.length>0)? 
                     <DecisionBar 
                         socket={props.socket} 

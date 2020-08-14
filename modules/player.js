@@ -8,6 +8,7 @@ Player = function(name,socketId){
     this.totalBets = 0;
     this.socketId = socketId;
     this.seat;
+    this.tableSeats;
     this.sitOutSeat;
     this.blindCycle = false;
     this.checkFold;
@@ -74,6 +75,9 @@ Player = function(name,socketId){
     }
     this.setSeat = function(seat){
         this.seat = seat
+    }
+    this.setTableSeats = function(seat){
+        this.tableSeats = seat
     }
     this.setCheckFold = function(value){
         this.checkFold = value

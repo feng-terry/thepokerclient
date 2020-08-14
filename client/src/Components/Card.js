@@ -111,14 +111,14 @@ export default function Card(props){
     if (props.rank === 0){
         return (
             <div className='cardBack'>
-                <img src={poop} width='100px' height='140px'></img>
+                <img src={poop} width='60px' height='84px'></img>
             </div>
         )
     }
 
     return (
         <div className = 'card'>
-            <img src={images[String(props.rank)+String(props.suit)]} width='100px' height='140px'></img>
+            <img src={images[String(props.rank)+String(props.suit)]} width='60px' height='84px'></img>
         </div>
     )
 }

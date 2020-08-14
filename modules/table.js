@@ -72,11 +72,13 @@ Table=function(io,lobbyId){
     this.addPlayer = function(playerObject){
         this.players.push(playerObject);
         playerObject.setSeat(this.players.length)
+        playerObject.setTableSeats(this.seats)
     }
 
     this.addHoldPlayer = function(player){
         if (this.hasSeats()){
             player.setSeat(this.players.length + this.holdPlayers.length + this.sitOutList.length + this.sitInList.length + 1)
+            player.setTableSeats(this.seats)
             player.addStack(this.startingStack)
             this.holdPlayers.push(player)
         }
@@ -262,6 +264,7 @@ Table=function(io,lobbyId){
             }
 
             this.players[index].setSeat(counter)
+            this.players[index].setTableSeats(this.seats)
             counter++
         }
     }
