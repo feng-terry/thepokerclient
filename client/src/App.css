@@ -18,6 +18,12 @@ a{
   text-decoration: none;
   text-align: center;
 }
+input:focus {
+  outline:none;
+}
+button:focus {
+  outline:none;
+}
 .logo-header{
   color:white;
   text-align:center;
@@ -169,6 +175,14 @@ a{
   transition: 0.5s ease;
   margin: 5px 0px;
 }
+.chip{
+  position:relative;
+  margin-bottom: -1.15em;
+}
+.stack{
+  text-align:center;
+  color:white;
+}
 #enter-name{
   width:max(10%,150px);
   line-height: 16px;
@@ -229,7 +243,7 @@ a{
 }
 #community-cards{
   display:flex;
-  margin: 7rem auto auto auto;
+  margin: 3rem auto auto auto;
 }
 #player-cards{
   display:flex;

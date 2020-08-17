@@ -7,6 +7,7 @@ import SitOutButton from './Components/SitOutButton'
 import SitInButton from './Components/SitInButton'
 import CheckboxBar from './Components/CheckboxBar'
 import Log from './Components/Log'
+import Stack from './Components/Stack'
 
 function Game(props){
     const [players,setPlayers] = useState({})
@@ -148,13 +149,14 @@ function Game(props){
             <div id='game-div' style={{position:'relative'}}>
                 <div id='table-outer'>
                     <div id='table-inner'>
-                        <p>Pot:{pot}</p>
+                        <p>Pot:</p>
+                        <Stack chips={Number(pot)}/>
                         <div id='community-cards'>
                             {communityElements}
                         </div>
                     </div>
                 </div>
-                <p>{playerElements}</p>
+                {playerElements}
             </div>
             {(isTurn && activeNotSatOutPlayers.length>0)? 
                     <DecisionBar 

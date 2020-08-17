@@ -1,11 +1,10 @@
 import React from 'react'
 import Card from './Card'
 import Timer from './Timer'
+import Stack from './Stack'
 
 export default function PlayerCard(props){
     const cardList = props.cards.map(card => <Card rank={card.rank} suit={card.suit}/>)
-
-    console.log(props.seat)
 
     return (
         <div className = 'player-card' id={"seat-" + String(props.tableSeats) + '-' + String(props.seat)}>
@@ -14,7 +13,7 @@ export default function PlayerCard(props){
             </div>
             <div className='player-info'>
                 <h6>{props.name}</h6>
-                <p>Stack:{props.stack}</p>
+                <p>{props.stack}</p>
             </div>
             <div className='player-timer'>
                 {props.socketId === props.currentPlayer.socketId?
@@ -22,6 +21,9 @@ export default function PlayerCard(props){
                     <Timer width={7} percent={(props.countdown-1)/props.maxTime}/>
                 </div>
                     :null}
+            </div>
+            <div className='stack-div'>
+                <Stack chips={props.bets}/>
             </div>
         </div>
     )
