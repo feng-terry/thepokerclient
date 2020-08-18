@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function CommunityCards(props){
     return(
-        <div>
+        <div className='log-text'>
             {props.communityCards[0].rank}{props.communityCards[0].suit}
             {props.communityCards[1].rank}{props.communityCards[1].suit}
             {props.communityCards[2].rank}{props.communityCards[2].suit}

@@ -39,8 +39,7 @@ function DecisionBar(props){
     }
 
     return(
-        <div className="decision-bar">
-
+        <div className='decision-bar'>
             {props.fold? <button 
                 className = "decision-button"
                 onClick={()=>(handleFold())}>Fold</button>:null}
@@ -61,9 +60,9 @@ function DecisionBar(props){
 
             {props.bet? 
                 <form onSubmit={handleBet}>
-                    <input type='number' value={betValue} onChange={handleBetChange} min={Math.min(props.bigBlind,props.stack)} max={props.stack}/>
-                    <input type='range' value={betValue} onChange={handleBetChange}  min={Math.min(props.bigBlind,props.stack)} max={props.stack}/>
-                    <button>Bet</button>
+                    <input type='number' className='decision-input' value={betValue} onChange={handleBetChange} min={Math.min(props.bigBlind,props.stack)} max={props.stack}/>
+                    <input type='range'  className='decision-slider' value={betValue} onChange={handleBetChange}  min={Math.min(props.bigBlind,props.stack)} max={props.stack}/>
+                    <button className='decision-button' >Bet</button>
                 </form>:null}    
 
             {props.raise?
@@ -73,16 +72,12 @@ function DecisionBar(props){
                         onClick={handleAllIn}
                     >All In</button>
                     
-                    :<form onSubmit={handleRaise}>
-                        <input type='number' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
-                        <input type='range' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
+                    :<form className='decision-form' onSubmit={handleRaise}>
+                        <input type='number' className='decision-input' value={raiseValue} onChange={handleRaiseChange} min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
+                        <input type='range'  className='decision-slider' value={raiseValue} onChange={handleRaiseChange}  min={Math.min(2*props.currentBet - props.playerCurrentBet,props.stack)} max={props.stack}/>
                         <button className='decision-button' >Raise</button>
                     </form>
                 :null} 
-
-
-
-
         </div>
     )
 }

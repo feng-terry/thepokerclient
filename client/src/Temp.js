@@ -41,9 +41,7 @@ export default function Temp(props){
         )
     } else if (pageState === 'game'){
         return(
-            <div>
-                <Game socket={props.socket} lobbyId={props.lobbyId}/>
-            </div>
+            <Game socket={props.socket} lobbyId={props.lobbyId}/>
         )
     }else{
         return(

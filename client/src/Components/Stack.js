@@ -46,7 +46,7 @@ export default function Stack(props){
         <div className='stack'>
             {chips}
             {props.chips>0?
-                <p>{props.chips}</p>
+                <p id='chip-text'>{props.chips}</p>
                 :null
             }
         </div>

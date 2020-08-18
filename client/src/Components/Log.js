@@ -12,7 +12,7 @@ function Log(props){
         hand={player.hand}
     />)
     return(
-        <div>
+        <div className='log-card'>
             <CommunityCards communityCards={props.communityCards}/>
             {winners}
         </div>

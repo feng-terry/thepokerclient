@@ -26,7 +26,7 @@ export default function CheckboxBar(props){
     }
 
     return(
-        <div>
+        <div className='checkbox-bar'>
             <label for='fold'>{props.currentBet > playerBet? 'Fold':'Check/Fold'}</label>
             <input 
                 id='fold' 
