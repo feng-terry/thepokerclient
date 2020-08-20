@@ -773,7 +773,7 @@ Table=function(io,lobbyId){
             index++
         }
 
-        if (this.activePlayers[index].getStack() !== 0){
+        if (this.activePlayers[index] !== undefined && this.activePlayers[index].getStack() !== 0){
             return this.activePlayers[index]
         }
 

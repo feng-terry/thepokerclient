@@ -8,7 +8,7 @@ function SitInButton(props){
     }
     return(
         <form onSubmit={handleSubmit}>
-                <button>Sit In</button>
+                <button className='decision-button'>Sit In</button>
         </form>
     )
 }

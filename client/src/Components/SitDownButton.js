@@ -22,8 +22,9 @@ function SitDownButton (props){
                 type='text' 
                 placeholder='Enter Your Name'
                 onChange={handleNameChange}
-                value={name}/>
-                <button>Sit Down</button>
+                value={name}
+                className='sit-input'/>
+                <button className='decision-button'>Sit Down</button>
         </form>
     )
 }

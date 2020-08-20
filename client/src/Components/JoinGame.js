@@ -43,7 +43,7 @@ function JoinGame(props){
     }
 
     return (
-        <form>
+        <form className = 'join-game'>
             <div className='button-container-div'>
                 <input 
                     type='text' 
@@ -62,7 +62,7 @@ function JoinGame(props){
                 :<div className='button-container-div'>
                     <button className='homepage-button' onClick={handleInvalidClick}>Join Game</button>
                 </div>}
-            {errorMessage? <p>Invalid Lobby Id</p>:null}
+            {errorMessage? <p id='invalid-lobby'>Invalid Lobby Id</p>:null}
 
         </form>
     )

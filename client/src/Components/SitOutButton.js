@@ -8,7 +8,7 @@ function SitOutButton(props){
     }
     return(
         <form onSubmit={handleSubmit}>
-                <button>Sit Out</button>
+                <button className='decision-button'>Sit Out</button>
         </form>
     )
 }

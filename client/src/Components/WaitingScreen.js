@@ -1,6 +1,6 @@
 import React,{useEffect, useState} from 'react'
 import { useLocation } from 'react-router-dom'
-import Temp from '../Temp'
+import Main from '../Main'
 
 export default function WaitingScreen(props){
     const location = useLocation()
@@ -30,7 +30,7 @@ export default function WaitingScreen(props){
 
     return(
         <div>
-            {inRoom? <Temp socket={props.socket} lobbyId={props.lobbyId}/>:<p>Loading</p>}
+            {inRoom? <Main socket={props.socket} lobbyId={props.lobbyId}/>:<p>Loading</p>}
         </div>
     )
 }

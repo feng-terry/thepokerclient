@@ -74,8 +74,8 @@ button:focus {
   border-radius: 40px;
   border:none;
   background: #24A5F5;
-  width:max(8%,100px);
-  padding: 0.5% 0%;
+  width:max(12%,180px);
+  padding: 1em 0%;
   font-size: 18px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight:bold;
@@ -85,8 +85,9 @@ button:focus {
   border-radius: 40px;
   border: none;
   background: #3A3B3C;
-  width:max(8%,100px);
-  padding: 0.5% 0%;
+  width:max(12%,180px);
+  padding: 1em 0%;
+  margin:0.8em 0;
   font-size: 18px;
   font-family: Arial, Helvetica, sans-serif;
   font-weight:bold;
@@ -230,15 +231,62 @@ button:focus {
   height: 100%;
   width:15%;
   align-items: center;
+  overflow-x:hidden;
+  overflow-y: scroll;
+  -ms-overflow-style: none;  
+  scrollbar-width: none; 
 }
 .log-text{
   color:white;
   text-align: center;
+  padding: 0 0.5em 0.2em;
 }
 .log-card{
   margin: 0.5rem;
   background-color: #3A3B3C;
   border-radius:1rem;
+  box-shadow: 0px 0px 2rem 0.1rem black;
+}
+.log::-webkit-scrollbar {
+  display: none;
+}
+.sit-button{
+  position: absolute;
+  left:15%;
+  bottom:0%;
+}
+.sit-input{
+  border-radius: 40px;
+  border: none;
+  background: #3A3B3C;
+  width:15rem;
+  padding: 0.2rem 0.2rem;
+  margin: 0.3rem 0.1rem;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#B0B3B4;
+  text-align:center;
+}
+.checkbox-button{
+  border-radius: 40px;
+  border: none;
+  background: #24A5F5;
+  width:8rem;
+  padding: 0.2rem 0.2rem;
+  margin: 0.3rem 0.1rem;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  color:white;
+}
+.homepage-button-box{
+  margin-top: 11vw;
+}
+.header-div{
+  display:flex;
+  justify-content: center;
+}
+.logo{
+  margin-top:8px;
 }
 #enter-name{
   width:max(10%,150px);
@@ -300,7 +348,7 @@ button:focus {
 }
 #community-cards{
   display:flex;
-  margin: 3rem auto auto auto;
+  margin:3rem auto;
 }
 #player-cards{
   display:flex;
@@ -315,7 +363,7 @@ button:focus {
 #seat-2-1{
   position: absolute;
   top:25%;
-  right:75%;
+  right:78%;
 }
 #seat-2-1 .stack-div{
   position:absolute;
@@ -325,7 +373,7 @@ button:focus {
 #seat-2-2{
   position: absolute;
   top:25%;
-  right:17.5%;
+  right:13%;
 }
 #seat-2-2 .stack-div{
   position:absolute;
@@ -375,7 +423,7 @@ button:focus {
 #seat-6-5{
   position: absolute;
   top:25%;
-  right:17.5%;
+  right:13%;
 }
 #seat-6-5 .stack-div{
   position:absolute;
@@ -415,7 +463,7 @@ button:focus {
 #seat-9-3{
   position: absolute;
   top:45%;
-  right:74%;
+  right:77%;
 }
 #seat-9-3 .stack-div{
   position:absolute;
@@ -425,7 +473,7 @@ button:focus {
 #seat-9-4{
   position: absolute;
   top:-4%;
-  right:71%;
+  right:74%;
 }
 #seat-9-4 .stack-div{
   position:absolute;
@@ -455,7 +503,7 @@ button:focus {
 #seat-9-7{
   position: absolute;
   top:-4%;
-  right:21%;
+  right:16%;
 }
 #seat-9-7 .stack-div{
   position:absolute;
@@ -465,7 +513,7 @@ button:focus {
 #seat-9-8{
   position: absolute;
   top:45%;
-  right:18%;
+  right:14%;
 }
 #seat-9-8 .stack-div{
   position:absolute;
@@ -491,5 +539,14 @@ button:focus {
   margin-left:15%;
   width:100vw;
 }
-
+#winner-card p{
+  margin-bottom: 0;
+}
+#invalid-lobby{
+  color:red;
+  text-align: center;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight:bold;
+}
 

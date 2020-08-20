@@ -6,7 +6,7 @@ function Header(){
             <div className='logo' style = {{display: 'flex',justifyContent: 'center',alignItems: 'center'}}>
                 <Link to="/" style={{display: 'inline-block'}}>
                     <div className='logo-header'>
-                        <h1>Poker</h1>
+                        <h1>PokerExpress</h1>
                     </div>
                 </Link>
             </div>

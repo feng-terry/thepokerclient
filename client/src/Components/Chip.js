@@ -7,7 +7,6 @@ import blackChip from "../Chips/blackChip.png"
 import purpleChip from "../Chips/purpleChip.png"
 
 export default function Chip(props){
-    console.log(props.value)
     switch(props.value){
         case 'thousand':
             return(

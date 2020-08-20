@@ -91,9 +91,11 @@ function Game(props){
             setLog(data)
         })
     },[])
-
     const playerElements =  Object.values(players).map(player => {
-                                if (players[props.socket.id] === player){
+                                console.log(activeNotSatOutPlayers)
+                                console.log(player)
+                                console.log(activeNotSatOutPlayers.some(p=>p.socketId === player.socketId))
+                                if (players[props.socket.id] === player && activeNotSatOutPlayers.some(p=>p.socketId === player.socketId)){
                                     return(
                                         <PlayerCard 
                                             seat={player.seat}
@@ -122,7 +124,7 @@ function Game(props){
                                             countdown={timer.countdown}
                                             currentPlayer={currentPlayer}
                                         />)
-                                }else{
+                                }else if (activeNotSatOutPlayers.some(p=>p.socketId === player.socketId)){
                                     return(
                                         <PlayerCard 
                                             seat={player.seat}
@@ -137,6 +139,19 @@ function Game(props){
                                             currentPlayer={currentPlayer}
                                         />
                                     )
+                                }else{
+                                    return(<PlayerCard 
+                                        seat={player.seat}
+                                        tableSeats={player.tableSeats}
+                                        name={player.name} 
+                                        socketId = {player.socketId} 
+                                        stack = {player.stack} 
+                                        cards={[{rank:-1,suit:-1},{rank:-1,suit:-1}]} 
+                                        bets={player.bets}
+                                        maxTime={timer.maxTime}
+                                        countdown={timer.countdown}
+                                        currentPlayer={currentPlayer}
+                                    />)
                                 }
                             })
 
@@ -153,7 +168,7 @@ function Game(props){
                 <div id='game-div' style={{position:'relative'}}>
                     <div id='table-outer'>
                         <div id='table-inner'>
-                            <p>Pot:</p>
+                            <p><strong>Pot:</strong></p>
                             <Stack chips={Number(pot)}/>
                             <div id='community-cards'>
                                 {communityElements}
@@ -188,12 +203,14 @@ function Game(props){
                                 null
                     }
                 </div>
-                {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:null}
-                {inGame? 
-                    isSitOut?
-                        <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>
-                        :<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>
-                    :null}
+                <div className='sit-button'>
+                    {isSitDown? <SitDownButton socket={props.socket} setIsSitDown={setIsSitDown} lobbyId={props.lobbyId}/>:null}
+                    {inGame? 
+                        isSitOut?
+                            <SitOutButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>
+                            :<SitInButton socket={props.socket} setIsSitOut={setIsSitOut} lobbyId={props.lobbyId}/>
+                        :null}
+                </div>
             </div>
         </div>
     )

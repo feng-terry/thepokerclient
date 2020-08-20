@@ -1,5 +1,6 @@
 import React from 'react'
-import poop from './beegbeegyoshi.png'
+import cardBack from '../Cards/cardBack.png'
+import emptyCard from '../Cards/emptyCard.png'
 import DA from "../Cards/AD.png"
 import CA from "../Cards/AC.png"
 import HA from "../Cards/AH.png"
@@ -108,10 +109,17 @@ const images = {
 }
 
 export default function Card(props){
+    console.log(props.rank)
     if (props.rank === 0){
         return (
             <div className='cardBack'>
-                <img src={poop} width='60px' height='84px'></img>
+                <img src={cardBack} width='60px' height='84px'></img>
+            </div>
+        )
+    }else if (props.rank === -1){
+        return(
+            <div className='cardBack'>
+                <img src={emptyCard} width='60px' height='84px'></img>
             </div>
         )
     }

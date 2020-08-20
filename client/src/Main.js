@@ -4,10 +4,11 @@ import PlayersList from './Components/Settings/PlayersList'
 import SettingsForm from './Components/Settings/SettingsForm'
 import Game from './Game'
 import LockedSettingsForm from './Components/Settings/LockedSettingsForm'
+import Logo from './Images/Logo_blue.png'
 
 
 
-export default function Temp(props){ 
+export default function Main(props){ 
     const [pageState,setPageState] = useState('settings')
     const [lobbyLeaderSocketId,setLobbyLeaderSocketId] = useState()
 
@@ -26,7 +27,10 @@ export default function Temp(props){
     if (pageState === 'settings'){
         return(
             <div>
-                <Header className='app-header'/>
+                <div className = 'header-div'>
+                    <img className='logo' src={Logo} width="140px" height = '140px'></img>
+                    <Header className='app-header'/>
+                </div>
                 <div className='settings-box'>
                     {(lobbyLeaderSocketId === props.socket.id)? 
                         <SettingsForm socket= {props.socket} lobbyId={props.lobbyId}/>
