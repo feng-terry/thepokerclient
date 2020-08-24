@@ -6,7 +6,7 @@ import Home from './Components/Home'
 import Main from './Main'
 import WaitingScreen from './Components/WaitingScreen'
 
-const socket = socketIOClient("http://localhost:3000")
+const socket = socketIOClient("https://pokerexpress.ue.r.appspot.com/")
 
 function App(){
   const [data,setData] = useState(null)
