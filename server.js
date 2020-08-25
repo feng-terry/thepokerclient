@@ -41,7 +41,7 @@ app.get('/checkLobbyId/:id', (req, res) => {
   res.send((Object.keys(rooms).includes(req.params.id)))
 })
 
-app.get('/*', function(req, res){
+app.get('*', function(req, res){
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });
 
