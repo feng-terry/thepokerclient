@@ -21,6 +21,7 @@ app.get("*", (req, res) => {
     res.sendFile('index.html', { root });
 })
 
+app.use(cors());
 //app.use('/static', express.static(path.join(__dirname, 'client/build')))
 
 app.get('/express_backend', (req, res) => {
