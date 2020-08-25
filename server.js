@@ -31,7 +31,7 @@ app.get('/generateLobbyId', (req,res) => {
   res.send({lobbyId:id})
 })
 
-app.get('/id/:id', (req, res) => {
+app.get('/backendid/:id', (req, res) => {
   if (Object.keys(rooms).includes(req.params.id)){
     res.send({lobbyId:req.params.id,inRoom:true})
   }   
