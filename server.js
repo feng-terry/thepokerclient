@@ -5,6 +5,7 @@ const path = require('path')
 const http = require("http")
 const socket = require('socket.io')
 const app = express()
+const cors = require('cors')
 const port = process.env.PORT || 5000
 let rooms = {}
 let playerRoom = {}
@@ -17,11 +18,11 @@ const io = socket(server)
 //Express
 const root = require('path').join(__dirname, 'client', 'build')
 app.use(express.static(root));
+app.use(cors());
 app.get("*", (req, res) => {
     res.sendFile('index.html', { root });
 })
 
-app.use(cors());
 //app.use('/static', express.static(path.join(__dirname, 'client/build')))
 
 app.get('/express_backend', (req, res) => {
