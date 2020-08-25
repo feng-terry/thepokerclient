@@ -19,10 +19,6 @@ const io = socket(server)
 const root = require('path').join(__dirname, 'client', 'build')
 app.use(express.static(root));
 app.use(cors());
-app.get("*", (req, res) => {
-    res.sendFile('index.html', { root });
-})
-
 //app.use('/static', express.static(path.join(__dirname, 'client/build')))
 
 app.get('/express_backend', (req, res) => {
@@ -48,7 +44,9 @@ app.get('/checkMinPlayers/:id', (req, res) => {
 app.get('/checkLobbyId/:id', (req, res) => {
   res.send((Object.keys(rooms).includes(req.params.id)))
 })
-
+app.get("*", (req, res) => {
+  res.sendFile('index.html', { root });
+})
 /*app.get('*', function(req, res){
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
 });*/
