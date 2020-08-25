@@ -15,7 +15,13 @@ const server = app.listen(port, () => console.log(`Listening on port ${port}`))
 const io = socket(server)
 
 //Express
-app.use('/static', express.static(path.join(__dirname, 'client/build')))
+const root = require('path').join(__dirname, 'client', 'build')
+app.use(express.static(root));
+app.get("*", (req, res) => {
+    res.sendFile('index.html', { root });
+})
+
+//app.use('/static', express.static(path.join(__dirname, 'client/build')))
 
 app.get('/express_backend', (req, res) => {
   res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' })
@@ -41,9 +47,9 @@ app.get('/checkLobbyId/:id', (req, res) => {
   res.send((Object.keys(rooms).includes(req.params.id)))
 })
 
-app.get('*', function(req, res){
+/*app.get('*', function(req, res){
   res.sendFile(path.join(__dirname, 'client/build/index.html'));
-});
+});*/
 
 //Helper Functions
 function emitNewName(lobbyId){
