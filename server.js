@@ -15,7 +15,7 @@ const server = app.listen(port, () => console.log(`Listening on port ${port}`))
 const io = socket(server)
 
 //Express
-app.use(express.static(path.join(__dirname,'/client/public')))
+app.use('/static', express.static(path.join(__dirname, 'client/public')))
 
 app.get('/express_backend', (req, res) => {
   res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' })
