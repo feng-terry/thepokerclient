@@ -17,7 +17,6 @@ function SettingsForm(props){
     
 
     let checkMinPlayers = async ()=>{
-        console.log('/checkMinPlayers/'+props.lobbyId)
         const response = await fetch('/checkMinPlayers/' + props.lobbyId)
         const body = await response.json()
         

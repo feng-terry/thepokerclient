@@ -218,7 +218,7 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('changePageState',(data)=>{
-    if (Object.keys(rooms).includes(data.lobbyId)){
+    if (Object.keys(rooms).includes(data.lobbyId) && rooms[data.lobbyId].spectators.concat(Object.keys(rooms[data.lobbyId].players)).includes(socket.id)){
       if (data.page != undefined){
         rooms[data.lobbyId].pageState = data.page
       }
