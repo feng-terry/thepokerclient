@@ -355,7 +355,9 @@ Table=function(io,lobbyId){
             this.emitCommunityCards()
 
             this.allInInterval = setInterval(()=>{
-                this.addCard()
+                if (this.cards.length < 5){
+                    this.addCard()
+                }
                 this.emitCommunityCards()
                 if (this.cards.length === 5){
                     this.allInIntervalFinished()
