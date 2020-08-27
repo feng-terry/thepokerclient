@@ -217,6 +217,24 @@ io.on('connection',(socket) =>{
     // handle disconnect  
   })
 
+  socket.on('leaveGame',()=>{
+    //For leaving a game but staying in the socket
+    const lobbyId = playerRoom[socket.id]
+
+    if(Object.keys(rooms).includes(lobbyId)){
+      console.log('disconnected', socket.id)
+      rooms[lobbyId].table.removePlayer(rooms[lobbyId].players[socket.id])   
+      delete rooms[lobbyId].players[socket.id]
+      delete playerRoom[socket.id]
+
+      emitInGame(lobbyId)
+      emitSitDownButton(lobbyId)
+      emitNewName(lobbyId)
+      emitNameAndStack(lobbyId)
+      deleteEmptyLobbies()
+    }
+  })
+
   socket.on('changePageState',(data)=>{
     if (Object.keys(rooms).includes(data.lobbyId)){
       if (data.page != undefined){
