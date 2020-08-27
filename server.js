@@ -164,17 +164,19 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('sitDown',(data)=>{
-    rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
-    rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
-    rooms[data.lobbyId].table.removeSpectator(socket.id)
-    rooms[data.lobbyId].table.addHoldPlayer(rooms[data.lobbyId].players[socket.id])
+    if (Object.keys(rooms).includes(data.lobbyId)){
+      rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
+      rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
+      rooms[data.lobbyId].table.removeSpectator(socket.id)
+      rooms[data.lobbyId].table.addHoldPlayer(rooms[data.lobbyId].players[socket.id])
 
-    if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
-      rooms[data.lobbyId].table.newHand()
+      if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
+        rooms[data.lobbyId].table.newHand()
+      }
+      emitInGame(data.lobbyId)
+      emitSitDownButton(data.lobbyId) //Takes away the sit down button
+      emitNameAndStack(data.lobbyId)
     }
-    emitInGame(data.lobbyId)
-    emitSitDownButton(data.lobbyId) //Takes away the sit down button
-    emitNameAndStack(data.lobbyId)
   })
 
   socket.on('sitOut', (data)=>{
@@ -289,11 +291,15 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('checkFold', (data) =>{
-    rooms[data.lobbyId].players[socket.id].setCheckFold(data.value)
+    if (Object.keys(rooms).includes(data.lobbyId) && Object.keys(rooms[data.lobbyId].players).includes(socket.id)){
+      rooms[data.lobbyId].players[socket.id].setCheckFold(data.value)
+    }
   })
 
   socket.on('callAny', (data) =>{
-    rooms[data.lobbyId].players[socket.id].setCallAny(data.value)
+    if (Object.keys(rooms).includes(data.lobbyId) && Object.keys(rooms[data.lobbyId].players).includes(socket.id)){
+      rooms[data.lobbyId].players[socket.id].setCallAny(data.value)
+    }
   })
 
   socket.on('lockedSettings',(data)=>{
