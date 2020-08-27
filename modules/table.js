@@ -313,6 +313,12 @@ Table=function(io,lobbyId){
             this.activePlayers[0].addStack(this.pot)
         }
         this.pot =0
+
+        io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
+            check:false,
+            call:false,
+            bet:false,
+            raise:false}})
     
         if (this.players.length > 1){
             this.newHand()
