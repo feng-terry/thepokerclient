@@ -153,22 +153,22 @@ Table=function(io,lobbyId){
     this.postBlinds = function(){
         bigBlindAmount = this.bigBlind
         bigBlindPlayer = this.activePlayers[1];
-        bigBlindPlayer.addBet(bigBlindAmount)
+        bigBlindPlayer.addBet(Math.min(bigBlindAmount,bigBlindPlayer.getStack()))
         smallBlindPlayer = this.activePlayers[0];
         smallBlindAmount = Math.floor(bigBlindAmount/2)
         smallBlindPlayer.addBet(smallBlindAmount)
 
         //Antes
         for (let i = 2; i < this.activePlayers.length; i++){
-            this.activePlayers[i].addBet(this.antes)
+            this.activePlayers[i].addBet(Math.min(this.antes,this.activePlayers[i].getStack()))
         }
-        //Blinds
+        //Blinds for hold players
         for (const player of this.holdPlayers){
             if(smallBlindPlayer === player){
                 player.clearBets()
-                player.addBet(bigBlindAmount)
+                player.addBet(Math.min(bigBlindAmount,player.getStack()))
             }else if (bigBlindPlayer !== player){
-                player.addBet(bigBlindAmount)
+                player.addBet(Math.min(bigBlindAmount,player.getStack()))
             }
         }
         //Sit in posting big blind
@@ -178,7 +178,7 @@ Table=function(io,lobbyId){
                 if(smallBlindPlayer === player){
                     player.clearBets()
                 }
-                player.addBet(bigBlindAmount)
+                player.addBet(Math.min(bigBlindAmount,player.getStack()))
                 player.setBlindCycle(false)
             }
         }
