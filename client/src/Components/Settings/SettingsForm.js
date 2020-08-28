@@ -34,7 +34,6 @@ function SettingsForm(props){
     }
 
     useEffect(()=>{
-        console.log('canStart',canStart)
         if(canStart){
             props.socket.emit('changePageState',{lobbyId:props.lobbyId,page:'game'})
             props.socket.emit('newGame',{
@@ -51,7 +50,6 @@ function SettingsForm(props){
                 lobbyId:props.lobbyId
                 }
             )
-            console.log('submitted Form')
         }
     },[canStart])
 
