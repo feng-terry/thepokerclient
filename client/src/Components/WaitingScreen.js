@@ -29,7 +29,7 @@ export default function WaitingScreen(props){
       };
 
     return(
-        <div>
+        <div style={{height:'100%'}}>
             {inRoom? <Main socket={props.socket} lobbyId={props.lobbyId}/>:<p>Loading</p>}
         </div>
     )
