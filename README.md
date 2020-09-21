@@ -1,6 +1,7 @@
 # thepokerclient
 
-Work in progress right now.
+Fully functioning.
+Hosted at pokerex.press
 
 To test:
 1. Download and open the folder
