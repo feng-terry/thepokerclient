@@ -39,7 +39,7 @@ export default function Main(props){
                     <PlayersList socket = {props.socket} lobbyId={props.lobbyId}/>
                 </div>
                 <div className='lobby-link'>
-                    <p id='lobby-id'>http://localhost:3000/id/{props.lobbyId}</p>
+                    <p id='lobby-id'>http://pokerex.press/id/{props.lobbyId}</p>
                 </div>
             </div>
         )

@@ -109,7 +109,6 @@ const images = {
 }
 
 export default function Card(props){
-    console.log(props.rank)
     if (props.rank === 0){
         return (
             <div className='cardBack'>

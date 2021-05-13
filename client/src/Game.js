@@ -92,9 +92,6 @@ function Game(props){
         })
     },[])
     const playerElements =  Object.values(players).map(player => {
-                                console.log(activeNotSatOutPlayers)
-                                console.log(player)
-                                console.log(activeNotSatOutPlayers.some(p=>p.socketId === player.socketId))
                                 if (players[props.socket.id] === player && activeNotSatOutPlayers.some(p=>p.socketId === player.socketId)){
                                     return(
                                         <PlayerCard 

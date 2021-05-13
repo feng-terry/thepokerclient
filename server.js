@@ -1,9 +1,11 @@
 const table = require('./modules/table')
 const player = require('./modules/player')
 const express = require('express')
+const path = require('path')
 const http = require("http")
 const socket = require('socket.io')
 const app = express()
+const cors = require('cors')
 const port = process.env.PORT || 5000
 let rooms = {}
 let playerRoom = {}
@@ -14,6 +16,11 @@ const server = app.listen(port, () => console.log(`Listening on port ${port}`))
 const io = socket(server)
 
 //Express
+const root = require('path').join(__dirname, 'client', 'build')
+app.use(express.static(root));
+app.use(cors());
+//app.use('/static', express.static(path.join(__dirname, 'client/build')))
+
 app.get('/express_backend', (req, res) => {
   res.send({ express: 'YOUR EXPRESS BACKEND IS CONNECTED TO REACT' })
 })
@@ -24,7 +31,7 @@ app.get('/generateLobbyId', (req,res) => {
   res.send({lobbyId:id})
 })
 
-app.get('/id/:id', (req, res) => {
+app.get('/backendid/:id', (req, res) => {
   if (Object.keys(rooms).includes(req.params.id)){
     res.send({lobbyId:req.params.id,inRoom:true})
   }   
@@ -37,8 +44,12 @@ app.get('/checkMinPlayers/:id', (req, res) => {
 app.get('/checkLobbyId/:id', (req, res) => {
   res.send((Object.keys(rooms).includes(req.params.id)))
 })
-
-app.use(express.static('/client/public'))
+app.get("*", (req, res) => {
+  res.sendFile('index.html', { root });
+})
+/*app.get('*', function(req, res){
+  res.sendFile(path.join(__dirname, 'client/build/index.html'));
+});*/
 
 //Helper Functions
 function emitNewName(lobbyId){
@@ -153,17 +164,19 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('sitDown',(data)=>{
-    rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
-    rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
-    rooms[data.lobbyId].table.removeSpectator(socket.id)
-    rooms[data.lobbyId].table.addHoldPlayer(rooms[data.lobbyId].players[socket.id])
+    if (Object.keys(rooms).includes(data.lobbyId)){
+      rooms[data.lobbyId].players[socket.id] = new player.Player(data.playerName,socket.id)
+      rooms[data.lobbyId].spectators.splice(rooms[data.lobbyId].spectators.indexOf(socket.id),1)
+      rooms[data.lobbyId].table.removeSpectator(socket.id)
+      rooms[data.lobbyId].table.addHoldPlayer(rooms[data.lobbyId].players[socket.id])
 
-    if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
-      rooms[data.lobbyId].table.newHand()
+      if (rooms[data.lobbyId].table.getStage() === 'prehand' && rooms[data.lobbyId].table.getPlayers().concat(rooms[data.lobbyId].table.sitInList.concat(rooms[data.lobbyId].table.holdPlayers)).length >= 2){
+        rooms[data.lobbyId].table.newHand()
+      }
+      emitInGame(data.lobbyId)
+      emitSitDownButton(data.lobbyId) //Takes away the sit down button
+      emitNameAndStack(data.lobbyId)
     }
-    emitInGame(data.lobbyId)
-    emitSitDownButton(data.lobbyId) //Takes away the sit down button
-    emitNameAndStack(data.lobbyId)
   })
 
   socket.on('sitOut', (data)=>{
@@ -204,6 +217,24 @@ io.on('connection',(socket) =>{
       deleteEmptyLobbies()
     }
     // handle disconnect  
+  })
+
+  socket.on('leaveGame',()=>{
+    //For leaving a game but staying in the socket
+    const lobbyId = playerRoom[socket.id]
+
+    if(Object.keys(rooms).includes(lobbyId)){
+      console.log('disconnected', socket.id)
+      rooms[lobbyId].table.removePlayer(rooms[lobbyId].players[socket.id])   
+      delete rooms[lobbyId].players[socket.id]
+      delete playerRoom[socket.id]
+
+      emitInGame(lobbyId)
+      emitSitDownButton(lobbyId)
+      emitNewName(lobbyId)
+      emitNameAndStack(lobbyId)
+      deleteEmptyLobbies()
+    }
   })
 
   socket.on('changePageState',(data)=>{
@@ -260,11 +291,15 @@ io.on('connection',(socket) =>{
   })
 
   socket.on('checkFold', (data) =>{
-    rooms[data.lobbyId].players[socket.id].setCheckFold(data.value)
+    if (Object.keys(rooms).includes(data.lobbyId) && Object.keys(rooms[data.lobbyId].players).includes(socket.id)){
+      rooms[data.lobbyId].players[socket.id].setCheckFold(data.value)
+    }
   })
 
   socket.on('callAny', (data) =>{
-    rooms[data.lobbyId].players[socket.id].setCallAny(data.value)
+    if (Object.keys(rooms).includes(data.lobbyId) && Object.keys(rooms[data.lobbyId].players).includes(socket.id)){
+      rooms[data.lobbyId].players[socket.id].setCallAny(data.value)
+    }
   })
 
   socket.on('lockedSettings',(data)=>{

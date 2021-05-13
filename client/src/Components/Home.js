@@ -6,6 +6,12 @@ import JoinGame from './JoinGame'
 import Logo from '../Images/Logo_blue.png'
 
 export default function Home(props){
+
+    useEffect(()=>{
+        props.socket.emit('leaveGame')
+        props.setLobbyId('')
+    },[])
+
     return(
         <div>
             <div className='header-div'>

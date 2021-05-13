@@ -153,22 +153,22 @@ Table=function(io,lobbyId){
     this.postBlinds = function(){
         bigBlindAmount = this.bigBlind
         bigBlindPlayer = this.activePlayers[1];
-        bigBlindPlayer.addBet(bigBlindAmount)
+        bigBlindPlayer.addBet(Math.min(bigBlindAmount,bigBlindPlayer.getStack()))
         smallBlindPlayer = this.activePlayers[0];
         smallBlindAmount = Math.floor(bigBlindAmount/2)
         smallBlindPlayer.addBet(smallBlindAmount)
 
         //Antes
         for (let i = 2; i < this.activePlayers.length; i++){
-            this.activePlayers[i].addBet(this.antes)
+            this.activePlayers[i].addBet(Math.min(this.antes,this.activePlayers[i].getStack()))
         }
-        //Blinds
+        //Blinds for hold players
         for (const player of this.holdPlayers){
             if(smallBlindPlayer === player){
                 player.clearBets()
-                player.addBet(bigBlindAmount)
+                player.addBet(Math.min(bigBlindAmount,player.getStack()))
             }else if (bigBlindPlayer !== player){
-                player.addBet(bigBlindAmount)
+                player.addBet(Math.min(bigBlindAmount,player.getStack()))
             }
         }
         //Sit in posting big blind
@@ -178,7 +178,7 @@ Table=function(io,lobbyId){
                 if(smallBlindPlayer === player){
                     player.clearBets()
                 }
-                player.addBet(bigBlindAmount)
+                player.addBet(Math.min(bigBlindAmount,player.getStack()))
                 player.setBlindCycle(false)
             }
         }
@@ -313,6 +313,12 @@ Table=function(io,lobbyId){
             this.activePlayers[0].addStack(this.pot)
         }
         this.pot =0
+
+        io.to(this.currentPlayer.getSocketId()).emit('turn', {isTurn:false,actions:{fold:false,
+            check:false,
+            call:false,
+            bet:false,
+            raise:false}})
     
         if (this.players.length > 1){
             this.newHand()
@@ -355,7 +361,9 @@ Table=function(io,lobbyId){
             this.emitCommunityCards()
 
             this.allInInterval = setInterval(()=>{
-                this.addCard()
+                if (this.cards.length < 5){
+                    this.addCard()
+                }
                 this.emitCommunityCards()
                 if (this.cards.length === 5){
                     this.allInIntervalFinished()

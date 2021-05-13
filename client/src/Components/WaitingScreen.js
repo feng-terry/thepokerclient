@@ -17,7 +17,7 @@ export default function WaitingScreen(props){
     },[])
 
     let callRoomIdApi = async () => {
-        const response = await fetch(location.pathname);
+        const response = await fetch("/backend" + location.pathname.substring(1));
         const body = await response.json();
 
         props.socket.emit('addSpectator', {lobbyId:body.lobbyId})
@@ -29,7 +29,7 @@ export default function WaitingScreen(props){
       };
 
     return(
-        <div>
+        <div style={{height:'100%'}}>
             {inRoom? <Main socket={props.socket} lobbyId={props.lobbyId}/>:<p>Loading</p>}
         </div>
     )
